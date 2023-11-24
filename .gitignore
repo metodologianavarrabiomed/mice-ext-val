@@ -1,0 +1,11 @@
+inst/doc
+.Rproj.user
+data
+docs
+doc_no_git
+tests
+vignettes
+man
+.Rbuildignore
+.Rdata
+.Rhistory
