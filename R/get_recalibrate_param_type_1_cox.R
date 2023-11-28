@@ -24,7 +24,7 @@
 #'
 #' @examples
 #' recalibrate_data(data, s0)
-get_recalibrate_param_type_1 <- function(recalibrate_data, s0) {
+get_recalibrate_param_type_1_cox <- function(recalibrate_data, s0) {
   # Checks preconditions
   stopifnot(is(recalibrate_data, "data.frame"))
   stopifnot(is(s0, "numeric"))

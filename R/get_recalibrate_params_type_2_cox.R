@@ -20,7 +20,7 @@
 #'
 #' @examples
 #' recalibrate_type_2(data, betax, t)
-get_recalibrate_params_type_2 <- function(recalibrate_data, betax, t) {
+get_recalibrate_params_type_2_cox <- function(recalibrate_data, betax, t) {
   # Checks preconditions
   stopifnot(is(recalibrate_data, "data.frame"))
   stopifnot("recalibrate_data does not have the needed columns (time, event)" = all(c("time", "event") %in% colnames(recalibrate_data)))
@@ -30,11 +30,11 @@ get_recalibrate_params_type_2 <- function(recalibrate_data, betax, t) {
   # Generates a Weibull distribution over the data to obtain the survival function estimator
   recalibrate_data$surv_obj <- survival::Surv(recalibrate_data$time + 0.001, recalibrate_data$event)
   weibull <- survival::survreg(surv_obj ~ 1, data = recalibrate_data, dist = "w")
-  
+
   # Obtain the estimated parameters by the Weibull distribution to parse them into a value in a certain time
   shape <- 1 / exp(as.numeric(weibull$icoef[2]))
   scale <- exp(as.numeric(weibull$icoef[1]))
-  
+
   # Gets the estimated survival function value in the time `t`
   S_0_5 <- 1 - stats::pweibull(t, shape, scale)
 
