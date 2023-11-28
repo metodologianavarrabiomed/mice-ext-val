@@ -63,7 +63,7 @@ mv_model <- function(coefficients, means, formula, S0 = NULL) {
     c_index = NULL
   )
   # Assigns the object class
-  class(object) <- "MiceExtVal"
+  class(object) <- c("MiceExtVal", "cox")
 
   return(object)
 }
