@@ -65,5 +65,7 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
     prediction_type_1 = 1 / (1 + exp(-(model$betax$betax + model$alpha_type_1)))
   )
 
+  pb$tick()
+
   return(model)
 }
