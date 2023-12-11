@@ -57,7 +57,7 @@ calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress
         dplyr::filter(.imp == .y$.imp) %>%
         dplyr::select(betax)
       # Calculates the type 2 recalibration params
-      get_recalibrate_params_type_2(
+      get_recalibrate_params_type_2_cox(
         recalibrate_data = data.frame(
           time = survival_data[, "time"],
           event = survival_data[, "status"]
