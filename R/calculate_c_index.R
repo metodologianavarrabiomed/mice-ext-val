@@ -31,7 +31,7 @@ calculate_c_index <- function(model, data, .progress = TRUE) {
   if (.progress) {
     n_iter <- max(data$.imp)
     pb <- progress::progress_bar$new(
-      format = "Calculating C-Index \t[:bar] :percent [Elapsed time: :elapsedfull || Remaining time: :eta]",
+      format = "Calculating C-Index \t[:bar] :percent [E.T.: :elapsedfull || R.T.: :eta]",
       total = n_iter,
       complete = "=",
       incomplete = "-",
