@@ -74,7 +74,7 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
   # Calculates the type 2 recalibration
   model$predictions_recal_type_2 <- tibble::tibble(
     id = model$betax$id,
-    prediction_type_1 = 1 / (1 + exp(-(model$alpha_type_2 + (model$beta_overall * model$predictions_aggregated$prediction))))
+    prediction_type_2 = 1 / (1 + exp(-(model$alpha_type_2 + (model$beta_overall * model$betax$betax))))
   )
 
   pb$tick()
