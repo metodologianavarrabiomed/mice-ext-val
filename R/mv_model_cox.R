@@ -49,6 +49,7 @@ mv_model_cox <- function(coefficients, means, formula, S0 = NULL) {
   stopifnot(is(coefficients, "list"))
   stopifnot(is(means, "list"))
   stopifnot(is(formula, "formula"))
+  stopifnot(is(S0, "numeric"))
 
   # Creates an object
   object <- list(

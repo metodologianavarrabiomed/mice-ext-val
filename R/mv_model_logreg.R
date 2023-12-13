@@ -45,6 +45,9 @@
 #'    intercept = 1.2
 #' )
 mv_model_logreg <- function(coefficients, formula, intercept) {
+  stopifnot(is(coefficients, "list"))
+  stopifnot(is(formula, "formula"))
+  stopifnot(is(intercept, "numeric"))
   model <- list(
     coefficients = coefficients,
     formula = formula,
