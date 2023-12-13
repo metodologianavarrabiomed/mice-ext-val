@@ -2,9 +2,9 @@
 #' Generates the calibration plot
 #'
 #' @description
-#' Generates the calibration plot from the data needed to print it. This data is generated with the `get_calibration_plot_data` function.
+#' Generates the calibration plot from the data needed to print it. This data is generated with the [get_calibration_plot_data()] function.
 #'
-#' @param data Outcome of the `get_calibration_plot_data` function.
+#' @param data Outcome of the [get_calibration_plot_data()] function.
 #'
 #' @return ggplot2 object ready to be plotted
 #'

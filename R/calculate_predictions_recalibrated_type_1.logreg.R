@@ -1,0 +1,92 @@
+#' @title
+#' Calculates the type 1 recalibrated predictions for a logistic regression model.
+#'
+#' @description
+#' Calculates the type 1 recalibrated predictions for a logistic regression model. The type 1 recalibration is defined by an \eqn{\alpha} parameter that updates the value of the `intercept` (\eqn{\beta_0}) of the model. The log-odds function is rewritten as follows.
+#'
+#' \deqn{log(\frac{p}{1 - p}) = \alpha + \beta_0 + \beta_1 \cdot X_1 + \beta_2 \cdot X_2 + \dots + \beta_p \cdot X_p}
+#'
+#' Thus, the predictions are updated by adjusting the `intercept` value in the model against the external validation data. The \eqn{\alpha} parameter is estimated in each of the imputed datasets by deriving a logistic regression model using the model log-odds as offset. The coefficients in all the models are aggregated using the mean. Using the aggregated parameter and the aggregated log-odds the new predictions are calculated as follows.
+#'
+#' \deqn{\frac{1}{1 + e^{(-(\alpha + (\beta \cdot X)))}}}
+#'
+#' @param model Model generated with [mv_model_logreg()]. Needs the `predictions` parameter of the model, to generate it the function `calculate_predictions` must be executed over the model. This attribute must be generated using [calculate_predictions()]
+#' @param data Data for what the predictions must be recalibrated.
+#' @param .progress `TRUE` to render the progress bar, `FALSE` otherwise.
+#'
+#' @return A model with the parameters `predictions_recal_type_1` and `alpha_type_1` populated.
+#'
+#'    * `predictions_recal_type_1`: stores the type 1 recalibrated predictions as follows
+#'        | id        | prediction           |
+#'        |-------------|:-------------:|
+#'        | 1 | 0.03 |
+#'        | ... | ...|
+#'        | n | 0.16 |
+#'    * `alpha_type_1`: stores the \eqn{\alpha} recalibration parameter.
+#'
+#' @import mathjaxr
+#' @importFrom dplyr %>% group_by group_map filter select
+#' @importFrom tibble tibble
+#' @importFrom rms lrm.fit
+#' @importFrom progress progress_bar
+#'
+#' @export
+#'
+#' @examples
+#' model |>
+#'   calculate_predictions(data) |>
+#'   calculate_predictions_recalibrated_type_1(data)
+calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progress = TRUE) {
+  # Checks pre-conditions
+  stopifnot(is(model, "MiceExtVal"))
+  stopifnot(is(data, "data.frame"))
+
+  # Progress bar code
+  if (.progress) {
+    n_iter <- max(data$.imp) + 1
+    pb <- progress::progress_bar$new(
+      format = "Type 1 recalibration \t[:bar] :percent [E.T.: :elapsedfull || R.T.: :eta]",
+      total = n_iter,
+      complete = "=",
+      incomplete = "-",
+      current = ">",
+      clear = FALSE,
+      width = 100
+    )
+  }
+
+  model$alpha_type_1 <- data %>%
+    dplyr::group_by(.imp) %>%
+    dplyr::group_map(~ {
+      # Progress bar code
+      if (.progress) {
+        pb$tick()
+      }
+
+      # Obtains the data of the event variable
+      survival_data <- .x[[all.vars(model$formula)[1]]]
+      betax <- model$betax_data %>%
+        dplyr::filter(.imp == .y$.imp) %>%
+        dplyr::select(betax) %>%
+        unlist()
+
+      # Calculates the `alpha` parameter value
+      model_recal <- rms::lrm.fit(
+        y = survival_data[, "status"],
+        offset = betax
+      )
+      alpha <- model_recal$coefficients
+    }) %>%
+    do.call(rbind, args = .) %>%
+    mean()
+
+  # Calculates the type 1 recalibration
+  model$predictions_recal_type_1 <- tibble::tibble(
+    id = model$betax$id,
+    prediction_type_1 = 1 / (1 + exp(-(model$betax$betax + model$alpha_type_1)))
+  )
+
+  pb$tick()
+
+  return(model)
+}
