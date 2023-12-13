@@ -1,6 +1,12 @@
+#' @title
 #' Creates a cox model.
 #'
-#' Creates a Cox model with all the variables needed to be used in the functions along this package. The Cox model follows \eqn{S_0(t)^{exp(\beta \cdot X)}}, so we need to fullfill all the requirements of the model. When we are predicting the survival/risk for a \eqn{X} we have to center the values with the meas on the derivation data, normally reported inside the articles.
+#' @description
+#' Creates a Cox model with all the variables needed to be used in the functions along this package. The Cox model follows
+#'
+#' \deqn{S_0(t)^{exp(\beta \cdot X)}}
+#'
+#' so we need to fullfill all the requirements of the model. When we are predicting the survival/risk for a \eqn{X} we have to center the values with the meas on the derivation data, normally reported inside the articles.
 #'
 #' @param coefficients \eqn{\beta} values of the model.
 #' @param means Mean values of the variables in the derivation dataset.
@@ -31,14 +37,14 @@
 #' coefficients <-
 #' means <- list(x = 3, z = 0.2)
 #' formula <- y ~ x + z
-#' model <- mv_model(
+#' model <- mv_model_cox(
 #'    coefficients = list(x = 0.5, z = 0.3),
 #'    means = means,
 #'    formula = formula,
 #'    S0 = 0.98765
 #' )
 #'
-mv_model <- function(coefficients, means, formula, S0 = NULL) {
+mv_model_cox <- function(coefficients, means, formula, S0 = NULL) {
   # Checks preconditions
   stopifnot(is(coefficients, "list"))
   stopifnot(is(means, "list"))

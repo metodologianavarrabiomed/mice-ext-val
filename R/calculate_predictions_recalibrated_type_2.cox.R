@@ -1,14 +1,29 @@
 #' @title
-#' Calculates the type 2 recalibrated predictions
+#' Calculates the type 2 recalibrated predictions for a Cox model
 #'
 #' @description
-#' Using the function `get_recalibrate_params_type_2` calculates the recalibration parameters in each of the imputed datasets stored in `data`. With all the parameters estimated aggregates them and calculates the recalibrated predictions with these aggregated parameters and the aggregated predictions. Finally, populates the `predictions_recal_type_2` with a `tibble` that stores the id and the recalibrated prediction. It also populates the `S0_type_2` and `beta_overall` attributes of the model.
+#' This function calculates the type 2 recalibrated predictions for a Cox model. To help the recalibration of the model the function [get_recalibrate_params_type_2_cox()] is defined elsewhere in this package. Using this auxiliar function the recalibration parameters are calculated in each of the imputed datasets stored in `data` as a long dataset.
 #'
-#' @param model Model generated with `mv_model`. Needs the `predictions` parameter of the model, to generate it the function `calculate_predictions` must be executed over the model.
-#' @param data Data for what the predictions must be recalibrated.
+#' After estimating the recalibration parameters in each of the imputed datasets they are aggregated by their mean to use them to recalibrate the predictions of the model. The type 2 recalibration needs from two parameters `S0_type_2` and `beta_overall`. These parameters are calculated with the [get_recalibrate_params_type_2_cox()] function. Once they are estimated, they are aggregated by the mean. Finally with the type 2 recalibration parameters and the aggregated predictions the type 2 recalibrated predictions are calculated.
+#'
+#' \deqn{S_{0, \text{type 2}}(t)^{exp(\beta_{overall}(\beta \cdot X))}}
+#'
+#'where \eqn{S_{0, \text{type 2}}(t)} is estimated using a Weibull distribution and \eqn{\beta_{overall}} is estimated deriving a Cox model with \eqn{\beta \cdot X} as an unique covariate. Both parameters are estimated using the [get_recalibrate_params_type_2_cox()] function.
+#'
+#' @param model Model generated with [mv_model_cox()]. Needs the `predictions` parameter of the model, to generate it the function [calculate_predictions()] must be executed over the model.
+#' @param data External validation data. Multiple imputation dataset in long format.
 #' @param .progress `TRUE` to render the progress bar `FALSE` otherwise.
 #'
 #' @return A model with the parameter `predictons_recalibrated_type_2`, `S0_type_2` and `beta_overall` populated.
+#'
+#'    * `predictions_recal_type_2`: stores the type 2 recalibrated predictions as follows.
+#'        | id | prediction_type_2 |
+#'        |-------------|:-------------:|
+#'        | 1 | 0.03 |
+#'        | ... | ...|
+#'        | n | 0.16 |
+#'    * `S0_type_2`: stores the \eqn{S_{0, \text{type 2}}(t)} type 2 recalibration parameter.
+#'    * `beta_overall`: stores the \eqn{\beta_{overall}} type 2 recalibration parameter.
 #'
 #' @importFrom dplyr %>% group_by group_map filter select
 #' @importFrom tibble tibble as_tibble
@@ -18,7 +33,7 @@
 #'
 #' @examples
 #'
-#' model %>%
+#' model |>
 #'   calculate_predictions(data) |>
 #'   calculate_predictions_recalibrated_type_1(data) |>
 #'   calculate_predictions_recalibrated_type_2(data)

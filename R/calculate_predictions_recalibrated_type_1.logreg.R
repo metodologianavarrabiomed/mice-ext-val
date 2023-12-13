@@ -2,17 +2,38 @@
 #' Calculates the type 1 recalibrated predictions for a logistic regression model.
 #'
 #' @description
-#' Calculates the type 1 recalibrated predictions for a logistic regression model using ...
+#' Calculates the type 1 recalibrated predictions for a logistic regression model. The type 1 recalibration is defined by an \eqn{\alpha} parameter that updates the value of the `intercept` (\eqn{\beta_0}) of the model. The log-odds function is rewritten as follows.
 #'
-#' @param model Model generated with `mv_model`. Needs the `predictions` parameter of the model, to generate it the function `calculate_predictions` must be executed over the model.
+#' \deqn{log(\frac{p}{1 - p}) = \alpha + \beta_0 + \beta_1 \cdot X_1 + \beta_2 \cdot X_2 + \dots + \beta_p \cdot X_p}
+#'
+#' Thus, the predictions are updated by adjusting the `intercept` value in the model against the external validation data. The \eqn{\alpha} parameter is estimated in each of the imputed datasets by deriving a logistic regression model using the model log-odds as offset. The coefficients in all the models are aggregated using the mean. Using the aggregated parameter and the aggregated log-odds the new predictions are calculated as follows.
+#'
+#' \deqn{\frac{1}{1 + e^{(-(\alpha + (\beta \cdot X)))}}}
+#'
+#' @param model Model generated with [mv_model_logreg()]. Needs the `predictions` parameter of the model, to generate it the function `calculate_predictions` must be executed over the model. This attribute must be generated using [calculate_predictions()]
 #' @param data Data for what the predictions must be recalibrated.
-#' @param .progress `TRUE` to render the progress bar `FALSE` otherwise.
+#' @param .progress `TRUE` to render the progress bar, `FALSE` otherwise.
 #'
-#' @return A model with the parameter `predictions_recal_type_1` populated.
+#' @return A model with the parameters `predictions_recal_type_1` and `alpha_type_1` populated.
+#'
+#'    * `predictions_recal_type_1`: stores the type 1 recalibrated predictions as follows
+#'        | id        | prediction           |
+#'        |-------------|:-------------:|
+#'        | 1 | 0.03 |
+#'        | ... | ...|
+#'        | n | 0.16 |
+#'    * `alpha_type_1`: stores the \eqn{\alpha} recalibration parameter.
+#'
+#' @import mathjaxr
+#' @importFrom dplyr %>% group_by group_map filter select
+#' @importFrom tibble tibble
+#' @importFrom rms lrm.fit
+#' @importFrom progress progress_bar
+#'
 #' @export
 #'
 #' @examples
-#' model %>%
+#' model |>
 #'   calculate_predictions(data) |>
 #'   calculate_predictions_recalibrated_type_1(data)
 calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progress = TRUE) {

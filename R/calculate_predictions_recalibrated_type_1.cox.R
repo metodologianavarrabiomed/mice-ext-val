@@ -2,13 +2,21 @@
 #' Calculates the type 1 recalibrated predictions
 #'
 #' @description
-#' Using the function `get_recalibrate_params_type_1` calculates the recalibration parameters in each of the imputed datasets stored in `data`. With all the parameters estimated aggregates them and calculates the recalibrated predictions with these aggregated parameters and the aggregated predictions. Finally, populates the `predictions_recal_type_1` with a `tibble` that stores the id and the recalibrated prediction. It also populates the `alpha` attribute of the model.
+#' Using the function `get_recalibrate_params_type_1` calculates the recalibration parameters in each of the imputed datasets stored in `data`. With all the parameters estimated aggregates them and calculates the recalibrated predictions with these aggregated parameters and the aggregated predictions.
 #'
-#' @param model Model generated with `mv_model`. Needs the `predictions` parameter of the model, to generate it the function `calculate_predictions` must be executed over the model.
-#' @param data Data for what the predictions must be recalibrated.
+#' @param model Model generated with [mv_model_cox()]. Needs the `predictions` parameter of the model, to generate it the function [calculate_predictions()] must be executed over the model.
+#' @param data External validation data. Multiple imputation dataset in long format.
 #' @param .progress `TRUE` to render the progress bar `FALSE` otherwise.
 #'
-#' @return A model with the parameter `predictions_recal_type_1` populated.
+#' @return A model with the parameter `predictions_recal_type_1` and `alpha` populated.
+#'
+#'    * `predictions_recal_type_1`: stores the type 1 recalibrated predictions stored as follows
+#'        | id        | prediction           |
+#'        |-------------|:-------------:|
+#'        | 1 | 0.03 |
+#'        | ... | ...|
+#'        | n | 0.16 |
+#'    * `alpha`: stores the \eqn{\alpha} recalibration parameter.
 #'
 #' @importFrom dplyr %>% group_by group_map filter select
 #' @importFrom tibble tibble as_tibble
@@ -18,7 +26,7 @@
 #'
 #' @examples
 #'
-#' model %>%
+#' model |>
 #'    calculate_predictions(data) |>
 #'    calculate_predictions_recalibrated_type_1(data)
 calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress = TRUE) {

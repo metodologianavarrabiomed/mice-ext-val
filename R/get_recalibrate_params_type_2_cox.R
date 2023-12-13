@@ -2,7 +2,9 @@
 #' Obtains the \eqn{S_0(t)} and \eqn{\beta_{overall}} parameters for recalibration
 #'
 #' @description
-#' Calculates the recalibration type 2 parameters for the `recalibrate_data` and returns a list with the two needed parameters \eqn{S_0(t)} and \eqn{\beta_{overall}}.
+#' Calculates the recalibration type 2 parameters for the `recalibrate_data` and returns a list with the two needed parameters \eqn{S_0(t)}, the survival estimation in the time \eqn{t} for the external validation data, and \eqn{\beta_{overall}}, the importance that the \eqn{\beta \cdot X} values should have over the external validation data.
+#'
+#' The survival function estimation is calculated as a Weibull distribution. A Weibull model is derived in the external validation cohort and the value estimated by the model for the time \eqn{t} is used as the recalibration of \eqn{S_0(t)}. The importance of the \eqn{\beta \cdot X} is calculated by deriving a Cox model using as only covariate the model \eqn{\beta \cdot X} values. The derived Cox model coefficient is used as \eqn{\beta_{overall}}.
 #'
 #' @param recalibrate_data dataset that contains the needed info to recalibrate the predictions. The `data.frame` must contain the following columns.
 #'    * `time`: time to the end of follow up
@@ -19,7 +21,7 @@
 #' @import stats
 #'
 #' @examples
-#' recalibrate_type_2(data, betax, t)
+#' get_recalibrate_params_type_2_cox(data, betax, t)
 get_recalibrate_params_type_2_cox <- function(recalibrate_data, betax, t) {
   # Checks preconditions
   stopifnot(is(recalibrate_data, "data.frame"))

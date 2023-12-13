@@ -1,16 +1,26 @@
 #' @title
-#' Calculates the predictions for the given model.
+#' Calculates the predictions for a Cox model
 #'
 #' @description
-#' Calculates the predictions for the given model and validation data. The predictions are calculated following the definition of a cox model, \eqn{S_0(t)^{exp(\beta \cdot X)}}, where \eqn{S_0(t)} stands for the survival function in a time \eqn{t}, \eqn{\beta} stands for the model coefficients and \eqn{X} stands for the centered values in the patient. After that populates the `predictions_aggregated`, `predictions_data`, `betax` and `betax_data` parameters in the model.
+#' Calculates the predictions for the given Cox model and external validation data. The predictions are calculated following the definition of a cox model
 #'
-#' @param model Model generated with `mv_model`.
-#' @param data Data for what the predictions must be recalibrated.
+#'  \deqn{S_0(t)^{e^{(\beta \cdot X)}}}
 #'
-#' @return A model with the parameters `predictions_aggregated`, `predictions_data`, `betax` and `betax_data` populated.
+#'  where \eqn{S_0(t)} stands for the survival function in a time \eqn{t}, \eqn{\beta} stands for the model coefficients and \eqn{X} stands for the centered values in each `id`.
+#'
+#' @param model Model generated with [mv_model_cox()]
+#' @param data External validation data. Multiple imputation dataset in long format.
+#'
+#' @return The `model` with the parameters `predictions_aggregated`, `predictions_data`, `betax` and `betax_data` populated.
+#'
+#'   * `predictions_aggregated`, stores the predictions aggregated by the mean.
+#'   * `predictions_data`, stores all the predictions in each of the imputed datasets.
+#'   * `betax`, stores the \eqn{\beta \cdot X} values aggregated by the mean.
+#'   * `betax_data`, stores the \eqn{\beta \cdot X} values in each of the imputed datasets.
 #'
 #' @import mathjaxr
 #' @importFrom dplyr %>% group_by group_map rename summarise
+#' @importFrom tibble tibble as_tibble add_column
 #'
 #' @export
 #'

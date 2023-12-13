@@ -2,17 +2,39 @@
 #' Calculates the type 2 recalibrated predictions for a logistic regression model
 #'
 #' @description
-#' Calculates the type 2 recalibrated predictions for a logistic regression model following the guidance in ...
+#' Calculates the type 2 recalibrated predictions for a logistic regression model. The type 2 recalibration uses two parameters to update the model predictions, the \eqn{\alpha} parameter allow to update the model `intercept` and the \eqn{\beta_{overall}} parameter allow to update the importance of the log-odds (\eqn{\beta \cdot X}) values. The log-odds function can be rewritten as
 #'
-#' @param model Model generated with `mv_model`. Needs the `predictions` parameter of the model, to generate it the function `calculate_predictions` must be executed over the model.
+#' \deqn{log(\frac{p}{1 - p}) = \alpha + \beta_{overall} \cdot (\beta_0 + \beta_1 \cdot X_1 + \beta_2 \cdot X_2 + \dots + \beta_p \cdot X_p)}
+#'
+#' The parameters are estimated deriving a logistic regression model in each of the imputations using the model log-odds as only covariate. The coefficients of the model represent the parameter estimations and they are aggregated using the rubin rules. Then, the recalibrated predictions are calculated using these parameters and the aggregated log-odds.
+#'
+#' \deqn{\frac{1}{1 + e^{(-(\alpha + \beta_{overall}(\beta \cdot X)))}}}
+#'
+#' @param model Model generated with [mv_model_logreg()]. Needs the `predictions` parameter of the model, to generate it the function [calculate_predictions()] must be executed over the model.
 #' @param data Data for what the predictions must be recalibrated.
 #' @param .progress `TRUE` to render the progress bar `FALSE` otherwise.
 #'
 #' @return A model with the parameter `predictons_recalibrated_type_2`, `S0_type_2` and `beta_overall` populated.
+#'
+#'   * `predictions_recal_type_2`: stores the type 2 recalibrated predictions as follows.
+#'        | id | prediction_type_2 |
+#'        |-------------|:-------------:|
+#'        | 1 | 0.03 |
+#'        | ... | ...|
+#'        | n | 0.16 |
+#'    * `alpha_type_2`: stores the \eqn{\alpha} type 2 recalibration parameter.
+#'    * `beta_overall`: stores the \eqn{\beta_{overall}} type 2 recalibration parameter.
+#'
+#' @import mathjaxr
+#' @importFrom dplyr %>% filter select summarise
+#' @importFrom tibble tibble as_tibble
+#' @importFrom rms lrm
+#' @importFrom progress progress_bar
+#'
 #' @export
 #'
 #' @examples
-#' model %>%
+#' model |>
 #'   calculate_predictions(data) |>
 #'   calculate_predictions_recalibrated_type_1(data) |>
 #'   calculate_predictions_recalibrated_type_2(data)
@@ -61,8 +83,8 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
       )
     }) %>%
     do.call(rbind, args = .) %>%
+    # Transform to tibble and summarise the results
     tibble::as_tibble() %>%
-    # Transform to tibble and summarise the reuslts
     dplyr::summarise(
       alpha_type_2 = mean(unlist(alpha_type_2)),
       beta_overall = mean(unlist(beta_overall))

@@ -1,28 +1,27 @@
 #' @title
-#' Generates the `data.frame` needed for the calibration plot
+#' Generates the data needed for the calibration plot
 #'
 #' @description
-#' Generates the `data.frame` needed for the calibration plot. The calibration plot needs to separate the model predictions by risk groups. First the function separates the predictions in `n_groups` then computes the mean value of the model predictions and also the observed value. The observed value is the estimated value at the study time estimated using a Kaplan-Meier estimator. Finally it returns a `tibble` that has the following structure.
+#' Generates the data needed for the calibration plot. The calibration plot needs to separate the model predictions by risk groups. First the function separates the predictions in `n_groups` then computes the mean value of the model predictions and also the observed value. The observed value is the estimated value at the study time estimated using a Kaplan-Meier estimator.
 #'
-#' | group        | prediction           | observed  |
-#' |-------------|:-------------:|:-----:|
-#' | 1 | 0.03 | 0.05 |
-#' | ...      | ...      |   ... |
-#' | n_group      | 0.84      |   0.79 |
-#'
-#' If the model has the variables of the recalibrations this function also generates the values and store them in the result `tibble`.
-#'
-#' @param model Model generated with `mv_model`. Needs the `predictions` parameter of the model, to generate it the function `calculate_predictions` must be executed over the model. If we want to obtain also the recalibrated data the model must be initalize the recalibrated predictions with `calculate_predictions_recalibrated_type_1` and `calculate_predictions_recalibrated_type_2`.
-#' @param data Data for what the observed predictios will be calculated.
+#' @param model Model generated with [mv_model_cox()] or [mv_model_logreg()]. Needs the `predictions` parameter of the model, to generate it the function [calculate_predictions()] must be executed over the model. If we want to obtain also the recalibrated data the model must be initalize the recalibrated predictions with [calculate_predictions_recalibrated_type_1()] and [calculate_predictions_recalibrated_type_2()].
+#' @param data Data for what the observed predictions will be calculated.
 #' @param n_groups Number of groups that must be calculated.
-#' @param type What predictions should the function generate the
+#' @param type Type of the predictions that the calibration plot data should be generated from: `"predictions_aggregated"`, `"predictions_recal_type_1"` or `"predictions_recal_type_2"`
 #'
 #' @return `tibble` with the data ready to generate a calibration plot.
+#'
+#' | group | prediction | observed  |
+#' |-------------|:-------------:|:-----:|
+#' | 1 | 0.03 | 0.05 |
+#' | ... | ... | ... |
+#' | n_group | 0.84 | 0.79 |
 #'
 #' @export
 #'
 #' @examples
-#' get_calibration_plot_data(model, data, 10)
+#' model |>
+#'   get_calibration_plot_data(data = test_data, n_groups = 10, type = "predictions_aggregated")
 get_calibration_plot_data <- function(model, data, n_groups, time, type = "predictions_aggregated") {
   stopifnot(is(model, "MiceExtVal"))
   stopifnot(is(data, "data.frame"))
@@ -51,7 +50,7 @@ get_calibration_plot_data <- function(model, data, n_groups, time, type = "predi
           bin = .y$group,
           predicted = mean(.x[[pred_var]]),
           # Should be calculated for a certain time given by the user.
-          observed = 1 - km$surv[length(km$surv)], 
+          observed = 1 - km$surv[length(km$surv)],
           se_observed = km$std.err[length(km$std.err)],
           # It could be that these values go outside the range [0, 1], so we should clip them to this range. It should be also an option the generation of the CI.
           ll = observed - 1.96 * se_observed,
