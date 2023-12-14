@@ -13,5 +13,18 @@ Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)
+Imports:
+    Hmisc,
+    Rdpack,
+    dplyr,
+    forestplot,
+    ggplot2,
+    mathjaxr,
+    progress,
+    purrr,
+    rms,
+    survival,
+    tibble,
+    psfmi
 VignetteBuilder: knitr
 Config/testthat/edition: 3
