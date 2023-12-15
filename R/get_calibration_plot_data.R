@@ -26,6 +26,7 @@ get_calibration_plot_data <- function(model, data, n_groups, time, type = "predi
   stopifnot(is(model, "MiceExtVal"))
   stopifnot(is(data, "data.frame"))
   stopifnot(is(n_groups, "numeric"))
+  stopifnot(is(time, "numeric"))
   stopifnot("Variable type is not a prediction attribute in model" = any(type %in% c("predictions_aggregated", "predictions_recal_type_1","predictions_recal_type_2")))
 
   # We assume that the observed variable is completed and therefore the same in all the imputed datasets. If not we should generate the aggregate result using Rubin Rules.
@@ -38,7 +39,7 @@ get_calibration_plot_data <- function(model, data, n_groups, time, type = "predi
   model[[type]] %>%
     # Generates the groups by the prediction variable and group by the generated group
     dplyr::mutate(group = dplyr::ntile(!!pred_var, n_groups)) %>%
-    dplyr::left_join(original_data) %>%
+    dplyr::left_join(original_data, by = "id") %>%
     dplyr::group_by(group) %>%
     # Calculates the predicted and observed value for each of the predicted risk groups
     dplyr::group_map(~ {
