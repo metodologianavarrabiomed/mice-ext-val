@@ -1,6 +1,3 @@
-source(test_path("fixtures", "make-model-cox.R"))
-source(test_path("fixtures", "make-model-logreg.R"))
-
 test_that("Checks the model parameter", {
   expect_error(calculate_predictions())
   expect_error(calculate_predictions(5))

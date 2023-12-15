@@ -1,5 +1,3 @@
-source(test_path("fixtures", "make-model-cox.R"))
-
 test_that("Checks it has coefficients", {
   expect_error(mv_model_cox())
 })
