@@ -21,6 +21,7 @@
 #' @importFrom dplyr %>% group_by group_map filter select
 #' @importFrom tibble tibble as_tibble
 #' @importFrom progress progress_bar
+#' @importFrom methods is
 #'
 #' @export
 #'
@@ -31,8 +32,8 @@
 #'    calculate_predictions_recalibrated_type_1(data)
 calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress = TRUE) {
   # Checks pre-conditions
-  stopifnot(is(model, "MiceExtVal"))
-  stopifnot(is(data, "data.frame"))
+  stopifnot(methods::is(model, "MiceExtVal"))
+  stopifnot(methods::is(data, "data.frame"))
 
   # Progress bar code
   if (.progress) {

@@ -30,26 +30,24 @@
 #'   * `c_index`: Harrell C-Index of the predictions in the validation cohort.
 #'
 #' @import mathjaxr
+#' @importFrom methods is
 #'
 #' @export
 #'
 #' @examples
-#' coefficients <-
-#' means <- list(x = 3, z = 0.2)
-#' formula <- y ~ x + z
 #' model <- mv_model_cox(
 #'    coefficients = list(x = 0.5, z = 0.3),
-#'    means = means,
-#'    formula = formula,
+#'    means = list(x = 3, z = 0.2),
+#'    formula = event ~ x + z,
 #'    S0 = 0.98765
 #' )
 #'
 mv_model_cox <- function(coefficients, means, formula, S0 = NULL) {
   # Checks preconditions
-  stopifnot(is(coefficients, "list"))
-  stopifnot(is(means, "list"))
-  stopifnot(is(formula, "formula"))
-  stopifnot(is(S0, "numeric"))
+  stopifnot(methods::is(coefficients, "list"))
+  stopifnot(methods::is(means, "list"))
+  stopifnot(methods::is(formula, "formula"))
+  stopifnot(methods::is(S0, "numeric"))
 
   # Creates an object
   object <- list(

@@ -1,3 +1,6 @@
+source(test_path("fixtures", "make-model-cox.R"))
+source(test_path("fixtures", "make-model-logreg.R"))
+
 test_that("Checks the model parameter", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
 

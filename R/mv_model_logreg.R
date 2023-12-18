@@ -32,22 +32,20 @@
 #'   * `c_index`: Harrell C-Index of the predictions in the validation cohort.
 #'
 #' @import mathjaxr
+#' @importFrom methods is
 #'
 #' @export
 #'
 #' @examples
-#' coefficients <-
-#' means <- list(x = 3, z = 0.2)
-#' formula <- y ~ x + z
 #' model <- mv_model_logreg(
 #'    coefficients = list(x = 0.5, z = 0.3),
-#'    formula = formula,
+#'    formula = event ~ x + z,
 #'    intercept = 1.2
 #' )
 mv_model_logreg <- function(coefficients, formula, intercept) {
-  stopifnot(is(coefficients, "list"))
-  stopifnot(is(formula, "formula"))
-  stopifnot(is(intercept, "numeric"))
+  stopifnot(methods::is(coefficients, "list"))
+  stopifnot(methods::is(formula, "formula"))
+  stopifnot(methods::is(intercept, "numeric"))
   model <- list(
     coefficients = coefficients,
     formula = formula,

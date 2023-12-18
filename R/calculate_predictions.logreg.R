@@ -21,6 +21,8 @@
 #' @import mathjaxr
 #' @importFrom dplyr %>% group_by group_map rename summarise
 #' @importFrom tibble tibble as_tibble add_column
+#' @importFrom methods is
+#'
 #' @export
 #'
 #' @examples
@@ -28,8 +30,8 @@
 #'    calculate_predictions(data)
 calculate_predictions.logreg <- function(model, data) {
   # Checks pre-conditions
-  stopifnot(is(model, "MiceExtVal"))
-  stopifnot(is(data, "data.frame"))
+  stopifnot(methods::is(model, "MiceExtVal"))
+  stopifnot(methods::is(data, "data.frame"))
 
   # Calculates the model predictions as 1 / (1 + exp(beta * x))
   variables <- sapply(

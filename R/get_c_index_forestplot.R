@@ -13,6 +13,7 @@
 #' @importFrom forestplot forestplot fpTxtGp fp_add_header fp_set_zebra_style fp_set_style
 #' @importFrom purrr map_chr map_dbl
 #' @importFrom grid unit gpar
+#' @importFrom methods is
 #'
 #' @examples
 #'
@@ -20,7 +21,7 @@
 #' get_forestplot(model1, model2, model3, model4)
 get_c_index_forestplot <- function(...) {
   # Check if all the parameters are MiceExtVal class
-  stopifnot("All models must be from the class MiceExtVal" = all(purrr::map_lgl(list(...), \(x) is(x, "MiceExtVal"))))
+  stopifnot("All models must be from the class MiceExtVal" = all(purrr::map_lgl(list(...), \(x) methods::is(x, "MiceExtVal"))))
 
   models <- list(...)
   model_names <- names(models)

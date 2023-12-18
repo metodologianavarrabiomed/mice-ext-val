@@ -8,13 +8,16 @@
 #' @param ... Parameters for [calculate_predictions.cox()] or [calculate_predictions.logreg()]
 #'
 #' @return A model with the parameters `predictions_aggregated`, `predictions_data`, `betax` and `betax_data` populated.
+#'
+#' @importFrom methods is
+#'
 #' @export
 #'
 #' @examples
 #' model |>
 #'    calculate_predictions(data)
 calculate_predictions <- function(model, ...) {
-  stopifnot(is(model, "MiceExtVal"))
+  stopifnot(methods::is(model, "MiceExtVal"))
 
   UseMethod("calculate_predictions", model)
 }

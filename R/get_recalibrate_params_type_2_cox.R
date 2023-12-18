@@ -17,17 +17,18 @@
 #'    * beta_overall: \eqn{\beta_{overall}} value from the type 2 recalibration
 #'
 #' @import mathjaxr
-#' @import survival
-#' @import stats
+#' @importFrom survival survreg Surv coxph
+#' @importFrom stats pweibull
+#' @importFrom methods is
 #'
 #' @examples
 #' get_recalibrate_params_type_2_cox(data, betax, t)
 get_recalibrate_params_type_2_cox <- function(recalibrate_data, betax, t) {
   # Checks preconditions
-  stopifnot(is(recalibrate_data, "data.frame"))
+  stopifnot(methods::is(recalibrate_data, "data.frame"))
   stopifnot("recalibrate_data does not have the needed columns (time, event)" = all(c("time", "event") %in% colnames(recalibrate_data)))
-  stopifnot(is(betax, "data.frame"))
-  stopifnot(is(t, "numeric"))
+  stopifnot(methods::is(betax, "data.frame"))
+  stopifnot(methods::is(t, "numeric"))
 
   # Generates a Weibull distribution over the data to obtain the survival function estimator
   recalibrate_data$surv_obj <- survival::Surv(recalibrate_data$time + 0.001, recalibrate_data$event)

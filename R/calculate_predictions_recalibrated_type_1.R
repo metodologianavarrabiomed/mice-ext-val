@@ -8,13 +8,16 @@
 #' @param ... Parameters for [calculate_predictions_recalibrated_type_1.cox()] function or for [calculate_predictions_recalibrated_type_1.logreg()] function.
 #'
 #' @return A model with the parameter `predictions_recal_type_1` and also the recalibration parameters are populated.
+#'
+#' @importFrom methods is
+#'
 #' @export
 #'
 #' @examples
 #' model |>
 #'    calculate_predictions_recalibrated_type_1(data)
 calculate_predictions_recalibrated_type_1 <- function(model, ...){
-  stopifnot(is(model, "MiceExtVal"))
+  stopifnot(methods::is(model, "MiceExtVal"))
 
   UseMethod("calculate_predictions_recalibrated_type_1", model)
 }

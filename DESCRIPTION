@@ -25,6 +25,7 @@ Imports:
     rms,
     survival,
     tibble,
-    psfmi
+    psfmi,
+    methods
 VignetteBuilder: knitr
 Config/testthat/edition: 3
