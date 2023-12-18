@@ -21,6 +21,7 @@
 #' @import mathjaxr
 #' @importFrom dplyr %>% group_by group_map rename summarise
 #' @importFrom tibble tibble as_tibble add_column
+#' @importFrom methods is
 #'
 #' @export
 #'
@@ -29,8 +30,8 @@
 #'    calculate_predictions(data)
 calculate_predictions.cox <- function(model, data) {
   # Checks pre-conditions
-  stopifnot(is(model, "MiceExtVal"))
-  stopifnot(is(data, "data.frame"))
+  stopifnot(methods::is(model, "MiceExtVal"))
+  stopifnot(methods::is(data, "data.frame"))
 
   # Obtain the expression that calculates the `betax` from the `coefficients` and `mean` paramters. Loop over all the variable names and generates the expression `(coef * (var - mean))`
   variables <- sapply(

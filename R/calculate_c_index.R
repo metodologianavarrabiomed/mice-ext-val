@@ -18,14 +18,15 @@
 #' @importFrom dplyr %>% group_by group_map filter select
 #' @importFrom tibble tibble as_tibble
 #' @importFrom progress progress_bar
+#' @importFrom methods is
 #'
 #' @export
 #'
 #' @examples
 #' calculate_c_index(model, data)
 calculate_c_index <- function(model, data, .progress = TRUE) {
-  stopifnot(is(model, "MiceExtVal"))
-  stopifnot(is(data, "data.frame"))
+  stopifnot(methods::is(model, "MiceExtVal"))
+  stopifnot(methods::is(data, "data.frame"))
 
   # Code for the progress bar
   if (.progress) {

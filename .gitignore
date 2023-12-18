@@ -3,7 +3,6 @@ inst/doc
 data
 docs
 doc_no_git
-tests
 vignettes
 man
 .Rbuildignore

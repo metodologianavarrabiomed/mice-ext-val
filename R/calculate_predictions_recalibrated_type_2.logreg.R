@@ -30,6 +30,7 @@
 #' @importFrom tibble tibble as_tibble
 #' @importFrom rms lrm
 #' @importFrom progress progress_bar
+#' @importFrom methods is
 #'
 #' @export
 #'
@@ -40,8 +41,8 @@
 #'   calculate_predictions_recalibrated_type_2(data)
 calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progress = TRUE) {
   # Checks pre-conditions
-  stopifnot(is(model, "MiceExtVal"))
-  stopifnot(is(data, "data.frame"))
+  stopifnot(methods::is(model, "MiceExtVal"))
+  stopifnot(methods::is(data, "data.frame"))
 
   # Progress bar code
   if (.progress) {

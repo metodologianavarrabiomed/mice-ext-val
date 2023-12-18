@@ -21,13 +21,14 @@
 #' @import mathjaxr
 #' @importFrom survival Surv survfit
 #' @importFrom Rdpack reprompt
+#' @importFrom methods is
 #'
 #' @examples
 #' get_recalibrate_param_type_1_cox(data, s0)
 get_recalibrate_param_type_1_cox <- function(recalibrate_data, s0) {
   # Checks preconditions
-  stopifnot(is(recalibrate_data, "data.frame"))
-  stopifnot(is(s0, "numeric"))
+  stopifnot(methods::is(recalibrate_data, "data.frame"))
+  stopifnot(methods::is(s0, "numeric"))
   stopifnot("recalibrate_data does not have the needed columns (time, event)" = all(c("time", "event") %in% colnames(recalibrate_data)))
 
   # Generates the KM estimator from which we will estimate the `alpha` parameter
