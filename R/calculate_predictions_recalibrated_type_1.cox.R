@@ -26,10 +26,28 @@
 #' @export
 #'
 #' @examples
+#' set.seed(123)
+#'
+#' model <- mv_model_cox(
+#'    coefficients = list(x = 0.5, z = 0.3),
+#'    means = list(x = 1, z = 2),
+#'    formula = event ~ x + z,
+#'    S0 = 0.98765
+#' )
+#'
+#' data <- data.frame(
+#'   .imp = c(1,1,1,2,2,2,3,3,3),
+#'   id = c(1,2,3,1,2,3,1,2,3),
+#'   x = rnorm(9, 1, 0.25),
+#'   z = rnorm(9, 2, 0.75),
+#'   status = c(1,0,0,1,0,0,1,0,0),
+#'   time = c(2,3,5,2,3,5,2,3,5)
+#' )
+#' data$event <- survival::Surv(data$time, data$status)
 #'
 #' model |>
-#'    calculate_predictions(data) |>
-#'    calculate_predictions_recalibrated_type_1(data)
+#'   calculate_predictions(data) |>
+#'   calculate_predictions_recalibrated_type_1(data)
 calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress = TRUE) {
   # Checks pre-conditions
   stopifnot(methods::is(model, "MiceExtVal"))
