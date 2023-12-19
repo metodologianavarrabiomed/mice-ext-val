@@ -26,8 +26,21 @@
 #' @export
 #'
 #' @examples
-#' model |>
-#'    calculate_predictions(data)
+#' set.seed(123)
+#'
+#' model <- mv_model_cox(
+#'    coefficients = list(x = 0.5, z = 0.3),
+#'    means = list(x = 1, z = 2),
+#'    formula = event ~ x + z,
+#'    S0 = 0.98765
+#' )
+#'
+#' data <- data.frame(
+#'   .imp = c(1,1,1,2,2,2,3,3,3),
+#'   id = c(1,2,3,1,2,3,1,2,3),
+#'   x = rnorm(9, 1, 0.25),
+#'   z = rnorm(9, 2, 0.75)
+#' )
 calculate_predictions.cox <- function(model, data) {
   # Checks pre-conditions
   stopifnot(methods::is(model, "MiceExtVal"))
