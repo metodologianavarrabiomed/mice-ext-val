@@ -8,6 +8,7 @@
 #' @param data Data for what the observed predictions will be calculated.
 #' @param n_groups Number of groups that must be calculated.
 #' @param type Type of the predictions that the calibration plot data should be generated from: `"predictions_aggregated"`, `"predictions_recal_type_1"` or `"predictions_recal_type_2"`
+#' @param time Time for the calibration plot data is calculated.
 #'
 #' @return `tibble` with the data ready to generate a calibration plot.
 #'
