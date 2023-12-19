@@ -32,7 +32,7 @@
 #' @importFrom progress progress_bar
 #' @importFrom methods is
 #'
-#' @export
+#' @exportS3Method calculate_predictions_recalibrated_type_2 logreg
 #'
 #' @examples
 #' set.seed(123)

@@ -18,12 +18,13 @@
 #'   * `betax`, stores the \eqn{\beta \cdot X} values aggregated by the mean.
 #'   * `betax_data`, stores the \eqn{\beta \cdot X} values in each of the imputed datasets.
 #'
+#'
 #' @import mathjaxr
 #' @importFrom dplyr %>% group_by group_map rename summarise
 #' @importFrom tibble tibble as_tibble add_column
 #' @importFrom methods is
 #'
-#' @export
+#' @exportS3Method calculate_predictions cox
 #'
 #' @examples
 #' set.seed(123)

@@ -30,7 +30,7 @@
 #' @importFrom progress progress_bar
 #' @importFrom methods is
 #'
-#' @export
+#' @exportS3Method calculate_predictions_recalibrated_type_2 cox
 #'
 #' @examples
 #' set.seed(123)

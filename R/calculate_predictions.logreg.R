@@ -23,7 +23,7 @@
 #' @importFrom tibble tibble as_tibble add_column
 #' @importFrom methods is
 #'
-#' @export
+#' @exportS3Method calculate_predictions logreg
 #'
 #' @examples
 #' set.seed(123)
