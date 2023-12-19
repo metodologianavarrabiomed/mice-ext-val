@@ -42,7 +42,7 @@
 #' data$event <- survival::Surv(data$time, data$status)
 #'
 #'
-#' model |>
+#' model <- model |>
 #'   calculate_predictions(data) |>
 #'   calculate_c_index(data)
 calculate_c_index <- function(model, data, .progress = TRUE) {
