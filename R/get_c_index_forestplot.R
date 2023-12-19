@@ -16,9 +16,10 @@
 #' @importFrom methods is
 #'
 #' @examples
-#'
-#' get_forestplot(A = model1, B = model2, C = model3, D = model4)
-#' get_forestplot(model1, model2, model3, model4)
+#' \dontrun{
+#' get_c_index_forestplot(A = model1, B = model2, C = model3, D = model4)
+#' get_c_index_forestplot(model1, model2, model3, model4)
+#' }
 get_c_index_forestplot <- function(...) {
   # Check if all the parameters are MiceExtVal class
   stopifnot("All models must be from the class MiceExtVal" = all(purrr::map_lgl(list(...), \(x) methods::is(x, "MiceExtVal"))))

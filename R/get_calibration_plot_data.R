@@ -24,8 +24,10 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' model |>
 #'   get_calibration_plot_data(data = test_data, n_groups = 10, type = "predictions_aggregated")
+#' }
 get_calibration_plot_data <- function(model, data, n_groups, time, type = "predictions_aggregated") {
   stopifnot(methods::is(model, "MiceExtVal"))
   stopifnot(methods::is(data, "data.frame"))

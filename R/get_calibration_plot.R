@@ -13,9 +13,11 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' model |>
 #'    get_calibration_plot_data(data, 10, type = "predictions_aggregated") |>
 #'    get_calibration_plot()
+#' }
 get_calibration_plot <- function(data) {
   my_theme <- function() {
     ggplot2::theme_minimal() +

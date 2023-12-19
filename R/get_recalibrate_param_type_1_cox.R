@@ -24,7 +24,9 @@
 #' @importFrom methods is
 #'
 #' @examples
+#' \dontrun{
 #' get_recalibrate_param_type_1_cox(data, s0)
+#' }
 get_recalibrate_param_type_1_cox <- function(recalibrate_data, s0) {
   # Checks preconditions
   stopifnot(methods::is(recalibrate_data, "data.frame"))
