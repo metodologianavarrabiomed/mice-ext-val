@@ -20,7 +20,6 @@
 #'
 #' @import mathjaxr
 #' @importFrom survival Surv survfit
-#' @importFrom Rdpack reprompt
 #' @importFrom methods is
 #'
 #' @examples
