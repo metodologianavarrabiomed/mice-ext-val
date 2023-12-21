@@ -23,9 +23,71 @@ test_that("Checks the parameters properly", {
 
   # No error with logreg model
   expect_no_error(calculate_c_index(model_logreg, data))
-
 })
 
+test_that("Returns an error if `.imp` does not exist in `data`", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_cox <- make_cox_model(environment()) |>
+    calculate_predictions(data)
+  model_logreg <- make_logreg_model(environment()) |>
+    calculate_predictions(data)
+
+  data_no_imp <- data %>% select(-.imp)
+  expect_error(calculate_c_index(model_cox, data_no_imp), "must contain `.imp`")
+  expect_error(calculate_c_index(model_logreg, data_no_imp), "must contain `.imp`")
+})
+
+test_that("Returns an error if `formula` does not exist in `model`", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_cox <- make_cox_model(environment()) |>
+    calculate_predictions(data)
+  model_logreg <- make_logreg_model(environment()) |>
+    calculate_predictions(data)
+
+  model_cox_no_formula <- model_cox
+  model_cox_no_formula$formula <- NULL
+  expect_error(calculate_c_index(model_cox_no_formula, data), "`model` must have a valid formula")
+
+  model_logreg_no_formula <- model_logreg
+  model_logreg_no_formula$formula <- NULL
+  expect_error(calculate_c_index(model_logreg_no_formula, data), "`model` must have a valid formula")
+})
+
+test_that("Returns an error if `predictions_data` does not exist in `model`", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_cox <- make_cox_model(environment()) |>
+    calculate_predictions(data)
+  model_logreg <- make_logreg_model(environment()) |>
+    calculate_predictions(data)
+
+  model_cox_no_predictions_data <- model_cox
+  model_cox_no_predictions_data$predictions_data <- NULL
+  expect_error(calculate_c_index(model_cox_no_predictions_data, data), "`model` must have `predictions_data` calculated")
+
+  model_logreg_no_predictions_data <- model_logreg
+  model_logreg_no_predictions_data$predictions_data <- NULL
+  expect_error(calculate_c_index(model_logreg_no_predictions_data, data), "`model` must have `predictions_data` calculated")
+})
+
+test_that("Returns an error if the dependent variable in the model formula does not exist in `data` or is not a survival class", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_cox <- make_cox_model(environment()) |>
+    calculate_predictions(data)
+  model_logreg <- make_logreg_model(environment()) |>
+    calculate_predictions(data)
+
+  model_cox_bad_dependent_variable <- model_cox
+  model_cox_bad_dependent_variable$formula <- y ~ x + z
+  expect_error(calculate_c_index(model_cox_no_predictions_data, data), "the dependent variable must be of class `Surv`")
+  model_cox_bad_dependent_variable$formula <- no_exists ~ x + z
+  expect_error(calculate_c_index(model_cox_no_predictions_data, data), "the dependent variable must be part of `data`")
+
+  model_logreg_bad_dependent_variable <- model_logreg
+  model_logreg_bad_dependent_variable$formula <- y ~ x + z
+  expect_error(calculate_c_index(model_logreg_no_predictions_data, data), "the dependent variable must be of class `Surv`")
+  model_logreg_bad_dependent_variable$formula <- no_exists ~ x + z
+  expect_error(calculate_c_index(model_logreg_no_predictions_data, data), "the dependent variable must be part of `data`")
+})
 
 test_that("Calculates the c-index properly for a cox model", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
