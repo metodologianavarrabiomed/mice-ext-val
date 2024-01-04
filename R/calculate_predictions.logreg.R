@@ -49,6 +49,30 @@ calculate_predictions.logreg <- function(model, data) {
   stopifnot(methods::is(model, "MiceExtVal"))
   stopifnot(methods::is(data, "data.frame"))
 
+  # Returns an error if `.imp` is not part of the `data` parameter
+  if (!".imp" %in% colnames(data)) {
+    stop("`data` variable must contain `.imp`")
+    return()
+  }
+
+  # Returns an error if `id` is not part of the `data` parameter
+  if (!"id" %in% colnames(data)) {
+    stop("`data` variable must contain `id`")
+    return()
+  }
+
+  # Returns an error if model `coefficients` names are inside the `data` parameter
+  if (is.null(model$coefficients) | !all(names(model$coefficients) %in% colnames(data))) {
+    stop("all the coefficients variables must be present in `data` (check if they exist in the model)")
+    return()
+  }
+
+  # Returns an error if model `intercept` does not exist
+  if (!"intercept" %in% names(model) | !methods::is(model$intercept, "numeric")) {
+    stop("model `intercept` must be `numeric` (check if exists)")
+    return()
+  }
+
   # Calculates the model predictions as 1 / (1 + exp(beta * x))
   variables <- sapply(
     1:length(model$coefficient),

@@ -47,6 +47,30 @@ calculate_predictions.cox <- function(model, data) {
   stopifnot(methods::is(model, "MiceExtVal"))
   stopifnot(methods::is(data, "data.frame"))
 
+  # Returns an error if `.imp` is not part of the `data` parameter
+  if (!".imp" %in% colnames(data)) {
+    stop("`data` variable must contain `.imp`")
+    return()
+  }
+
+  # Returns an error if `id` is not part of the `data` parameter
+  if (!"id" %in% colnames(data)) {
+    stop("`data` variable must contain `id`")
+    return()
+  }
+
+  # Returns an error if model `coefficients` names are inside the `data` parameter
+  if (is.null(model$coefficients) | !all(names(model$coefficients) %in% colnames(data))) {
+    stop("all the coefficients variables must be present in `data` (check if they exist in the model)")
+    return()
+  }
+
+  # Returns an error if model `means` names are inside the `data` parameter
+  if (is.null(model$means) | !all(names(model$means) %in% colnames(data))) {
+    stop("all the means variables must be present in `data` (check if they exist in the model)")
+    return()
+  }
+
   # Obtain the expression that calculates the `betax` from the `coefficients` and `mean` paramters. Loop over all the variable names and generates the expression `(coef * (var - mean))`
   variables <- sapply(
     1:length(model$coefficient),
