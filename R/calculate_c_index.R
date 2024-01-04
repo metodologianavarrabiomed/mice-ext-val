@@ -48,6 +48,36 @@ calculate_c_index <- function(model, data, .progress = TRUE) {
   stopifnot(methods::is(model, "MiceExtVal"))
   stopifnot(methods::is(data, "data.frame"))
 
+  # Returns an error if `.imp` does not exist in `data`
+  if (!".imp" %in% colnames(data)) {
+    stop("`data` variable must contain `.imp`")
+    return()
+  }
+
+  # Returns an error if `formula` does not exist in `model`
+  if (!"formula" %in% names(model) | !methods::is(model$formula, "formula")) {
+    stop("`model` must have a valid formula")
+    return()
+  }
+
+  # Returns an error if `predictions_data` does not exist in `model`
+  if (!"predictions_data" %in% names(model) | !methods::is(model$predictions_data, "data.frame")) {
+    stop("`model` must have `predictions_data` calculated")
+    return()
+  }
+
+  # Returns an error if the dependent variable in the model formula does not exist
+  # in `data` or is not a survival class
+  dependent_variable <- all.vars(model$formula)[1]
+  if (!dependent_variable %in% colnames(data)) {
+    stop("the dependent variable must be part of `data`")
+    return()
+  }
+  if (!methods::is(data[[dependent_variable]], "Surv")) {
+    stop("the dependent variable must be of class `Surv`")
+    return()
+  }
+
   # Code for the progress bar
   if (.progress) {
     n_iter <- max(data$.imp)
