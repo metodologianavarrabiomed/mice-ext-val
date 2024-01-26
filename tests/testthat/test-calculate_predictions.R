@@ -20,6 +20,39 @@ test_that("Checks the data argument in logreg model", {
   expect_error(model |> calculate_predictions(3))
 })
 
+# Cox tests
+test_that("Returns an error if `.imp` is not part of the `data` parameter", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model <- make_cox_model(environment())
+  data_no_imp <- data |> select(-.imp)
+
+  expect_error(model |> calculate_predictions(data_no_imp), "must contain `.imp`")
+})
+
+test_that("Returns an error if `id` is not part of the `data` parameter", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model <- make_cox_model(environment())
+  data_no_id <- data |> select(-id)
+
+  expect_error(model |> calculate_predictions(data_no_id), "must contain `id`")
+})
+
+test_that("Returns an error if model `coefficients` names are inside the `data` parameter", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model <- make_cox_model(environment())
+
+  model$coefficients <- append(list(m = 0.875), model$coefficients)
+  expect_error(model |> calculate_predictions(data), "all the coefficients variables must be present in `data`")
+})
+
+test_that("Returns an error if model `means` names are inside the `data` parameter", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model <- make_cox_model(environment())
+
+  model$means <- append(list(m = 4), model$means)
+  expect_error(model |> calculate_predictions(data), "all the means variables must be present in `data`")
+})
+
 test_that("Calculates the predictions properly in Cox model", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
 
@@ -31,6 +64,44 @@ test_that("Calculates the predictions properly in Cox model", {
   expect_identical(model$predictions_data, readRDS(test_path("fixtures", "cox", "predictions_data_cox.rds")))
   expect_identical(model$betax, readRDS(test_path("fixtures", "cox", "betax_cox.rds")))
   expect_identical(model$betax_data, readRDS(test_path("fixtures", "cox", "betax_data_cox.rds")))
+})
+
+# Logreg tests
+test_that("Returns an error if `.imp` is not part of the `data` parameter", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model <- make_logreg_model(environment())
+  data_no_imp <- data %>% select(-.imp)
+
+  expect_error(model |> calculate_predictions(data_no_imp), "must contain `.imp`")
+})
+
+test_that("Returns an error if `id` is not part of the `data` parameter", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model <- make_logreg_model(environment())
+  data_no_id <- data %>% select(-id)
+
+  expect_error(model |> calculate_predictions(data_no_id), "must contain `id`")
+})
+
+test_that("Returns an error if model `coefficients` names are not in the `data` parameter", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model <- make_logreg_model(environment())
+
+  model$coefficients <- append(list(m = 0.875), model$coefficients)
+
+  expect_error(model |> calculate_predictions(data), "all the coefficients variables must be present in `data`")
+})
+
+test_that("Returns an error if model `intercept` does not exist", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model <- make_logreg_model(environment())
+
+  model$intercept <- NULL
+
+  expect_error(model |> calculate_predictions(data), "model `intercept` must be `numeric`")
+
+  model$intercept <- "a"
+  expect_error(model |> calculate_predictions(data), "model `intercept` must be `numeric`")
 })
 
 test_that("Calculates the predictions properly in logreg model", {

@@ -30,9 +30,27 @@
 #' @importFrom progress progress_bar
 #' @importFrom methods is
 #'
-#' @export
+#' @exportS3Method calculate_predictions_recalibrated_type_2 cox
 #'
 #' @examples
+#' set.seed(123)
+#'
+#' model <- mv_model_cox(
+#'    coefficients = list(x = 0.5, z = 0.3),
+#'    means = list(x = 1, z = 2),
+#'    formula = event ~ x + z,
+#'    S0 = 0.98765
+#' )
+#'
+#' data <- data.frame(
+#'   .imp = c(1,1,1,2,2,2,3,3,3),
+#'   id = c(1,2,3,1,2,3,1,2,3),
+#'   x = rnorm(9, 1, 0.25),
+#'   z = rnorm(9, 2, 0.75),
+#'   status = c(1,0,0,1,0,0,1,0,0),
+#'   time = c(2,3,5,2,3,5,2,3,5)
+#' )
+#' data$event <- survival::Surv(data$time, data$status)
 #'
 #' model |>
 #'   calculate_predictions(data) |>
@@ -42,6 +60,43 @@ calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress
   # Checks pre-conditions
   stopifnot(methods::is(model, "MiceExtVal"))
   stopifnot(methods::is(data, "data.frame"))
+
+  # Returns an error if `.imp` is not part of the `data` parameter
+  if (!".imp" %in% colnames(data)) {
+    stop("`data` variable must contain `.imp`")
+    return()
+  }
+
+  # Returns an error if `id` is not part of the `data` parameter
+  if (!"id" %in% colnames(data)) {
+    stop("`data` variable must contain `id`")
+    return()
+  }
+
+  # Returns an error if `predictions_data` does not exist in `model`
+  if (!"predictions_data" %in% names(model) | !methods::is(model$predictions_data, "data.frame")) {
+    stop("`model` must have `predictions_data` calculated")
+    return()
+  }
+
+  # Returns an error if the dependent variable in the model formula does not exist
+  # in `data` or is not a survival class
+  dependent_variable <- all.vars(model$formula)[1]
+  if (!dependent_variable %in% colnames(data)) {
+    stop("the dependent variable must be part of `data`")
+    return()
+  }
+  if (!methods::is(data[[dependent_variable]], "Surv")) {
+    stop("the dependent variable must be of class `Surv`")
+    return()
+  }
+
+  # Returns an error if `S0` does not exist or it is bad defined in the cox model
+  if (is.null(model$S0) | !is.numeric(model$S0)) {
+    stop("`S0` must be a `numeric`")
+    return()
+  }
+
 
   # Progress bar code
   if (.progress) {

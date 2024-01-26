@@ -32,9 +32,27 @@
 #' @importFrom progress progress_bar
 #' @importFrom methods is
 #'
-#' @export
+#' @exportS3Method calculate_predictions_recalibrated_type_2 logreg
 #'
 #' @examples
+#' set.seed(123)
+#'
+#' model <- mv_model_logreg(
+#'   coefficients = list(x = 0.5, z = 0.3),
+#'   formula = event ~ x + z,
+#'   intercept = 1.2
+#' )
+#'
+#' data <- data.frame(
+#'   .imp = c(1,1,1,2,2,2,3,3,3),
+#'   id = c(1,2,3,1,2,3,1,2,3),
+#'   x = rnorm(9, 1, 0.25),
+#'   z = rnorm(9, 2, 0.75),
+#'   status = c(1,0,0,1,0,0,1,0,0),
+#'   time = c(2,3,5,2,3,5,2,3,5)
+#' )
+#' data$event <- survival::Surv(data$time, data$status)
+#'
 #' model |>
 #'   calculate_predictions(data) |>
 #'   calculate_predictions_recalibrated_type_1(data) |>
@@ -43,6 +61,43 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
   # Checks pre-conditions
   stopifnot(methods::is(model, "MiceExtVal"))
   stopifnot(methods::is(data, "data.frame"))
+
+  # Returns an error if `.imp` is not part of the `data` parameter
+  if (!".imp" %in% colnames(data)) {
+    stop("`data` variable must contain `.imp`")
+    return()
+  }
+
+  # Returns an error if `id` is not part of the `data` parameter
+  if (!"id" %in% colnames(data)) {
+    stop("`data` variable must contain `id`")
+    return()
+  }
+
+  # Returns an error if `predictions_data` does not exist in `model`
+  if (!"predictions_data" %in% names(model) | !methods::is(model$predictions_data, "data.frame")) {
+    stop("`model` must have `predictions_data` calculated")
+    return()
+  }
+
+  # Returns an error if the dependent variable in the model formula does not exist
+  # in `data` or is not a survival class
+  dependent_variable <- all.vars(model$formula)[1]
+  if (!dependent_variable %in% colnames(data)) {
+    stop("the dependent variable must be part of `data`")
+    return()
+  }
+  if (!methods::is(data[[dependent_variable]], "Surv")) {
+    stop("the dependent variable must be of class `Surv`")
+    return()
+  }
+
+  # Returns an error if `intercept` does not exist or it is bad defined
+  if (is.null(model$intercept) | !is.numeric(model$intercept)) {
+    stop("`intercept` must be a `numeric`")
+    return()
+  }
+
 
   # Progress bar code
   if (.progress) {

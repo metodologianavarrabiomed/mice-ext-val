@@ -15,6 +15,122 @@ test_that("The calibration plot data function checks all the parameters", {
   expect_error(get_calibration_plot_data(model, data, 10, 4, "test"))
 })
 
+test_that("Returns an error if `.imp` is not part of the `data` parameter", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  cox_model <- make_cox_model(environment()) |> calculate_predictions(data)
+  logreg_model <- make_logreg_model(environment()) |> calculate_predictions(data)
+  data_no_imp <- data |> select(-.imp)
+
+  expect_error(
+    get_calibration_plot_data(
+      model = cox_model,
+      data = data_no_imp,
+      n_groups = 2,
+      time = 5,
+      type = "predictions_aggregated"
+    ),
+    "must contain `.imp`"
+  )
+  expect_error(
+    get_calibration_plot_data(
+      model = logreg_model,
+      data = data_no_imp,
+      n_groups = 2,
+      time = 5,
+      type = "predictions_aggregated"
+    ),
+    "must contain `.imp`"
+  )
+})
+
+test_that("Returns an error if `id` is not part of the `data` parameter", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  cox_model <- make_cox_model(environment()) |> calculate_predictions(data)
+  logreg_model <- make_logreg_model(environment()) |> calculate_predictions(data)
+  data_no_id <- data |> select(-id)
+
+  expect_error(
+    get_calibration_plot_data(
+      model = cox_model,
+      data = data_no_id,
+      n_groups = 2,
+      time = 5,
+      type = "predictions_aggregated"
+    ),
+    "must contain `id`"
+  )
+  expect_error(
+    get_calibration_plot_data(
+      model = logreg_model,
+      data = data_no_id,
+      n_groups = 2,
+      time = 5,
+      type = "predictions_aggregated"
+    ),
+    "must contain `id`"
+  )
+})
+
+test_that("Returns an error when the formula is not properly defined in cox", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_cox <- make_cox_model(environment()) |>
+    calculate_predictions(data)
+
+  model_cox_bad_dependent_variable <- model_cox
+  model_cox_bad_dependent_variable$formula <- y ~ x + z
+  expect_error(
+    get_calibration_plot_data(
+      model = model_cox_bad_dependent_variable,
+      data = data,
+      n_groups = 2,
+      time = 5,
+      type = "predictions_aggregated"
+    ),
+    "the dependent variable must be of class `Surv`"
+  )
+  model_cox_bad_dependent_variable$formula <- no_exists ~ x + z
+  expect_error(
+    get_calibration_plot_data(
+      model = model_cox_bad_dependent_variable,
+      data = data,
+      n_groups = 2,
+      time = 5,
+      type = "predictions_aggregated"
+    ),
+    "the dependent variable must be part of `data`"
+  )
+})
+
+test_that("Returns an error when the formula is not properly defined in logreg", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_logreg <- make_logreg_model(environment()) |>
+    calculate_predictions(data)
+
+  model_logreg_bad_dependent_variable <- model_logreg
+  model_logreg_bad_dependent_variable$formula <- y ~ x + z
+  expect_error(
+    get_calibration_plot_data(
+      model = model_logreg_bad_dependent_variable,
+      data = data,
+      n_groups = 2,
+      time = 5,
+      type = "predictions_aggregated"
+    ),
+    "the dependent variable must be of class `Surv`"
+  )
+  model_logreg_bad_dependent_variable$formula <- no_exists ~ x + z
+  expect_error(
+    get_calibration_plot_data(
+      model = model_logreg_bad_dependent_variable,
+      data = data,
+      n_groups = 2,
+      time = 5,
+      type = "predictions_aggregated"
+    ),
+    "the dependent variable must be part of `data`"
+  )
+})
+
 test_that("The calibration plot data function works properly with type 'predictions_aggregated' cox", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_cox_model(environment())

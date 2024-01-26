@@ -23,15 +23,55 @@
 #' @importFrom tibble tibble as_tibble add_column
 #' @importFrom methods is
 #'
-#' @export
+#' @exportS3Method calculate_predictions logreg
 #'
 #' @examples
+#' set.seed(123)
+#'
+#' model <- mv_model_logreg(
+#'   coefficients = list(x = 0.5, z = 0.3),
+#'   formula = event ~ x + z,
+#'   intercept = 1.2
+#' )
+#'
+#' data <- data.frame(
+#'   .imp = c(1,1,1,2,2,2,3,3,3),
+#'   id = c(1,2,3,1,2,3,1,2,3),
+#'   x = rnorm(9, 1, 0.25),
+#'   z = rnorm(9, 2, 0.75)
+#' )
+#'
+#'
 #' model |>
-#'    calculate_predictions(data)
+#'   calculate_predictions(data)
 calculate_predictions.logreg <- function(model, data) {
   # Checks pre-conditions
   stopifnot(methods::is(model, "MiceExtVal"))
   stopifnot(methods::is(data, "data.frame"))
+
+  # Returns an error if `.imp` is not part of the `data` parameter
+  if (!".imp" %in% colnames(data)) {
+    stop("`data` variable must contain `.imp`")
+    return()
+  }
+
+  # Returns an error if `id` is not part of the `data` parameter
+  if (!"id" %in% colnames(data)) {
+    stop("`data` variable must contain `id`")
+    return()
+  }
+
+  # Returns an error if model `coefficients` names are inside the `data` parameter
+  if (is.null(model$coefficients) | !all(names(model$coefficients) %in% colnames(data))) {
+    stop("all the coefficients variables must be present in `data` (check if they exist in the model)")
+    return()
+  }
+
+  # Returns an error if model `intercept` does not exist
+  if (!"intercept" %in% names(model) | !methods::is(model$intercept, "numeric")) {
+    stop("model `intercept` must be `numeric` (check if exists)")
+    return()
+  }
 
   # Calculates the model predictions as 1 / (1 + exp(beta * x))
   variables <- sapply(

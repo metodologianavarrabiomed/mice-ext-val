@@ -8,6 +8,7 @@
 #' @param data Data for what the observed predictions will be calculated.
 #' @param n_groups Number of groups that must be calculated.
 #' @param type Type of the predictions that the calibration plot data should be generated from: `"predictions_aggregated"`, `"predictions_recal_type_1"` or `"predictions_recal_type_2"`
+#' @param time Time for the calibration plot data is calculated.
 #'
 #' @return `tibble` with the data ready to generate a calibration plot.
 #'
@@ -24,8 +25,10 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' model |>
 #'   get_calibration_plot_data(data = test_data, n_groups = 10, type = "predictions_aggregated")
+#' }
 get_calibration_plot_data <- function(model, data, n_groups, time, type = "predictions_aggregated") {
   stopifnot(methods::is(model, "MiceExtVal"))
   stopifnot(methods::is(data, "data.frame"))
@@ -33,10 +36,38 @@ get_calibration_plot_data <- function(model, data, n_groups, time, type = "predi
   stopifnot(methods::is(time, "numeric"))
   stopifnot("Variable type is not a prediction attribute in model" = any(type %in% c("predictions_aggregated", "predictions_recal_type_1","predictions_recal_type_2")))
 
-  # We assume that the observed variable is completed and therefore the same in all the imputed datasets. If not we should generate the aggregate result using Rubin Rules.
+  # Returns an error if `.imp` is not part of the `data` parameter
+  if (!".imp" %in% colnames(data)) {
+    stop("`data` variable must contain `.imp`")
+    return()
+  }
+
+  # Returns an error if `id` is not part of the `data` parameter
+  if (!"id" %in% colnames(data)) {
+    stop("`data` variable must contain `id`")
+    return()
+  }
+
+  # Returns an error if the dependent variable in the model formula does not exist
+  # in `data` or is not a survival class
+  dependent_variable <- all.vars(model$formula)[1]
+  if (!dependent_variable %in% colnames(data)) {
+    stop("the dependent variable must be part of `data`")
+    return()
+  }
+  if (!methods::is(data[[dependent_variable]], "Surv")) {
+    stop("the dependent variable must be of class `Surv`")
+    return()
+  }
+
+  # We assume that the observed variable is completed and therefore the same in
+  # all the imputed datasets. If not we should generate the aggregated result
+  # using Rubin Rules.
   original_data <- data %>%
+    # We also assume that data is a `mice` imputed dataset in long format.
+    # Thus, `.imp` exists and have at least 1 imputed dataset.
     dplyr::filter(.imp == 1) %>%
-    dplyr::select(id, event)
+    dplyr::select(id, !!dependent_variable)
 
   # Select the variable that is used from the model
   pred_var <- as.name(names(model[[type]])[2])
@@ -47,7 +78,7 @@ get_calibration_plot_data <- function(model, data, n_groups, time, type = "predi
     dplyr::group_by(group) %>%
     # Calculates the predicted and observed value for each of the predicted risk groups
     dplyr::group_map(~ {
-      .x$survobj <- survival::Surv(time = .x$event[, "time"], event = .x$event[, "status"])
+      .x$survobj <- survival::Surv(time = .x[[dependent_variable]][, "time"], event = .x[[dependent_variable]][, "status"])
       # Estimates the observed risk inside the group
       km <- survival::survfit(survobj ~ 1, data = .x)
       return(

@@ -2,12 +2,12 @@
 #' Obtain the \eqn{\alpha} value for the recalibration.
 #'
 #' @description
-#' Obtains the recalibration parameters following the type 1 recalibration definition. Recalibrates the predictions with the type 1 recalibration The type 1 recalibration follows the guidelines presented by Crowson [1]. The recalibration follows the next proposition to obtain an \eqn{\alpha} parameter that allow to recalibrate the predictions for the new validation dataset. The recalibration adjusts the incidence of event known by the model to the new dataset.
+#' Obtains the recalibration parameters following the type 1 recalibration definition. Recalibrates the predictions with the type 1 recalibration The type 1 recalibration follows the guidelines presented by Crowson et al. (2016). The recalibration follows the next proposition to obtain an \eqn{\alpha} parameter that allow to recalibrate the predictions for the new validation dataset. The recalibration adjusts the incidence of event known by the model to the new dataset.
 #'
 #' The \eqn{\alpha} value of the recalibration is calculated as the difference between the reported survival equations \eqn{S_{model}(t) - S_0(t)}. Where \eqn{S_0(t)} is calculated for the new data and \eqn{S_{model}(t)} is the model-reported-value for the study time.
 #'
 #' @references
-#' [1] C. S. Crowson, “Assessing calibration of prognostic risk scores - Cynthia S Crowson, Elizabeth J Atkinson, Terry M Therneau, 2016,” Statistical Methods in Medical Research, 2016. \link{https://journals.sagepub.com/doi/10.1177/0962280213497434} (accessed Nov. 17, 2023).
+#' C. S. Crowson, “Assessing calibration of prognostic risk scores - Cynthia S Crowson, Elizabeth J Atkinson, Terry M Therneau, 2016,” Statistical Methods in Medical Research, 2016. <https://journals.sagepub.com/doi/10.1177/0962280213497434> (accessed Nov. 17, 2023).
 #'
 #' @param recalibrate_data dataset that contains the needed info to recalibrate the predictions. The `data.frame` must contain the following columns.
 #'    * `time`: time to the end of follow up
@@ -20,11 +20,12 @@
 #'
 #' @import mathjaxr
 #' @importFrom survival Surv survfit
-#' @importFrom Rdpack reprompt
 #' @importFrom methods is
 #'
 #' @examples
+#' \dontrun{
 #' get_recalibrate_param_type_1_cox(data, s0)
+#' }
 get_recalibrate_param_type_1_cox <- function(recalibrate_data, s0) {
   # Checks preconditions
   stopifnot(methods::is(recalibrate_data, "data.frame"))
