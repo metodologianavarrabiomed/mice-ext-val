@@ -155,7 +155,9 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
     prediction_type_2 = 1 / (1 + exp(-(model$alpha_type_2 + (model$beta_overall * model$betax$betax))))
   )
 
-  pb$tick()
+  if (.progress) {
+    pb$tick()
+  }
 
   return(model)
 }
