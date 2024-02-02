@@ -1,0 +1,445 @@
+---
+title: "External validation example"
+output: rmarkdown::html_vignette
+bibliography: bibliography.bib
+vignette: >
+  %\VignetteIndexEntry{External validation example}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, include=FALSE}
+# knitr::opts_chunk$set(include = FALSE)
+library(MiceExtVal)
+library(magrittr)
+library(mice)
+library(rsample)
+library(ggplot2)
+```
+
+```{r setup show, eval=FALSE}
+library(MiceExtVal)
+library(magrittr)
+library(mice)
+library(rsample)
+library(ggplot2)
+```
+
+It is recommended that before developing a prognostic model we before externally validate the existing ones in order to know if there is a model that already performs properly in our context. This package intends to generate the methodology to externally validate Cox models and logistic regression models when used to predict risk. Along this vignette we will show an example of use using a dataset developed by @chicco_jurman_2020. 
+
+A external validation must check if the discrimination and the calibration are good enough for the new context (@ext-val-rampsek, @ext-val-collins). If there is no good calibration there exist some techniques that allow without changing the model to calibrate the predictions to be more accutrate to the observed risk in the new context. 
+
+There are several tool that perform external validation to models but there is a lack of tools when we are working with multiple imputed data in this ausence of tools is where this package stands. We developed a package that allow the user to externally validate the models while working with multiple imputed data.
+
+# External validation dataset
+```{r load the data}
+data <- read.csv("../data/heart_failure_clinical_records_dataset.csv")
+boot_data <- rsample::bootstraps(data, times = 5)
+data <- purrr::map(
+  boot_data$splits,
+  \(x) {
+    rsample::analysis(x)
+  }
+) %>%
+  dplyr::bind_rows()
+```
+
+From the data we need to look for missing values. Therefore, we will make an exploratory data analysis. 
+
+```{r}
+data %>%
+  Hmisc::describe() %>%
+  Hmisc::html()
+```
+
+The `MiceExtVal` package works with multiple imputed data and the proposed dataset does not have any missing values so we have to generate them. There are some tools that allow you to randomly generate the missing values through all the dataset, we will be using `mice::ampute` this function generates a dataset with $1 - prop$ complete cases. In our case as it only generates one missing value per row we can increase the value of `prop`up to $prop = 0.85$. We have to limit the missing values only to the possible predictor variables. Therefore, the variables `time` and `DEATH_EVENT` that form the outcome of the models will be no part of the possible missing values.
+ 
+```{r ampute data}
+incomplete_data <- mice::ampute(data, prop = 0.85)
+incomplete_data$patterns[, c("time", "DEATH_EVENT")] <- 1
+incomplete_data <- mice::ampute(data, prop = 0.85, patterns = incomplete_data$patterns)
+
+# Show the percentage of missings by variable in the dataset
+purrr::map_chr(
+  names(incomplete_data$data), 
+  \(x) sprintf("%s: %.3f", x, mean(is.na(incomplete_data$amp[[x]])))
+)
+```
+
+Once we have generated the missing values and store the dataset in `incomplete_data` we are ready to impute this missing values through the function `mice::mice`. We have to determine the number of imputed datasets that will be generated, a rule of thumb that is normally used is to generate as many imputed datasets as percentage of incomplete cases. So, in our case $m = 85$ where $m$ is the number of generated datsets.
+
+```{r, include=FALSE}
+imputed_dataset <- mice::mice(incomplete_data$amp, m = 85) %>%
+  mice::complete("long") %>%
+  dplyr::rename(id = .id) %>%
+  dplyr::mutate(surv_event = survival::Surv(time, DEATH_EVENT))
+```
+
+```{r impute the dataset, eval = FALSE}
+imputed_dataset <- mice::mice(incomplete_data$amp, m = 85) %>%
+  mice::complete("long") %>%
+  dplyr::rename(id = .id) %>%
+  dplyr::mutate(surv_event = survival::Surv(time, DEATH_EVENT))
+```
+
+It is needed to rename the variable `.id` to `id` because some of the package functions expect this variable to be part of the dataset. If you have already an `id` variable defined you can ignore this step. The package is designed to work with `survival` outcomes thus we are generating it from the beginning instead of generating it in the future. At this point we have generated the external validation dataset but we still do not have the model to be externally validated, the next section present the models that will be validated. 
+
+# Model to validate
+With the variables reported in the dataset there are no model that could be validate so instead we will generate our own model and externally validate it. We will derive two models one logistic regression and one Cox. The model derivation will be using the complete dataset and the validation will be done with `imputed_dataset`.
+
+We will define two models with some of the `data` variables. From all the possible combinations we will try to generate a simple model with the next formula
+
+```{r, eval=FALSE}
+event ~ age + sex + diabetes + smoking + ejection_fraction + anaemia + 
+  high_blood_pressure + platelets + serum_sodium + serum_creatinine + 
+  creatinine_phosphokinase
+```
+
+## Cox model
+
+```{r}
+data$surv_event <- survival::Surv(data$time, data$DEATH_EVENT == 1)
+cox_model <- survival::coxph(
+  surv_event ~ age + sex + diabetes + smoking + ejection_fraction + anaemia +
+    high_blood_pressure + platelets + serum_sodium + serum_creatinine +
+    creatinine_phosphokinase, 
+  data = data
+)
+km <- survival::survfit(surv_event ~ 1, data = data)
+s0 <- km$surv[length(km$surv)]
+```
+
+## Logistic regression model
+```{r}
+logreg_model <- lm(
+  DEATH_EVENT ~ age + sex + diabetes + smoking + ejection_fraction + anaemia + 
+    high_blood_pressure + platelets + serum_sodium + serum_creatinine + 
+    creatinine_phosphokinase, 
+  data = data
+)
+```
+
+# External validation
+The external validation should explore the model performance in terms of calibration and discrimination. A good calibration performance represents that the model predictions are adjusted to the observed results in the external validation dataset and, equally, a good discrimination performance represents that the greater predictions from the model the greater risk that is observed in the dataset. The `MiceExtVal` package intends to generate a framework/methodology to externally validate models working with multiple imputed data.
+
+We can divide the external validation in three steps:
+
+1. Generate the model definition with `mv_model` functions.
+2. Calculate the predictions and the c-index with the `calculate_` functions.
+3. Obtain the results with the `get_` functions.
+
+
+## Generation of the models 
+From the previous derived models we will apply the external validation framework/methodology over the imputed dataset. We will work with the two models, the Cox model and the logistic regression one. The Cox model can be generated from `mv_model_cox` and the logistic regression from `mv_model_logreg`. These functions require different data depending on the model and therefore they have different parameters.
+
+### Cox model
+The Cox model prediction can be summarise as 
+
+$$
+\text{survival prediction} = S_0(t)^{exp(\beta \cdot X)}
+$$
+
+where $S_0(t)$ is the basal survival function for the time $t$, $\beta$ are the model coefficients and $X$ usually are the values in each variable centered by the mean in the derivation cohort. In the `mv_model_cox` function we have to insert the next parameters.
+
+* `coefficients`: A named list with the $\beta$ values of the model.
+* `formula`: Formula of the model indicating the variable names and the dependent variable.
+* `means`: The mean values of each variable in the derivation cohort if is not centered generate a named list with all 0.
+* `S0`: The value of the function $S_0(t)$ in the derivation cohort.
+
+Therefore for our example the next code snippet shows how we can generate the model to be used in the rest of the package functions.
+
+```{r}
+cox_ext_val <- mv_model_cox(
+  coefficients = list(
+    age = cox_model$coefficients["age"],
+    sex = cox_model$coefficients["sex"],
+    diabetes = cox_model$coefficients["diabetes"],
+    smoking = cox_model$coefficients["smoking"],
+    ejection_fraction = cox_model$coefficients["ejection_fraction"],
+    anaemia = cox_model$coefficients["anaemia"],
+    high_blood_pressure = cox_model$coefficients["high_blood_pressure"],
+    platelets = cox_model$coefficients["platelets"],
+    serum_sodium = cox_model$coefficients["serum_sodium"],
+    serum_creatinine = cox_model$coefficients["serum_creatinine"],
+    creatinine_phosphokinase = cox_model$coefficients["creatinine_phosphokinase"]
+  ),
+  formula = surv_event ~ age + sex + diabetes + smoking + ejection_fraction + 
+    anaemia + high_blood_pressure + platelets + serum_sodium + serum_creatinine +
+    creatinine_phosphokinase,
+  means = list(
+    age = mean(data$age),
+    sex = mean(data$sex),
+    diabetes = mean(data$diabetes),
+    smoking = mean(data$smoking),
+    ejection_fraction = mean(data$ejection_fraction),
+    anaemia = mean(data$anaemia),
+    high_blood_pressure = mean(data$high_blood_pressure),
+    platelets = mean(data$platelets),
+    serum_sodium = mean(data$serum_sodium),
+    serum_creatinine = mean(data$serum_creatinine),
+    creatinine_phosphokinase = mean(data$creatinine_phosphokinase)
+  ),
+  S0 = s0
+)
+
+```
+
+### Logistic regression model
+
+The logistic regression prediction can be summarise as:
+
+$$
+\text{survival prediction} = \frac{1}{1 + e^{-\beta X}}
+$$
+
+It seems simple but we need to take care of the `intercept` attribute of the formula if we extend $\beta \cdot X$ to 
+$\beta_0 + \beta_1 \cdot X_1 + \dots + \beta_p \cdot X_p$ where $p$ is the number of variables in the model. Therefore the model is generated by three variables.
+
+* `coefficients`: A named list with the $\beta$ values excluding $\beta_0$.
+* `formula`: Formula of the model indicating the variable names and the dependent variable.
+* `intercept`: Value of $\beta_0$.
+
+```{r}
+logreg_ext_val <- mv_model_logreg(
+  coefficients = list(
+    age = cox_model$coefficients["age"],
+    sex = cox_model$coefficients["sex"],
+    diabetes = cox_model$coefficients["diabetes"],
+    smoking = cox_model$coefficients["smoking"],
+    ejection_fraction = cox_model$coefficients["ejection_fraction"],
+    anaemia = cox_model$coefficients["anaemia"],
+    high_blood_pressure = cox_model$coefficients["high_blood_pressure"],
+    platelets = cox_model$coefficients["platelets"],
+    serum_sodium = cox_model$coefficients["serum_sodium"],
+    serum_creatinine = cox_model$coefficients["serum_creatinine"],
+    creatinine_phosphokinase = cox_model$coefficients["creatinine_phosphokinase"]
+  ),
+  formula = surv_event ~ age + sex + diabetes + smoking + ejection_fraction + 
+    anaemia + high_blood_pressure + platelets + serum_sodium + serum_creatinine + 
+    creatinine_phosphokinase,
+  intercept = logreg_model$coefficients["(Intercept)"]
+)
+```
+
+## Calculate the predictions
+
+Starting from the previous generated models we can obtain the model predictions over the imputed data with the `calculate_` functions. There exists four calculate functions. 
+
+* `calculate_predictions`: Calculates the model predictions over all the imputed datasets and returns a model with the infor stored in it. 
+* `calculate_predictions_recalibrated_type_1`: Calculates the model predictions type 1 recalibrated over all the imputed datasets and returns a model with the infor stored in it. 
+* `calculate_predictions_recalibrated_type_2`: Calculates the model predictions type 2 recalibrated over all the imputed datasets and returns a model with the infor stored in it. 
+* `calculate_c_index`: Calculates the Harrell's c-index value. 
+
+### Cox model
+
+The predictions in the Cox model follow the previous definition. 
+
+$$
+\text{survival prediction} = S_0(t)^{exp(\beta \cdot X)}
+$$
+
+The function `calculate_predictions` calculates this formula for each patient with the introduced parameters in the model generation. The function returns the model with some attributes populated.
+
+* `predictions_aggregated`: It is a `tibble` with the predictions for each patient aggregated.
+* `predictions_data`: It is a `tibble` with all the predictions in each imputation. 
+* `betax`: It is a `tibble` with the $\beta \cdot X$ for each patient aggregated.
+* `betax_data`: It is a `tibble` with all the $\beta \cdot X$ in each imputation.
+
+```{r}
+cox_ext_val %<>%
+  calculate_predictions(imputed_dataset)
+```
+
+Sometimes the model predictions does not completelly adjust to the observed risk. When this happens there exist two functions that allow the user to update equally all the model predictions to be better adapted to the observed risk in the new dataset. This updating of the model predictions is called recalibration and we have defined two types of recalibration depending on the info needed to do it. 
+
+* Type $1$: Only needs the outcome variable to update the model.
+* Type $2$: Needs the outcome variable and the $\beta \cdot X$.
+
+#### Type 1 recalibration
+The type 1 recalibration adapts the risk in the survival function depending on the number of cases on the external validation cohort. The $S_0(t)$ can be updates as follows
+
+$$
+\begin{align}
+log(-log(S_0(t))) &= \alpha + \beta \cdot log(-log(S_{\text{model}}(t))) \\
+\text{Solving for }\alpha\text{:} \\
+\alpha &= log(-log(S_0(t))) - \beta \cdot log(-log(S_{\text{model}}(t)))
+\end{align}
+$$
+Where $S_0(t)$ is the survival function in the external validation dataset and $S_{\text{model}}(t)$ is the survival value reported by the model, we assume that $\beta = 1$. The updated predictions can be calculated as follows
+
+$$
+S_{cal}(t|X) = exp(-exp(\alpha + log(-log(S_{\text{model}}(t)))))
+$$
+
+The function `calculate_predictions_recalibrated_type_1` calculates the $\alpha$ parameter and store the aggregated predictions results in the attribute `predictions_recal_type_1` of the model.
+
+```{r}
+cox_ext_val %<>%
+calculate_predictions_recalibrated_type_1(imputed_dataset, .progress = FALSE) 
+```
+
+#### Type 2 recalibration
+The type 2 recalibration adapts the predictions using two parameters, an adjustement of $S_0(t)$ and a $\beta_{overall}$ parameter that adjust the importance of all the $\beta \cdot X$. As the type 1 recalibration all the predictions are adjusted by the same terms. 
+
+$$
+S_0(t|X) = S_{0, new}(t)^{exp(\beta_{overall}\cdot\beta\cdot X)}
+$$
+
+The value of $S_{0, new}(t)$ is calculated from a Weibull distribution in the external validation cohort and the $\beta_{overall}$ parameter is estimated deriving a Cox model with the $\beta \cdot X$ values as unique covariate.
+
+The function `calculate_predictions_recalibrated_type_2` calculates the $S_{0, new}(t)$ and $\beta_{overall}$ parameters and store the aggregated predictions results in the attribute `predictions_recal_type_2` of the model.
+
+```{r}
+cox_ext_val %<>%
+  calculate_predictions_recalibrated_type_2(imputed_dataset, .progress = FALSE) 
+```
+
+
+### Logistic regression model
+The logistic regression model as explained before obtain the predictions from the next formula.
+
+$$
+\text{survival prediction} = \frac{1}{1 + e^{-\beta X}}
+$$
+
+The function `calculate_predictions` calculates this formula for each patient with the introduced parameters in the model generation. The function returns the model with some attributes populated.
+
+* `predictions_aggregated`: It is a `tibble` with the predictions for each patient aggregated.
+* `predictions_data`: It is a `tibble` with all the predictions in each imputation. 
+* `betax`: It is a `tibble` with the $\beta \cdot X$ for each patient aggregated.
+* `betax_data`: It is a `tibble` with all the $\beta \cdot X$ in each imputation.
+
+```{r}
+logreg_ext_val %<>%
+  calculate_predictions(imputed_dataset)
+```
+
+As with the Cox model, logistic regression models may not predict accordingly to the observed risk in the external validation cohort. In these cases following the guidance in the Cox model the package have two functions that recalibrate the predictions of the model to be more adjusted to the obseved ones.
+
+#### Type 1 recalibration
+This approximation attempts to update the `intercept` value so that the baseline risk in the model is updated to the baseline risk in the external validation dataset. To do so, we define a $\alpha$ parameter. 
+
+$$
+log(\frac{p}{1-p}) = \alpha + \beta_0 + \beta_1 X_1 + \dots + \beta_p X_p
+$$
+
+The parameter is estimated deriving a logistic regression model with the $\beta \cdot X$ values as offset. Thus the model estimation of the intercept is the $\alpha$ parameter. The new predictions are estimated as follows.
+
+$$
+\begin{align}
+\text{model log_odds} &=  \beta_0 + \beta_1 X_1 + \dots + \beta_p X_p \\
+\text{recalibrated log_odds} &= \alpha + \beta_0 + \beta_1 X_1 + \dots + \beta_p X_p \\
+\text{recalibrated log_odds} &= \alpha + \text{model log_odds} 
+\end{align}
+$$
+Therefore the predictions will be 
+
+$$
+\text{recalibrated predictions} = \frac{1}{1 + e^{\text{(recalibrated log_odds)}}}  
+$$ 
+
+And rewriting in terms of $\text{model log_odds}$: 
+
+$$
+\text{recalibrated predictions} = \frac{1}{1 + e^{(\alpha + \text{model log_odds})}}
+$$
+The function calculate_predictions_recalibrated_type_1 calculates the $\alpha$ parameter and store the aggregated predictions results in the attribute `predictions_recal_type_1` of the model.
+
+```{r}
+logreg_ext_val %<>%
+  calculate_predictions_recalibrated_type_1(imputed_dataset, .progress = FALSE)
+```
+
+#### Type 2 recalibration
+The type 2 recalibration pretends to adjust the basal risk and also the importance of the $\text{log-odds}$. This type of recalibration is normally called the `intercept` and `slope` recalibration but for the sake of readability instead of calling it `intercept` and `slope` we will use $\alpha$ and $\beta_{overall}$ as it is refering to similar parameters as in the cox model recalibration. 
+
+Therefore following the guidance in type 1 recalibration we can define the recalibrated $\text{log-odds}$ as 
+
+$$
+\text{log-odds}_{recal} = \alpha + \beta_{overall} \cdot \text{log-odds}
+$$
+
+To estimate the parameters we will derive a logistic regression model with one covariable, the model $\text{log-odds}$ values. These model will have two coefficients, $\alpha$ and $\beta_{overall}$.
+
+The function `calculate_predictions_recalibrated_type_2` calculates the $\alpha$ and $\beta_{overall}$ parameters and store the aggregated predictions results in the attribute `predictions_recal_type_2` of the model.
+
+```{r}
+logreg_ext_val %<>%
+  calculate_predictions_recalibrated_type_2(imputed_dataset, .progress = FALSE)
+```
+
+## Obtaining the results
+After calculating the predictions for each patient, the next step is to obtain the results of the external validation of the models. The package can be used to calculate the calibration and discrimination results of the models.
+
+The calibration ability of the models is presented using calibration plots and the discrimination ability is presented by the Harrell C-Index.
+
+### Discrimination
+The discriminatio is calculated by the Harrell C-Index. This index is calculated in the package by the function `calculate_c_index` that calculates the C-index for the predictions in the model and stores the result in the `c_index` attribute.
+
+The index is calculated for the max time of follow up in the cohort and uses the model predictions. The recalibration does not change this because all the predictions are modified the same way. So, the patients that have more risk will have more risk after the recalibration and therefore the C-Index should not change.
+
+TODO: Add reference to Harrell C-Index and the package that calculates the index
+
+```{r}
+cox_ext_val %<>%
+  calculate_c_index(imputed_dataset, .progress = FALSE)
+
+logreg_ext_val %<>%
+  calculate_c_index(imputed_dataset, .progress = FALSE)
+```
+
+#### Presenting the discrimination results 
+The C-Index results can be shown as a forestplot comparing the models. To do so, we can use the `get_c_index_forestplot` that plot inside a forestplot all the models passed as arguments.
+
+```{r}
+get_c_index_forestplot(Cox = cox_ext_val, `Logistic Regression` = logreg_ext_val)
+```
+
+### Calibration
+The calibration is shown by the calibration plots. These plots show the predicted risk vs the observed risk, we do not know the observed risk for each patient because we only know if they suffer the event and in which time it was. To obtain the predicted risk we group the patients in a number of groups $n$ as quantiles of the predicted risk distribution. The predicted risk in each group is calculated as the mean and the observed risk is calculated with a kaplan-meier estimator.
+
+There are two functions that allow the user to generate the calibration plots. The first one, `get_calibration_plot_data`, generates the data of the groups and the second one, `get_calibration_plot` generates a `ggplot2` plot. From the function `get_calibration_data` we can generate the calibration plot data for the three types of predictions `predictions_aggregated`, `predictions_recal_type_1` or `predictions_recal_type_2`. The function returns the following `tibble`. 
+
+```{r}
+cox_ext_val %>%
+  get_calibration_plot_data(imputed_dataset, 10, type = "predictions_aggregated")
+```
+
+With this data the function `get_calibration_plot` returns a `ggplot2` plot. This means that we can modify it with the `ggplot2` functions.
+
+```{r}
+p <- cox_ext_val %>%
+  get_calibration_plot_data(imputed_dataset, 10, type = "predictions_aggregated") %>%
+  get_calibration_plot()
+
+class(p)
+
+p
+```
+
+Suppose that we want to define two diagonal lines that show what we define at useful predictions we can define them $\pm0.2$ from the diagonal line already draw.
+
+```{r}
+p + 
+  ggplot2::geom_abline(intercept = 0.2, linetype = "dotted") +
+  ggplot2::geom_abline(intercept = -0.2, linetype = "dotted")
+```
+
+Finally, we can generate the calibration plot for the logistic regression model as well. The next code snippet generates the calibration plot for the `predictions_recal_type_2` for the `logreg_ext_val`.
+
+```{r}
+logreg_ext_val %>%
+  get_calibration_plot_data(imputed_dataset, 10, type = "predictions_recal_type_2") %>%
+  get_calibration_plot()
+```
+
+
+References
+-----
