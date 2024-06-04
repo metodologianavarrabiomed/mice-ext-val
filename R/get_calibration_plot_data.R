@@ -32,7 +32,6 @@ get_calibration_plot_data <- function(model, data, n_groups, type = "predictions
   stopifnot(methods::is(model, "MiceExtVal"))
   stopifnot(methods::is(data, "data.frame"))
   stopifnot(methods::is(n_groups, "numeric"))
-  stopifnot(methods::is(time, "numeric"))
   stopifnot("Variable type is not a prediction attribute in model" = any(type %in% c("predictions_aggregated", "predictions_recal_type_1","predictions_recal_type_2")))
 
   # Returns an error if `.imp` is not part of the `data` parameter
