@@ -8,7 +8,7 @@
 #'
 #' \deqn{S_{0, \text{type 2}}(t)^{exp(\beta_{overall}(\beta \cdot X))}}
 #'
-#'where \eqn{S_{0, \text{type 2}}(t)} is estimated using a Weibull distribution and \eqn{\beta_{overall}} is estimated deriving a Cox model with \eqn{\beta \cdot X} as an unique covariate. Both parameters are estimated using the [get_recalibrate_params_type_2_cox()] function.
+#' where \eqn{S_{0, \text{type 2}}(t)} is estimated using a Weibull distribution and \eqn{\beta_{overall}} is estimated deriving a Cox model with \eqn{\beta \cdot X} as an unique covariate. Both parameters are estimated using the [get_recalibrate_params_type_2_cox()] function.
 #'
 #' @param model Model generated with [mv_model_cox()]. Needs the `predictions` parameter of the model, to generate it the function [calculate_predictions()] must be executed over the model.
 #' @param data External validation data. Multiple imputation dataset in long format.
@@ -36,19 +36,19 @@
 #' set.seed(123)
 #'
 #' model <- mv_model_cox(
-#'    coefficients = list(x = 0.5, z = 0.3),
-#'    means = list(x = 1, z = 2),
-#'    formula = event ~ x + z,
-#'    S0 = 0.98765
+#'   coefficients = list(x = 0.5, z = 0.3),
+#'   means = list(x = 1, z = 2),
+#'   formula = event ~ x + z,
+#'   S0 = 0.98765
 #' )
 #'
 #' data <- data.frame(
-#'   .imp = c(1,1,1,2,2,2,3,3,3),
-#'   id = c(1,2,3,1,2,3,1,2,3),
+#'   .imp = c(1, 1, 1, 2, 2, 2, 3, 3, 3),
+#'   id = c(1, 2, 3, 1, 2, 3, 1, 2, 3),
 #'   x = rnorm(9, 1, 0.25),
 #'   z = rnorm(9, 2, 0.75),
-#'   status = c(1,0,0,1,0,0,1,0,0),
-#'   time = c(2,3,5,2,3,5,2,3,5)
+#'   status = c(1, 0, 0, 1, 0, 0, 1, 0, 0),
+#'   time = c(2, 3, 5, 2, 3, 5, 2, 3, 5)
 #' )
 #' data$event <- survival::Surv(data$time, data$status)
 #'
@@ -126,28 +126,19 @@ calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress
       # Calculates the `betax` data
       betax <- model$betax_data %>%
         dplyr::filter(.imp == .y$.imp) %>%
-        dplyr::select(betax)
+        dplyr::pull(betax)
       # Calculates the type 2 recalibration params
       get_recalibrate_params_type_2_cox(
-        recalibrate_data = data.frame(
-          time = survival_data[, "time"],
-          event = survival_data[, "status"]
-        ),
-        betax = betax,
-        t = max(survival_data[, "time"])
+        time = survival_data[, "time"],
+        event = survival_data[, "status"],
+        betax = betax
       )
     }) %>%
-    do.call(rbind, args = .) %>%
-    tibble::as_tibble() %>%
-    # Transform to tibble and summarise the reuslts
-    dplyr::summarise(
-      S0 = mean(unlist(S0)),
-      beta_overall = mean(unlist(beta_overall))
-    )
+    dplyr::bind_rows()
 
   # Populates the aggregated variables in the model
-  model$S0_type_2 <- cal_param$S0
-  model$beta_overall <- cal_param$beta_overall
+  model$S0_type_2 <- cal_param %>% dplyr::pull(S0) %>% mean()
+  model$beta_overall <- cal_param %>% dplyr::pull(beta_overall) %>% mean()
 
   # Calculates the recalibrated type 2 predictions
   model$predictions_recal_type_2 <- model$betax %>%
@@ -159,7 +150,7 @@ calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress
         prediction_type_2 = 1 - model$S0_type_2^exp(model$beta_overall * .x$betax)
       )
     }) %>%
-    do.call(rbind, args = .)
+    dplyr::bind_rows()
 
   # Progress bar code
   if (.progress) {
