@@ -37,7 +37,7 @@
 #'   calculate_predictions(data) |>
 #'   calculate_predictions_recalibrated_type_1(data) |>
 #'   calculate_predictions_recalibrated_type_2(data)
-calculate_predictions_recalibrated_type_2 <- function(model, data, .progress) {
+calculate_predictions_recalibrated_type_2 <- function(model, data, .progress = FALSE) {
   stopifnot(methods::is(model, "MiceExtVal"))
 
   UseMethod("calculate_predictions_recalibrated_type_2", model)
