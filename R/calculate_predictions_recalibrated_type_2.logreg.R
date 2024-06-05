@@ -44,12 +44,12 @@
 #' )
 #'
 #' data <- data.frame(
-#'   .imp = c(1,1,1,2,2,2,3,3,3),
-#'   id = c(1,2,3,1,2,3,1,2,3),
+#'   .imp = c(1, 1, 1, 2, 2, 2, 3, 3, 3),
+#'   id = c(1, 2, 3, 1, 2, 3, 1, 2, 3),
 #'   x = rnorm(9, 1, 0.25),
 #'   z = rnorm(9, 2, 0.75),
-#'   status = c(1,0,0,1,0,0,1,0,0),
-#'   time = c(2,3,5,2,3,5,2,3,5)
+#'   status = c(1, 0, 0, 1, 0, 0, 1, 0, 0),
+#'   time = c(2, 3, 5, 2, 3, 5, 2, 3, 5)
 #' )
 #' data$event <- survival::Surv(data$time, data$status)
 #'
@@ -155,7 +155,9 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
     prediction_type_2 = 1 / (1 + exp(-(model$alpha_type_2 + (model$beta_overall * model$betax$betax))))
   )
 
-  pb$tick()
+  if (.progress) {
+    pb$tick()
+  }
 
   return(model)
 }
