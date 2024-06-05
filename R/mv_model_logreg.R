@@ -38,14 +38,30 @@
 #'
 #' @examples
 #' model <- mv_model_logreg(
-#'    coefficients = list(x = 0.5, z = 0.3),
-#'    formula = event ~ x + z,
-#'    intercept = 1.2
+#'   coefficients = list(x = 0.5, z = 0.3),
+#'   formula = event ~ x + z,
+#'   intercept = 1.2
 #' )
 mv_model_logreg <- function(coefficients, formula, intercept) {
-  stopifnot(methods::is(coefficients, "list"))
-  stopifnot(methods::is(formula, "formula"))
-  stopifnot(methods::is(intercept, "numeric"))
+  error_message <- NULL
+
+  if (!methods::is(coefficients, "list")) {
+    error_message <- c(error_message, cli::format_error("{.arg coefficients} must be of type `list`"))
+  }
+
+  if (!methods::is(formula, "formula")) {
+    error_message <- c(error_message, cli::format_error("{.arg formula} must be of type `formula`"))
+  }
+
+  if (!methods::is(intercept, "numeric")) {
+    error_message <- c(error_message, cli::format_error("{.arg intercept} must be of type `numeric`"))
+  }
+
+  if (!is.null(error_message)) {
+    names(error_message) <- rep("*", length(error_message))
+    cli::cli_abort(error_message)
+  }
+
   model <- list(
     coefficients = coefficients,
     formula = formula,
