@@ -114,13 +114,15 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
 
       # Obtains the data of the event variable
       survival_data <- .x[[all.vars(model$formula)[1]]]
+      survival_predictions <- model$predictions_data %>%
+        dplyr::filter(.imp == .y$.imp) %>%
+        dplyr::pull(prediction)
+
       # Calculates the `alpha` parameter value
       get_recalibrate_param_type_1_cox(
-        recalibrate_data = data.frame(
-          time = survival_data[,"time"],
-          event = survival_data[,"status"]
-        ),
-        s0 = model$S0
+        time = survival_data[,"time"],
+        event = survival_data[,"status"],
+        survival_predictions = survival_predictions
       )
     }) %>%
     do.call(rbind, args = .) %>%
