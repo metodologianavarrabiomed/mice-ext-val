@@ -11,7 +11,6 @@ test_that("The calibration plot data function checks all the parameters", {
   expect_error(get_calibration_plot_data(2, data, 10, "predictions_aggregated"))
   expect_error(get_calibration_plot_data(model, 4, 10, "predictions_aggregated"))
   expect_error(get_calibration_plot_data(model, 4, "a", "predictions_aggregated"))
-  expect_error(get_calibration_plot_data(model, data, 10, "predictions_aggregated"))
   expect_error(get_calibration_plot_data(model, data, 10, "test"))
 })
 
@@ -224,7 +223,7 @@ test_that("The calibration plot function generates a plot for a Cox model and pr
 
   expect_s3_class(
     model |>
-      get_calibration_plot_data(data, 2, 5, "predictions_aggregated") |>
+      get_calibration_plot_data(data, 2, "predictions_aggregated") |>
       get_calibration_plot(),
     "ggplot"
   )
