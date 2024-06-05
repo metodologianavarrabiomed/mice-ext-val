@@ -46,19 +46,19 @@ mv_model_cox <- function(coefficients, means, formula, S0 = NULL) {
   # Checks preconditions
   error_message <- NULL
   if (!methods::is(coefficients, "list")) {
-    error_message <- c(error_message, cli::format_error("{.arg coefficients} must be of tipe `list`"))
+    error_message <- c(error_message, cli::format_error("{.arg coefficients} must be of type `list`"))
   }
 
   if (!methods::is(means, "list")) {
-    error_message <- c(error_message, cli::format_error("{.arg means} must be of tipe `list`"))
+    error_message <- c(error_message, cli::format_error("{.arg means} must be of type `list`"))
   }
 
   if (!methods::is(formula, "formula")) {
-    error_message <- c(error_message, cli::format_error("{.arg formula} must be of tipe `formula`"))
+    error_message <- c(error_message, cli::format_error("{.arg formula} must be of type `formula`"))
   }
 
   if (!is.null(S0) && !methods::is(S0, "numeric")) {
-    error_message <- c(error_message, cli::format_error("{.arg S0} must be of tipe `numeric`"))
+    error_message <- c(error_message, cli::format_error("{.arg S0} must be of type `numeric`"))
   }
 
   if (!is.null(error_message)) {
