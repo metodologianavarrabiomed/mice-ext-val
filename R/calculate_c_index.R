@@ -45,38 +45,43 @@
 #'   calculate_predictions(data) |>
 #'   calculate_c_index(data)
 calculate_c_index <- function(model, data, .progress = FALSE) {
-  stopifnot(methods::is(model, "MiceExtVal"))
-  stopifnot(methods::is(data, "data.frame"))
+  error_message <- NULL
 
-  # Returns an error if `.imp` does not exist in `data`
-  if (!".imp" %in% colnames(data)) {
-    stop("`data` variable must contain `.imp`")
-    return()
+  if (!methods::is(model, "MiceExtVal")) {
+    error_message <- c(error_message, cli::format_error("{.arg model} must be of type `MiceExtVal`"))
+  }
+  if (!methods::is(data, "data.frame")) {
+    error_message <- c(error_message, cli::format_error("{.arg data} must be of type `data.frame`"))
+  } else {
+    if (!".imp" %in% colnames(data)) {
+      error_message <- c(error_message, cli::format_error("{.arg data} must contain {.arg .imp}"))
+    }
+
+    if (!"predictions_data" %in% names(model)) {
+      error_message <- c(error_message, cli::format_error("{.arg model} must contain {.arg predictions_data} calculate it with {.fun MiceExtval::calculate_predictions}"))
+    }
+
+    if (!"formula" %in% names(model)) {
+      error_message <- c(error_message, cli::format_error("{.arg model} must contain a valid {.arg formula}"))
+    } else {
+      dependent_variable <- all.vars(model$formula)[1]
+      if (!dependent_variable %in% colnames(data)) {
+        error_message <-  c(error_message, cli::format_error("the dependent variable must be part of {.arg data}"))
+      }
+      if (!methods::is(data[[dependent_variable]], "Surv")) {
+        error_message <- c(error_message, cli::format_error("the dependent variable must be of class {.arg Surv}"))
+      }
+    }
   }
 
-  # Returns an error if `formula` does not exist in `model`
-  if (!"formula" %in% names(model) | !methods::is(model$formula, "formula")) {
-    stop("`model` must have a valid formula")
-    return()
-  }
-
-  # Returns an error if `predictions_data` does not exist in `model`
-  if (!"predictions_data" %in% names(model) | !methods::is(model$predictions_data, "data.frame")) {
-    stop("`model` must have `predictions_data` calculated")
-    return()
+  if (!is.null(error_message)) {
+    names(error_message) <- rep("*", length(error_message))
+    cli::cli_abort(error_message)
   }
 
   # Returns an error if the dependent variable in the model formula does not exist
   # in `data` or is not a survival class
-  dependent_variable <- all.vars(model$formula)[1]
-  if (!dependent_variable %in% colnames(data)) {
-    stop("the dependent variable must be part of `data`")
-    return()
-  }
-  if (!methods::is(data[[dependent_variable]], "Surv")) {
-    stop("the dependent variable must be of class `Surv`")
-    return()
-  }
+
 
   # Code for the progress bar
   if (.progress) {
