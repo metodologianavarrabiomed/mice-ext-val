@@ -56,7 +56,7 @@
 #'   calculate_predictions(data) |>
 #'   calculate_predictions_recalibrated_type_1(data) |>
 #'   calculate_predictions_recalibrated_type_2(data)
-calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress = TRUE) {
+calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress = FALSE) {
   # Checks pre-conditions
   stopifnot(methods::is(model, "MiceExtVal"))
   stopifnot(methods::is(data, "data.frame"))

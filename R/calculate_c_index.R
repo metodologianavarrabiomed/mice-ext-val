@@ -44,7 +44,7 @@
 #' model <- model |>
 #'   calculate_predictions(data) |>
 #'   calculate_c_index(data)
-calculate_c_index <- function(model, data, .progress = TRUE) {
+calculate_c_index <- function(model, data, .progress = FALSE) {
   stopifnot(methods::is(model, "MiceExtVal"))
   stopifnot(methods::is(data, "data.frame"))
 
