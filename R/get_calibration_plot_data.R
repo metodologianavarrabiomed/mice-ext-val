@@ -8,7 +8,6 @@
 #' @param data Data for what the observed predictions will be calculated.
 #' @param n_groups Number of groups that must be calculated.
 #' @param type Type of the predictions that the calibration plot data should be generated from: `"predictions_aggregated"`, `"predictions_recal_type_1"` or `"predictions_recal_type_2"`
-#' @param time Time for the calibration plot data is calculated.
 #'
 #' @return `tibble` with the data ready to generate a calibration plot.
 #'
@@ -29,11 +28,10 @@
 #' model |>
 #'   get_calibration_plot_data(data = test_data, n_groups = 10, type = "predictions_aggregated")
 #' }
-get_calibration_plot_data <- function(model, data, n_groups, time, type = "predictions_aggregated") {
+get_calibration_plot_data <- function(model, data, n_groups, type = "predictions_aggregated") {
   stopifnot(methods::is(model, "MiceExtVal"))
   stopifnot(methods::is(data, "data.frame"))
   stopifnot(methods::is(n_groups, "numeric"))
-  stopifnot(methods::is(time, "numeric"))
   stopifnot("Variable type is not a prediction attribute in model" = any(type %in% c("predictions_aggregated", "predictions_recal_type_1","predictions_recal_type_2")))
 
   # Returns an error if `.imp` is not part of the `data` parameter
