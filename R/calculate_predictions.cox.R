@@ -30,45 +30,39 @@
 #' set.seed(123)
 #'
 #' model <- mv_model_cox(
-#'    coefficients = list(x = 0.5, z = 0.3),
-#'    means = list(x = 1, z = 2),
-#'    formula = event ~ x + z,
-#'    S0 = 0.98765
+#'   coefficients = list(x = 0.5, z = 0.3),
+#'   means = list(x = 1, z = 2),
+#'   formula = event ~ x + z,
+#'   S0 = 0.98765
 #' )
 #'
 #' data <- data.frame(
-#'   .imp = c(1,1,1,2,2,2,3,3,3),
-#'   id = c(1,2,3,1,2,3,1,2,3),
+#'   .imp = c(1, 1, 1, 2, 2, 2, 3, 3, 3),
+#'   id = c(1, 2, 3, 1, 2, 3, 1, 2, 3),
 #'   x = rnorm(9, 1, 0.25),
 #'   z = rnorm(9, 2, 0.75)
 #' )
 calculate_predictions.cox <- function(model, data) {
-  # Checks pre-conditions
-  stopifnot(methods::is(model, "MiceExtVal"))
-  stopifnot(methods::is(data, "data.frame"))
-
-  # Returns an error if `.imp` is not part of the `data` parameter
-  if (!".imp" %in% colnames(data)) {
-    stop("`data` variable must contain `.imp`")
-    return()
-  }
-
-  # Returns an error if `id` is not part of the `data` parameter
-  if (!"id" %in% colnames(data)) {
-    stop("`data` variable must contain `id`")
-    return()
-  }
-
-  # Returns an error if model `coefficients` names are inside the `data` parameter
+  error_message <- NULL
   if (is.null(model$coefficients) | !all(names(model$coefficients) %in% colnames(data))) {
-    stop("all the coefficients variables must be present in `data` (check if they exist in the model)")
-    return()
+    error_message <- c(error_message, cli::format_error("all the model coefficients must be present in {.arg data}"))
   }
 
-  # Returns an error if model `means` names are inside the `data` parameter
   if (is.null(model$means) | !all(names(model$means) %in% colnames(data))) {
-    stop("all the means variables must be present in `data` (check if they exist in the model)")
-    return()
+    error_message <- c(error_message, cli::format_error("all the means variables must be present in {.arg data}"))
+  }
+
+  if (!".imp" %in% colnames(data)) {
+    error_message <- c(error_message, cli::format_error("{.arg data} must contain {.arg .imp}"))
+  }
+
+  if (!"id" %in% colnames(data)) {
+    error_message <- c(error_message, cli::format_error("{.arg data} must contain {.arg id}"))
+  }
+
+  if (!is.null(error_message)) {
+    names(error_message) <- rep("*", length(error_message))
+    cli::cli_abort(error_message)
   }
 
   # Obtain the expression that calculates the `betax` from the `coefficients` and `mean` paramters. Loop over all the variable names and generates the expression `(coef * (var - mean))`
@@ -89,7 +83,9 @@ calculate_predictions.cox <- function(model, data) {
     dplyr::group_by(.imp) %>%
     dplyr::group_map(~ {
       # Calculates the predictions and generates the results as a `tibble`
-      with(.x, {1 - model$S0^exp(eval(expression))}) %>%
+      with(.x, {
+        1 - model$S0^exp(eval(expression))
+      }) %>%
         tibble::as_tibble() %>%
         tibble::add_column(.imp = .y$.imp) %>%
         tibble::add_column(id = .x$id) %>%
@@ -103,7 +99,9 @@ calculate_predictions.cox <- function(model, data) {
   model$betax_data <- data %>%
     dplyr::group_by(.imp) %>%
     dplyr::group_map(~ {
-      with(.x, {eval(expression)}) %>%
+      with(.x, {
+        eval(expression)
+      }) %>%
         tibble::as_tibble() %>%
         tibble::add_column(.imp = .y$.imp) %>%
         tibble::add_column(id = .x$id) %>%
