@@ -22,21 +22,21 @@
 #' }
 get_c_index_forestplot <- function(...) {
   # Check if all the parameters are MiceExtVal class
-  stopifnot("All models must be from the class MiceExtVal" = all(purrr::map_lgl(list(...), \(x) methods::is(x, "MiceExtVal"))))
-
+  is_model_class <- purrr::map_lgl(list(...), \(x) methods::is(x, "MiceExtVal"))
   models <- list(...)
-  model_names <- names(models)
-  if (is.null(model_names)) {
-    model_names <- as.list(match.call())[-1]
+
+  model_names_callname <- names(models)
+  model_names_call <- as.character(as.list(match.call())[-1])
+
+  model_names <- purrr::map2_chr(model_names_callname, model_names_call, ~ ifelse(is.na(.x) | .x == "", .y, .x))
+
+  if (!all(is_model_class)) {
+    cli::cli_abort("The model{?s} {.arg {model_names[!is_model_class]}} must be from the class {.arg MiceExtVal}")
   }
 
   has_c_index <- purrr::map_lgl(list(...), \(x) !is.null(x$c_index))
   if (!all(has_c_index)) {
-    sprintf(
-      "The model/s (%s) has/have no `c_index` parameter so it/they is/are removed from the forestplot",
-      paste(model_names[!has_c_index], collapse = ", ")
-    ) |>
-      warning()
+    cli::cli_warn("The model{?s} {.arg {model_names[!has_c_index]}} {?has/have} no {.arg c_index} parameter so {?it/they} {?is/are} removed from the forestplot")
 
     model_names <- model_names[has_c_index]
     models <- models[has_c_index]
@@ -69,31 +69,32 @@ get_c_index_forestplot <- function(...) {
   ) |>
     # Generation of the forestplot
     forestplot::forestplot(
-    mean = c_index_mean,
-    lower = c_index_lower,
-    upper = c_index_upper,
-    labeltext = c(model_name, c_index),
-    clip = c(0, 1),
-    new_page = T,
-    hrzl_lines = lines,
-    lineheight = grid::unit(10.5,"mm"),
-    txt_gp = forestplot::fpTxtGp(
-      label = grid::gpar(fontfamily = "", col = "black", cex = 1.2),
-      ticks = grid::gpar(fontfamily = "", cex = 1),
-      xlab  = grid::gpar(fontfamily = "", cex = 1),
-      legend  = grid::gpar(fontfamily = "", cex = 1),
-      title  = grid::gpar(fontfamily = "", cex = 1.2)
-    ),
-    line.margin = .17,
-    boxsize = 0.2,
-    ci.vertices = T,
-    ci.vertices.height = 0.1,
-    fn.ci_norm = forestplot::fpDrawCircleCI,
-    zero = 0.5,
-  ) |> forestplot::fp_add_header(
-    model_name = c("Model"),
-    c_index = c("C-index (95% CI)")
-  ) |>
+      mean = c_index_mean,
+      lower = c_index_lower,
+      upper = c_index_upper,
+      labeltext = c(model_name, c_index),
+      clip = c(0, 1),
+      new_page = T,
+      hrzl_lines = lines,
+      lineheight = grid::unit(10.5, "mm"),
+      txt_gp = forestplot::fpTxtGp(
+        label = grid::gpar(fontfamily = "", col = "black", cex = 1.2),
+        ticks = grid::gpar(fontfamily = "", cex = 1),
+        xlab = grid::gpar(fontfamily = "", cex = 1),
+        legend = grid::gpar(fontfamily = "", cex = 1),
+        title = grid::gpar(fontfamily = "", cex = 1.2)
+      ),
+      line.margin = .17,
+      boxsize = 0.2,
+      ci.vertices = T,
+      ci.vertices.height = 0.1,
+      fn.ci_norm = forestplot::fpDrawCircleCI,
+      zero = 0.5,
+    ) |>
+    forestplot::fp_add_header(
+      model_name = c("Model"),
+      c_index = c("C-index (95% CI)")
+    ) |>
     forestplot::fp_set_zebra_style("#F2F2F2") |>
     forestplot::fp_set_style(lines = grid::gpar(fontfamily = "", col = "black", cex = 1.2))
 }
