@@ -45,32 +45,26 @@
 #' model |>
 #'   calculate_predictions(data)
 calculate_predictions.logreg <- function(model, data) {
-  # Checks pre-conditions
-  stopifnot(methods::is(model, "MiceExtVal"))
-  stopifnot(methods::is(data, "data.frame"))
-
-  # Returns an error if `.imp` is not part of the `data` parameter
-  if (!".imp" %in% colnames(data)) {
-    stop("`data` variable must contain `.imp`")
-    return()
-  }
-
-  # Returns an error if `id` is not part of the `data` parameter
-  if (!"id" %in% colnames(data)) {
-    stop("`data` variable must contain `id`")
-    return()
-  }
-
-  # Returns an error if model `coefficients` names are inside the `data` parameter
+  error_message <- NULL
   if (is.null(model$coefficients) | !all(names(model$coefficients) %in% colnames(data))) {
-    stop("all the coefficients variables must be present in `data` (check if they exist in the model)")
-    return()
+    error_message <- c(error_message, cli::format_error("all the model coefficients must be present in {.arg data}"))
   }
 
-  # Returns an error if model `intercept` does not exist
+  if (!".imp" %in% colnames(data)) {
+    error_message <- c(error_message, cli::format_error("{.arg data} must contain {.arg .imp}"))
+  }
+
+  if (!"id" %in% colnames(data)) {
+    error_message <- c(error_message, cli::format_error("{.arg data} must contain {.arg id}"))
+  }
+
   if (!"intercept" %in% names(model) | !methods::is(model$intercept, "numeric")) {
-    stop("model `intercept` must be `numeric` (check if exists)")
-    return()
+    error_message <- c(error_message, "model `intercept` must be `numeric` (check if exists)")
+  }
+
+  if (!is.null(error_message)) {
+    names(error_message) <- rep("*", length(error_message))
+    cli::cli_abort(error_message)
   }
 
   # Calculates the model predictions as 1 / (1 + exp(beta * x))

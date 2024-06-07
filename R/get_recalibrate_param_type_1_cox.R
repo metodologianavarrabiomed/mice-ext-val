@@ -26,17 +26,27 @@
 #' get_recalibrate_param_type_1_cox(data, s0)
 #' }
 get_recalibrate_param_type_1_cox <- function(time, event, survival_predictions) {
-  # Checks preconditions
-  stopifnot(methods::is(time, "numeric"))
-  stopifnot(methods::is(event, "numeric"))
-  stopifnot(methods::is(survival_predictions, "numeric"))
+  error_message <- NULL
+  if (!methods::is(time, "numeric")) {
+    error_message <- c(error_message, cli::format_error("{.arg model} must be of class {.arg numeric}"))
+  }
+  if (!methods::is(event, "numeric")) {
+    error_message <- c(error_message, cli::format_error("{.arg event} must be of class {.arg numeric}"))
+  }
+  if (!methods::is(survival_predictions, "numeric")) {
+    error_message <- c(error_message, cli::format_error("{.arg survival_predictions} must be of class {.arg numeric}"))
+  }
+
+  if (!is.null(error_message)) {
+    names(error_message) <- rep("*", length(error_message))
+    cli::cli_abort(error_message)
+  }
 
   # Generates the KM estimator from which we will estimate the `alpha` parameter
   recalibrate_data <- data.frame(time = time, event = event)
   recalibrate_data$surv_obj <- survival::Surv(time, event)
-  st = survival::survfit(recalibrate_data$surv_obj ~ 1, data = recalibrate_data)
+  st <- survival::survfit(recalibrate_data$surv_obj ~ 1, data = recalibrate_data)
 
   # Returns the `alpha` parameter
   return(log(-log(st$surv[length(st$surv)])) - log(-log(mean(survival_predictions))))
 }
-

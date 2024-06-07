@@ -42,7 +42,7 @@ test_that("Returns an error if model `coefficients` names are inside the `data` 
   model <- make_cox_model(environment())
 
   model$coefficients <- append(list(m = 0.875), model$coefficients)
-  expect_error(model |> calculate_predictions(data), "all the coefficients variables must be present in `data`")
+  expect_error(model |> calculate_predictions(data), "all the model coefficients must be present in `data`")
 })
 
 test_that("Returns an error if model `means` names are inside the `data` parameter", {
@@ -89,7 +89,7 @@ test_that("Returns an error if model `coefficients` names are not in the `data` 
 
   model$coefficients <- append(list(m = 0.875), model$coefficients)
 
-  expect_error(model |> calculate_predictions(data), "all the coefficients variables must be present in `data`")
+  expect_error(model |> calculate_predictions(data), "all the model coefficients must be present in `data`")
 })
 
 test_that("Returns an error if model `intercept` does not exist", {

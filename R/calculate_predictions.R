@@ -23,8 +23,8 @@
 #' )
 #'
 #' data <- data.frame(
-#'   .imp = c(1,1,1,2,2,2,3,3,3),
-#'   id = c(1,2,3,1,2,3,1,2,3),
+#'   .imp = c(1, 1, 1, 2, 2, 2, 3, 3, 3),
+#'   id = c(1, 2, 3, 1, 2, 3, 1, 2, 3),
 #'   x = rnorm(9, 1, 0.25),
 #'   z = rnorm(9, 2, 0.75)
 #' )
@@ -33,7 +33,20 @@
 #' model |>
 #'   calculate_predictions(data)
 calculate_predictions <- function(model, data) {
-  stopifnot(methods::is(model, "MiceExtVal"))
+  error_message <- NULL
+
+  if (!methods::is(model, "MiceExtVal")) {
+    error_message <- c(error_message, cli::format_error("{.arg model} must be of class {.arg MiceExtVal}"))
+  }
+
+  if (!methods::is(data, "data.frame")) {
+    error_message <- c(error_message, cli::format_error("{.arg data} must be of class {.arg data.frame}"))
+  }
+
+  if (!is.null(error_message)) {
+    names(error_message) <- rep("*", length(error_message))
+    cli::cli_abort(error_message)
+  }
 
   UseMethod("calculate_predictions", model)
 }

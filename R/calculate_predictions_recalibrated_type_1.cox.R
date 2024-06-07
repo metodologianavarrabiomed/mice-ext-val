@@ -29,19 +29,19 @@
 #' set.seed(123)
 #'
 #' model <- mv_model_cox(
-#'    coefficients = list(x = 0.5, z = 0.3),
-#'    means = list(x = 1, z = 2),
-#'    formula = event ~ x + z,
-#'    S0 = 0.98765
+#'   coefficients = list(x = 0.5, z = 0.3),
+#'   means = list(x = 1, z = 2),
+#'   formula = event ~ x + z,
+#'   S0 = 0.98765
 #' )
 #'
 #' data <- data.frame(
-#'   .imp = c(1,1,1,2,2,2,3,3,3),
-#'   id = c(1,2,3,1,2,3,1,2,3),
+#'   .imp = c(1, 1, 1, 2, 2, 2, 3, 3, 3),
+#'   id = c(1, 2, 3, 1, 2, 3, 1, 2, 3),
 #'   x = rnorm(9, 1, 0.25),
 #'   z = rnorm(9, 2, 0.75),
-#'   status = c(1,0,0,1,0,0,1,0,0),
-#'   time = c(2,3,5,2,3,5,2,3,5)
+#'   status = c(1, 0, 0, 1, 0, 0, 1, 0, 0),
+#'   time = c(2, 3, 5, 2, 3, 5, 2, 3, 5)
 #' )
 #' data$event <- survival::Surv(data$time, data$status)
 #'
@@ -49,44 +49,42 @@
 #'   calculate_predictions(data) |>
 #'   calculate_predictions_recalibrated_type_1(data)
 calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress = FALSE) {
-  # Checks pre-conditions
-  stopifnot(methods::is(model, "MiceExtVal"))
-  stopifnot(methods::is(data, "data.frame"))
+  error_message <- NULL
+
 
   # Returns an error if `.imp` is not part of the `data` parameter
   if (!".imp" %in% colnames(data)) {
-    stop("`data` variable must contain `.imp`")
-    return()
+    error_message <- c(error_message, cli::format_error("{.arg data} variable must contain {.arg .imp}"))
   }
 
   # Returns an error if `id` is not part of the `data` parameter
   if (!"id" %in% colnames(data)) {
-    stop("`data` variable must contain `id`")
-    return()
+    error_message <- c(error_message, cli::format_error("{.arg data} variable must contain {.arg id}"))
   }
 
   # Returns an error if `predictions_data` does not exist in `model`
   if (!"predictions_data" %in% names(model) | !methods::is(model$predictions_data, "data.frame")) {
-    stop("`model` must have `predictions_data` calculated")
-    return()
+    error_message <- c(error_message, cli::format_error("{.arg model} must have {.arg predictions_data} calculated"))
   }
 
   # Returns an error if the dependent variable in the model formula does not exist
   # in `data` or is not a survival class
   dependent_variable <- all.vars(model$formula)[1]
   if (!dependent_variable %in% colnames(data)) {
-    stop("the dependent variable must be part of `data`")
-    return()
+    error_message <- c(error_message, cli::format_error("the dependent variable must be part of {.arg data}"))
   }
   if (!methods::is(data[[dependent_variable]], "Surv")) {
-    stop("the dependent variable must be of class `Surv`")
-    return()
+    error_message <- c(error_message, cli::format_error("the dependent variable must be of class {.arg Surv}"))
   }
 
   # Returns an error if `S0` does not exist or it is bad defined in the cox model
   if (is.null(model$S0) | !is.numeric(model$S0)) {
-    stop("`S0` must be a `numeric`")
-    return()
+    error_message <- c(error_message, cli::format_error("{.arg S0} must be a {.arg numeric}"))
+  }
+
+  if (!is.null(error_message)) {
+    names(error_message) <- rep("*", length(error_message))
+    cli::cli_abort(error_message)
   }
 
   # Progress bar code
@@ -120,8 +118,8 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
 
       # Calculates the `alpha` parameter value
       get_recalibrate_param_type_1_cox(
-        time = survival_data[,"time"],
-        event = survival_data[,"status"],
+        time = survival_data[, "time"],
+        event = survival_data[, "status"],
         survival_predictions = survival_predictions
       )
     }) %>%
@@ -137,7 +135,8 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
         # Generation of the recalibrated predictions
         prediction_type_1 = 1 - exp(-exp(model$alpha + log(-log(1 - .x$prediction))))
       )
-    }) %>% do.call(rbind, args = .)
+    }) %>%
+    do.call(rbind, args = .)
 
   # Progress bar code
   if (.progress) {

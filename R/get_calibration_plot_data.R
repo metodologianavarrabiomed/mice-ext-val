@@ -29,33 +29,46 @@
 #'   get_calibration_plot_data(data = test_data, n_groups = 10, type = "predictions_aggregated")
 #' }
 get_calibration_plot_data <- function(model, data, n_groups, type = "predictions_aggregated") {
-  stopifnot(methods::is(model, "MiceExtVal"))
-  stopifnot(methods::is(data, "data.frame"))
-  stopifnot(methods::is(n_groups, "numeric"))
-  stopifnot("Variable type is not a prediction attribute in model" = any(type %in% c("predictions_aggregated", "predictions_recal_type_1","predictions_recal_type_2")))
+  error_message <- NULL
+  if (!methods::is(model, "MiceExtVal")) {
+    error_message <- c(error_message, cli::format_error("{.arg model} must be of class {.arg MiceExtVal}"))
+  }
+  if (!methods::is(data, "data.frame")) {
+    error_message <- c(error_message, cli::format_error("{.arg data} must be of class {.arg data.frame}"))
+  } else {
+
+  }
+  if (!methods::is(n_groups, "numeric")) {
+    error_message <- c(error_message, cli::format_error("{.arg n_groups} must be of class {.arg numeric}"))
+  }
+
+  if (!any(type %in% c("predictions_aggregated", "predictions_recal_type_1", "predictions_recal_type_2"))) {
+    error_message <- c(error_message, cli::format_error("{.arg type} must be one of the following types: {.arg {c('predictions_aggregated', 'predictions_recal_type_1', 'predictions_recal_type_2')}}"))
+  }
 
   # Returns an error if `.imp` is not part of the `data` parameter
   if (!".imp" %in% colnames(data)) {
-    stop("`data` variable must contain `.imp`")
-    return()
+    error_message <- c(error_message, cli::format_error("{.arg data} variable must contain {.arg .imp}"))
   }
 
   # Returns an error if `id` is not part of the `data` parameter
   if (!"id" %in% colnames(data)) {
-    stop("`data` variable must contain `id`")
-    return()
+    error_message <- c(error_message, cli::format_error("{.arg data} variable must contain {.arg id}"))
   }
 
   # Returns an error if the dependent variable in the model formula does not exist
   # in `data` or is not a survival class
   dependent_variable <- all.vars(model$formula)[1]
   if (!dependent_variable %in% colnames(data)) {
-    stop("the dependent variable must be part of `data`")
-    return()
+    error_message <- c(error_message, cli::format_error("the dependent variable must be part of {.arg data}"))
   }
   if (!methods::is(data[[dependent_variable]], "Surv")) {
-    stop("the dependent variable must be of class `Surv`")
-    return()
+    error_message <- c(error_message, cli::format_error("the dependent variable must be of class {.arg Surv}"))
+  }
+
+  if (!is.null(error_message)) {
+    names(error_message) <- rep("*", length(error_message))
+    cli::cli_abort(error_message)
   }
 
   # We assume that the observed variable is completed and therefore the same in

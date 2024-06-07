@@ -37,7 +37,20 @@
 #'   calculate_predictions(data) |>
 #'   calculate_predictions_recalibrated_type_1(data)
 calculate_predictions_recalibrated_type_1 <- function(model, data, .progress = FALSE){
-  stopifnot(methods::is(model, "MiceExtVal"))
+  error_message <- NULL
+
+  if (!methods::is(model, "MiceExtVal")) {
+    error_message <- c(error_message, cli::format_error("{.arg model} must be of class {.arg MiceExtVal}"))
+  }
+
+  if (!methods::is(data, "data.frame")) {
+    error_message <- c(error_message, cli::format_error("{.arg data} must be of class {.arg data.frame}"))
+  }
+
+  if (!is.null(error_message)) {
+    names(error_message) <- rep("*", length(error_message))
+    cli::cli_abort(error_message)
+  }
 
   UseMethod("calculate_predictions_recalibrated_type_1", model)
 }
