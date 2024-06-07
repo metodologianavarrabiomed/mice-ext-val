@@ -28,6 +28,11 @@ get_c_index_forestplot <- function(...) {
   model_names_callname <- names(models)
   model_names_call <- as.character(as.list(match.call())[-1])
 
+  if (is.null(model_names_callname)) {
+    model_names_callname <- model_names_call
+  } else if (is.null(model_names_call)) {
+    model_names_call <- model_names_callname
+  }
   model_names <- purrr::map2_chr(model_names_callname, model_names_call, ~ ifelse(is.na(.x) | .x == "", .y, .x))
 
   if (!all(is_model_class)) {
