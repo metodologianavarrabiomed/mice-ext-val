@@ -27,13 +27,13 @@
 #' }
 get_recalibrate_param_type_1_cox <- function(time, event, survival_predictions) {
   error_message <- NULL
-  if (methods::is(time, "numeric")) {
+  if (!methods::is(time, "numeric")) {
     error_message <- c(error_message, cli::format_error("{.arg model} must be of class {.arg numeric}"))
   }
-  if (methods::is(event, "numeric")) {
+  if (!methods::is(event, "numeric")) {
     error_message <- c(error_message, cli::format_error("{.arg event} must be of class {.arg numeric}"))
   }
-  if (methods::is(survival_predictions, "numeric")) {
+  if (!methods::is(survival_predictions, "numeric")) {
     error_message <- c(error_message, cli::format_error("{.arg survival_predictions} must be of class {.arg numeric}"))
   }
 

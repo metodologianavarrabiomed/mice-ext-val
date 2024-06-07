@@ -24,13 +24,13 @@
 #' }
 get_recalibrate_params_type_2_cox <- function(time, event, betax) {
   error_message <- NULL
-  if (methods::is(time, "numeric")) {
-    error_message <- c(error_message, cli::format_error("{.arg model} must be of class {.arg numeric}"))
+  if (!methods::is(time, "numeric")) {
+    error_message <- c(error_message, cli::format_error("{.arg time} must be of class {.arg numeric}"))
   }
-  if (methods::is(event, "numeric")) {
+  if (!methods::is(event, "numeric")) {
     error_message <- c(error_message, cli::format_error("{.arg event} must be of class {.arg numeric}"))
   }
-  if (methods::is(betax, "numeric")) {
+  if (!methods::is(betax, "numeric")) {
     error_message <- c(error_message, cli::format_error("{.arg betax} must be of class {.arg numeric}"))
   }
 
