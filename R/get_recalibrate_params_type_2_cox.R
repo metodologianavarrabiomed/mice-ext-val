@@ -23,10 +23,21 @@
 #' get_recalibrate_params_type_2_cox(data, betax, t)
 #' }
 get_recalibrate_params_type_2_cox <- function(time, event, betax) {
-  # Checks preconditions
-  stopifnot(methods::is(time, "numeric"))
-  stopifnot(methods::is(event, "numeric"))
-  stopifnot(methods::is(betax, "numeric"))
+  error_message <- NULL
+  if (methods::is(time, "numeric")) {
+    error_message <- c(error_message, cli::format_error("{.arg model} must be of class {.arg numeric}"))
+  }
+  if (methods::is(event, "numeric")) {
+    error_message <- c(error_message, cli::format_error("{.arg event} must be of class {.arg numeric}"))
+  }
+  if (methods::is(betax, "numeric")) {
+    error_message <- c(error_message, cli::format_error("{.arg betax} must be of class {.arg numeric}"))
+  }
+
+  if (!is.null(error_message)) {
+    names(error_message) <- rep("*", length(error_message))
+    cli::cli_abort(error_message)
+  }
 
   # Generates a Weibull distribution over the data to obtain the survival function estimator
   recalibrate_data <- data.frame(time = time, event = event, betax = betax)
