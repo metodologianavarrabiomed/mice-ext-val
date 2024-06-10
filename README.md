@@ -5,9 +5,22 @@
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-The goal of MiceExtVal is to give the users tools to externally validate models using the multiple imputation methodology. There are lots of tools to externally validate models in complete datasets but there is a lack of tools when we are working with multiple imputed datasets. It is recommended to use techniques like multiple imputation by chained equations to impute the missing values when they are present and this package is created to fill that gap.
+The goal of MiceExtVal is to give the users tools to externally validate models using the multiple imputation methodology. There are lots of tools to externally validate models in complete datasets but there is a lack of tools when we are working with multiple imputed datasets. It is recommended to use techniques like multiple imputation by chained equations (MICE) to impute the missing values when they are present and this package is created to fill that gap.
 
-The package counts with support to Cox and logistic regression models as it was generated to define the methodology of an external validation of survival analysis. 
+The package counts with support to Cox and logistic regression models as it was generated to define the methodology of an external validation of survival analysis. The MICE methodology needs to generate as many solutions as imputed datasets.
+
+```mermaid
+flowchart LR
+data[(fa:fa-database multiple imputed data)] --> a1(fa:fa-chart-simple analysis dataset 1)
+data --> adots(...)
+data --> an(fa:fa-chart-simple analysis dataset n)
+a1 --> res1(fa:fa-magnifying-glass results analysis 1)
+adots --> res2(...)
+an --> resn(fa:fa-magnifying-glass results analysis n)
+res1 --> total_results(fa:fa-layer-group aggregated results)
+res2 --> total_results
+resn --> total_results
+```
 
 ## Installation
 
@@ -23,7 +36,6 @@ The package functions are divided in three groups, the model definition function
 
 ``` r
 library(MiceExtVal)
-## basic example code
 ```
 
 We can define a model using the `mv_model` functions
