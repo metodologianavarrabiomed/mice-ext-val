@@ -14,7 +14,7 @@
 #' @return The same `model` passed as a parameter with the Harrell C Index value stored in `$c_index`
 #'
 #' @importFrom Hmisc rcorr.cens
-#' @importFrom dplyr %>% group_by_at group_map filter pull
+#' @importFrom dplyr %>% group_by_at group_map filter pull vars
 #' @importFrom tibble tibble as_tibble
 #' @importFrom progress progress_bar
 #' @importFrom methods is
