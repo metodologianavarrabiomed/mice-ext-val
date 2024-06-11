@@ -20,7 +20,7 @@
 #'
 #'
 #' @import mathjaxr
-#' @importFrom dplyr %>% group_by group_map rename summarise
+#' @importFrom dplyr %>% group_by_at group_map rename vars bind_rows
 #' @importFrom tibble tibble as_tibble add_column
 #' @importFrom methods is
 #'
@@ -80,7 +80,7 @@ calculate_predictions.cox <- function(model, data) {
 
   # Calculates the predictions evaluating the previous expression in each imputation
   model$predictions_data <- data %>%
-    dplyr::group_by(.imp) %>%
+    dplyr::group_by_at(dplyr::vars(".imp")) %>%
     dplyr::group_map(~ {
       # Calculates the predictions and generates the results as a `tibble`
       with(.x, {
@@ -90,14 +90,14 @@ calculate_predictions.cox <- function(model, data) {
         tibble::add_column(.imp = .y$.imp) %>%
         tibble::add_column(id = .x$id) %>%
         # Changes the name to prediction instead of value (name of the `with` function results)
-        dplyr::rename(prediction = value)
+        dplyr::rename("prediction" = value)
     }) %>%
-    do.call(rbind, args = .)
+    dplyr::bind_rows()
 
   # Generates the `betax` results for each of the imputations as done with the predictions.
   # TODO: Add this code logic into the predictions one to save all the iterations here.
   model$betax_data <- data %>%
-    dplyr::group_by(.imp) %>%
+    dplyr::group_by_at(dplyr::vars(".imp")) %>%
     dplyr::group_map(~ {
       with(.x, {
         eval(expression)
@@ -105,19 +105,21 @@ calculate_predictions.cox <- function(model, data) {
         tibble::as_tibble() %>%
         tibble::add_column(.imp = .y$.imp) %>%
         tibble::add_column(id = .x$id) %>%
-        dplyr::rename(betax = value)
+        dplyr::rename("betax" = value)
     }) %>%
-    do.call(rbind, args = .)
+    dplyr::bind_rows()
 
   # Generates the aggregated `predictions` and stores them into the model
   model$predictions_aggregated <- model$predictions_data %>%
-    dplyr::group_by(id) %>%
-    dplyr::summarise(prediction = mean(prediction))
+    dplyr::group_by_at(dplyr::vars("id")) %>%
+    dplyr::group_map(~ tibble::tibble(id = .y$id, prediction = mean(.x$prediction))) %>%
+    dplyr::bind_rows()
 
   # Generates the aggregated `betax` and stores them into the model
   model$betax <- model$betax_data %>%
-    dplyr::group_by(id) %>%
-    dplyr::summarise(betax = mean(betax))
+    dplyr::group_by_at(dplyr::vars("id")) %>%
+    dplyr::group_map(~ tibble::tibble(id = .y$id, betax = mean(.x$betax))) %>%
+    dplyr::bind_rows()
 
   return(model)
 }
