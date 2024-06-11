@@ -5,7 +5,7 @@
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-The goal of MiceExtVal is to give the users tools to externally validate models using the multiple imputation methodology. There are lots of tools to externally validate models in complete datasets but there is a lack of tools when we are working with multiple imputed datasets. It is recommended to use techniques like multiple imputation by chained equations (MICE) to impute the missing values when they are present, the MICE methodology requires to realize as many alanysis as imputed datasets are. The next graph shows the flowchar of a multple imputed analysis. The package is generated to assist the users along the external validation analysis.
+The goal of MiceExtVal is to give the users tools to externally validate models using the multiple imputation methodology. There are lots of tools to externally validate models in complete datasets but there is a lack of tools when we are working with multiple imputed datasets. It is recommended to use techniques like multiple imputation by chained equations ([MICE](https://stefvanbuuren.name/fimd/)) to impute the missing values when they are present, the MICE methodology requires to realize as many alanysis as imputed datasets are. The next graph shows the flowchart of a multple imputed analysis. The package is generated to assist the users along the external validation analysis.
 
 ```mermaid
 flowchart LR
@@ -37,19 +37,20 @@ The package assumes that there is a multiple imputed dataset in `long` format wi
 
 > [!TIP]
 >
-> From the `mice` package you can obtain the complete dataset in long format as
+> From the [`mice` package](https://cran.r-project.org/web/packages/mice/index.html) you can obtain the complete dataset in long format as
 >
 > ```r
 > complete <- mice::complete(imp, action = "long")
 > ```
 
-Through this example we assume that the complete dataset is called `external_validation_data`. Firstly, we import the package. 
+Through this example we assume that the complete dataset is called `external_validation_data`. Firstly, we import the package.
 
 ``` r
 library(MiceExtVal)
 ```
 
 ### Defining a model
+
 By using the `mv_model` we can generate the package model definitions. To define a Cox model we use the function `mv_model_cox` and to define a logistic regression model we use the function `mv_model_logreg`. Each model have different requirements to be generated.
 
 #### Cox model
@@ -114,7 +115,7 @@ model <- model %>% calculate_predictions(external_validation_data)
 ```
 
 > [!TIP]
-> If you are working with the package `magrittr` it is possible to rewrite the code as follows
+> If you are working with the [`magrittr` package](https://cran.r-project.org/web/packages/magrittr/index.html) it is possible to rewrite the code as follows
 >
 > ```r
 > model %<>% calculate_predictions(external_validation_data)
@@ -146,7 +147,7 @@ model %<>% calculate_c_index(external_validation_data)
 
 ### Visualizing the results
 
-Once all the results are generated in the model we can start to generate the plots to visualize them. As shown in the next graph this is the last step of the package pipeline where we visualize the results. In the package there are two plots defined. The `calibration plots` that shows how the predictions matched the observed risk and the `c-index foresplot` that shows the discrimination abilities of different models. 
+Once all the results are generated in the model we can start to generate the plots to visualize them. As shown in the next graph this is the last step of the package pipeline where we visualize the results. In the package there are two plots defined. The `calibration plots` that shows how the predictions matched the observed risk and the `c-index foresplot` that shows the discrimination abilities of different models.
 
 ```mermaid
 flowchart LR
@@ -167,7 +168,7 @@ end
 
 #### Calibration plots
 
-To obtain the calibration plots we need to use two functions `get_calibration_plot_data` that generates the needed data to actually generate the calibration plot and the `get_calibration_plot` whose only needed parameter is the outcome of `get_calibration_plot_data`. We can generate a calibration plot as shown in the next code snippet.
+To obtain the calibration plots we need to use two functions `get_calibration_plot_data` that generates the needed data to actually generate the calibration plot and the `get_calibration_plot` whose only needed parameter is the outcome of `get_calibration_plot_data`. We can generate a calibration plot as shown in the next code snippet with the function `get_calibration_plot`. The function returns a [`ggplot2` object](https://cran.r-project.org/web/packages/ggplot2/index.html) so it can be further styled than the default plot of the package.
 
 ```r
 model %>%
@@ -194,7 +195,7 @@ model %>%
 
 #### C-index forestplot
 
-The external validations are normally formed by many models and we want to compare their results. Forestplots are a great way of visualizing the c-index values of multiple models in one graph. The package provides the function `get_c_index_forestplot`. You can provide an illimited number of models that have their `c_index` calculated and it returns a forestplot generated with the `forestplot` package.
+The external validations are normally formed by many models and we want to compare their results. Forestplots are a great way of visualizing the c-index values of multiple models in one graph. The package provides the function `get_c_index_forestplot`. You can provide an illimited number of models that have their `c_index` calculated and it returns a forestplot generated with the [`forestplot` package](https://cran.r-project.org/web/packages/forestplot/index.html).
 
 ```r
 get_c_index_forestplot(Cox = cox_model, `Logistic Regression`= logreg_model)
