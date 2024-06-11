@@ -14,7 +14,7 @@
 #' @return The same `model` passed as a parameter with the Harrell C Index value stored in `$c_index`
 #'
 #' @importFrom Hmisc rcorr.cens
-#' @importFrom dplyr %>% group_by group_map filter select
+#' @importFrom dplyr %>% group_by_at group_map filter pull
 #' @importFrom tibble tibble as_tibble
 #' @importFrom progress progress_bar
 #' @importFrom methods is
@@ -99,7 +99,7 @@ calculate_c_index <- function(model, data, .progress = FALSE) {
 
   # Calculates the C-Index value in each of the imputations.
   c_index_data <- data %>%
-    dplyr::group_by(.imp) %>%
+    dplyr::group_by_at(dplyr::vars(".imp")) %>%
     dplyr::group_map(~ {
       # Progress bar code
       if (.progress) {
@@ -110,18 +110,18 @@ calculate_c_index <- function(model, data, .progress = FALSE) {
       survival_data <- .x[[all.vars(model$formula)[1]]]
       Hmisc::rcorr.cens(
         # Get the predictions data for the imputation `.imp`.
-        x = unlist(1 - (model$predictions_data %>% dplyr::filter(.imp == .y$.imp) %>% dplyr::select(prediction))),
+        x = 1 - (model$predictions_data %>% dplyr::filter({.imp == .y$.imp}) %>% dplyr::pull(var="prediction")),
         # Generates the outcome variable from `survival_data`
         S = survival::Surv(time = survival_data[, "time"], event = survival_data[, "status"])
       )
     }) %>%
-    do.call(rbind, args = .)
+    dplyr::bind_rows()
 
   # Aggregates the results using rubin rules and populates the `c_index` parameter in the model
   model$c_index <- psfmi::pool_RR(
-    est = c_index_data[, "C Index"],
-    se = c_index_data[, "S.D."]/2,
-    n = c_index_data[1, "n"],
+    est = c_index_data$`C Index`,
+    se = c_index_data$`S.D.`/2,
+    n = c_index_data$n[[1]],
     k = 1
   )
 
