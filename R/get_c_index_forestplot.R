@@ -74,10 +74,10 @@ get_c_index_forestplot <- function(...) {
   ) |>
     # Generation of the forestplot
     forestplot::forestplot(
-      mean = c_index_mean,
-      lower = c_index_lower,
-      upper = c_index_upper,
-      labeltext = c(model_name, c_index),
+      mean = "c_index_mean",
+      lower = "c_index_lower",
+      upper = "c_index_upper",
+      labeltext = c("model_name", "c_index"),
       clip = c(0, 1),
       new_page = T,
       hrzl_lines = lines,
