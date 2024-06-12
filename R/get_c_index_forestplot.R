@@ -14,6 +14,7 @@
 #' @importFrom purrr map_chr map_dbl
 #' @importFrom grid unit gpar
 #' @importFrom methods is
+#' @importFrom cli cli_abort cli_warn
 #'
 #' @examples
 #' \dontrun{

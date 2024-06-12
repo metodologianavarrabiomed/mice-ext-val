@@ -30,6 +30,7 @@
 #' @importFrom rms lrm.fit
 #' @importFrom progress progress_bar
 #' @importFrom methods is
+#' @importFrom cli format_error cli_abort
 #'
 #' @exportS3Method calculate_predictions_recalibrated_type_1 logreg
 #'

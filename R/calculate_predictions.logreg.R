@@ -22,6 +22,7 @@
 #' @importFrom dplyr %>% group_by_at group_map rename vars bind_rows
 #' @importFrom tibble tibble as_tibble add_column
 #' @importFrom methods is
+#' @importFrom cli format_error cli_abort
 #'
 #' @exportS3Method calculate_predictions logreg
 #'

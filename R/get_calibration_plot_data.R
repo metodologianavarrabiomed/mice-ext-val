@@ -17,9 +17,10 @@
 #' | ... | ... | ... |
 #' | n_group | 0.84 | 0.79 |
 #'
-#' @importFrom dplyr filter select mutate left_join group_by group_map
+#' @importFrom dplyr select mutate left_join group_by_at group_map all_of ntile vars bind_rows
 #' @importFrom survival survfit Surv
 #' @importFrom methods is
+#' @importFrom cli format_error cli_abort
 #'
 #' @export
 #'

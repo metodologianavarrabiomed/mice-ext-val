@@ -18,6 +18,8 @@
 #' @importFrom tibble tibble as_tibble
 #' @importFrom progress progress_bar
 #' @importFrom methods is
+#' @importFrom cli format_error cli_abort
+#' @importFrom psfmi pool_RR
 #'
 #' @export
 #'

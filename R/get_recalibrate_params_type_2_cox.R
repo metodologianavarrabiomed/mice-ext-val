@@ -17,6 +17,7 @@
 #' @import mathjaxr
 #' @importFrom survival survreg Surv coxph survfit
 #' @importFrom methods is
+#' @importFrom cli format_error cli_abort
 #'
 #' @examples
 #' \dontrun{
