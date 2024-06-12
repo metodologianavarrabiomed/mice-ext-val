@@ -74,11 +74,10 @@ get_calibration_plot_data <- function(model, data, n_groups, type = "predictions
   # We assume that the observed variable is completed and therefore the same in
   # all the imputed datasets. If not we should generate the aggregated result
   # using Rubin Rules.
-  original_data <- data %>%
+  original_data <- data[data$.imp == 1, ] %>%
     # We also assume that data is a `mice` imputed dataset in long format.
     # Thus, `.imp` exists and have at least 1 imputed dataset.
-    dplyr::filter(.imp == 1) %>%
-    dplyr::select(id, !!dependent_variable)
+    dplyr::select(dplyr::all_of(c("id", dependent_variable)))
 
   # Select the variable that is used from the model
   pred_var <- as.name(names(model[[type]])[2])
@@ -86,14 +85,14 @@ get_calibration_plot_data <- function(model, data, n_groups, type = "predictions
     # Generates the groups by the prediction variable and group by the generated group
     dplyr::mutate(group = dplyr::ntile(!!pred_var, n_groups)) %>%
     dplyr::left_join(original_data, by = "id") %>%
-    dplyr::group_by(group) %>%
+    dplyr::group_by_at(dplyr::vars("group")) %>%
     # Calculates the predicted and observed value for each of the predicted risk groups
     dplyr::group_map(~ {
       .x$survobj <- survival::Surv(time = .x[[dependent_variable]][, "time"], event = .x[[dependent_variable]][, "status"])
       # Estimates the observed risk inside the group
       km <- survival::survfit(survobj ~ 1, data = .x)
       return(
-        tibble(
+        tibble::tibble(
           bin = .y$group,
           predicted = mean(.x[[pred_var]]),
           # Should be calculated for a certain time given by the user.
@@ -105,6 +104,6 @@ get_calibration_plot_data <- function(model, data, n_groups, type = "predictions
         )
       )
     }) %>%
-    do.call(rbind, args = .) %>%
+    dplyr::bind_rows() %>%
     return()
 }
