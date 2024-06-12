@@ -26,11 +26,12 @@
 #'    * `beta_overall`: stores the \eqn{\beta_{overall}} type 2 recalibration parameter.
 #'
 #' @import mathjaxr
-#' @importFrom dplyr %>% filter select summarise
+#' @importFrom dplyr %>% group_by_at group_map filter pull vars bind_rows
 #' @importFrom tibble tibble as_tibble
 #' @importFrom rms lrm
 #' @importFrom progress progress_bar
 #' @importFrom methods is
+#' @importFrom cli format_error cli_abort
 #'
 #' @exportS3Method calculate_predictions_recalibrated_type_2 logreg
 #'
@@ -111,8 +112,8 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
 
   # Calculates the recalibrate parameters for the model
   recal_parameters <- data %>%
-    group_by(.imp) %>%
-    group_map(~ {
+    dplyr::group_by_at(dplyr::vars(".imp")) %>%
+    dplyr::group_map(~ {
       # Progress bar code
       if (.progress) {
         pb$tick()
@@ -123,8 +124,7 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
         y = survival_data[, "status"],
         betax = model$betax_data %>%
           dplyr::filter(.imp == .y$.imp) %>%
-          dplyr::select(betax) %>%
-          unlist()
+          dplyr::pull(betax)
       )
 
       model_recal <- rms::lrm(y ~ betax, data = recal_data)
@@ -134,16 +134,10 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
         beta_overall = model_recal$coefficients[2]
       )
     }) %>%
-    do.call(rbind, args = .) %>%
-    # Transform to tibble and summarise the results
-    tibble::as_tibble() %>%
-    dplyr::summarise(
-      alpha_type_2 = mean(unlist(alpha_type_2)),
-      beta_overall = mean(unlist(beta_overall))
-    )
+    dplyr::bind_rows()
 
-  model$alpha_type_2 <- recal_parameters$alpha_type_2
-  model$beta_overall <- recal_parameters$beta_overall
+  model$alpha_type_2 <- mean(recal_parameters$alpha_type_2)
+  model$beta_overall <- mean(recal_parameters$beta_overall)
 
   # Calculates the type 2 recalibration
   model$predictions_recal_type_2 <- tibble::tibble(

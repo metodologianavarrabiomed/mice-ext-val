@@ -33,6 +33,7 @@
 #'
 #' @import mathjaxr
 #' @importFrom methods is
+#' @importFrom cli format_error cli_abort
 #'
 #' @export
 #'

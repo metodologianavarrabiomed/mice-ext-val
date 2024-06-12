@@ -10,6 +10,7 @@
 #' @return A model with the parameters `predictions_aggregated`, `predictions_data`, `betax` and `betax_data` populated.
 #'
 #' @importFrom methods is
+#' @importFrom cli format_error cli_abort
 #'
 #' @export
 #'

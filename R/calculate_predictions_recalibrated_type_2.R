@@ -11,6 +11,7 @@
 #' @return A model with the parameter `predictions_recal_type_2` and also the recalibration parameters are populated.
 #'
 #' @importFrom methods is
+#' @importFrom cli format_error cli_abort
 #'
 #' @export
 #'

@@ -25,11 +25,12 @@
 #'    * `alpha_type_1`: stores the \eqn{\alpha} recalibration parameter.
 #'
 #' @import mathjaxr
-#' @importFrom dplyr %>% group_by group_map filter select
+#' @importFrom dplyr %>% group_by_at group_map filter pull bind_rows
 #' @importFrom tibble tibble
 #' @importFrom rms lrm.fit
 #' @importFrom progress progress_bar
 #' @importFrom methods is
+#' @importFrom cli format_error cli_abort
 #'
 #' @exportS3Method calculate_predictions_recalibrated_type_1 logreg
 #'
@@ -107,7 +108,7 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
   }
 
   model$alpha_type_1 <- data %>%
-    dplyr::group_by(.imp) %>%
+    dplyr::group_by_at(dplyr::vars(".imp")) %>%
     dplyr::group_map(~ {
       # Progress bar code
       if (.progress) {
@@ -118,17 +119,17 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
       survival_data <- .x[[all.vars(model$formula)[1]]]
       betax <- model$betax_data %>%
         dplyr::filter(.imp == .y$.imp) %>%
-        dplyr::select(betax) %>%
-        unlist()
+        dplyr::pull(betax)
 
       # Calculates the `alpha` parameter value
       model_recal <- rms::lrm.fit(
         y = survival_data[, "status"],
         offset = betax
       )
-      alpha <- model_recal$coefficients
+      tibble::tibble(alpha = model_recal$coefficients)
     }) %>%
-    do.call(rbind, args = .) %>%
+    dplyr::bind_rows() %>%
+    dplyr::pull("alpha") %>%
     mean()
 
   # Calculates the type 1 recalibration

@@ -19,7 +19,9 @@
 #'
 #' @import mathjaxr
 #' @importFrom survival Surv survfit
+#' @importFrom tibble tibble
 #' @importFrom methods is
+#' @importFrom cli format_error cli_abort
 #'
 #' @examples
 #' \dontrun{
@@ -48,5 +50,5 @@ get_recalibrate_param_type_1_cox <- function(time, event, survival_predictions) 
   st <- survival::survfit(recalibrate_data$surv_obj ~ 1, data = recalibrate_data)
 
   # Returns the `alpha` parameter
-  return(log(-log(st$surv[length(st$surv)])) - log(-log(mean(survival_predictions))))
+  return(tibble::tibble(alpha = log(-log(st$surv[length(st$surv)])) - log(-log(mean(survival_predictions)))))
 }

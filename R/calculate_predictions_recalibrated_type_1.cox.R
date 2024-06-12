@@ -18,10 +18,11 @@
 #'        | n | 0.16 |
 #'    * `alpha`: stores the \eqn{\alpha} recalibration parameter.
 #'
-#' @importFrom dplyr %>% group_by group_map filter select
+#' @importFrom dplyr %>% group_by_at group_map filter pull vars
 #' @importFrom tibble tibble as_tibble
 #' @importFrom progress progress_bar
 #' @importFrom methods is
+#' @importFrom cli format_error cli_abort
 #'
 #' @exportS3Method calculate_predictions_recalibrated_type_1 cox
 #'
@@ -103,7 +104,7 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
 
   # Obtain the `alpha` value
   model$alpha <- data %>%
-    dplyr::group_by(.imp) %>%
+    dplyr::group_by_at(dplyr::vars(".imp")) %>%
     dplyr::group_map(~ {
       # Progress bar code
       if (.progress) {
@@ -123,12 +124,13 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
         survival_predictions = survival_predictions
       )
     }) %>%
-    do.call(rbind, args = .) %>%
+    dplyr::bind_rows() %>%
+    dplyr::pull("alpha") %>%
     mean() # Aggregates the results, no rubin rules here
 
   # Calculates the recalibrated type 1 predictions
   model$predictions_recal_type_1 <- model$predictions_aggregated %>%
-    dplyr::group_by(id) %>%
+    dplyr::group_by_at(dplyr::vars("id")) %>%
     dplyr::group_map(~ {
       tibble(
         id = .y$id,
@@ -136,7 +138,7 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
         prediction_type_1 = 1 - exp(-exp(model$alpha + log(-log(1 - .x$prediction))))
       )
     }) %>%
-    do.call(rbind, args = .)
+    dplyr::bind_rows()
 
   # Progress bar code
   if (.progress) {
