@@ -1,6 +1,7 @@
 source(test_path("fixtures", "make-model-cox.R"))
 source(test_path("fixtures", "make-model-logreg.R"))
 
+# General tests ----------------------------------------------------------------
 test_that("Checks the model parameter", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
 
@@ -8,7 +9,7 @@ test_that("Checks the model parameter", {
   expect_error(calculate_predictions_recalibrated_type_2(data))
 })
 
-# Cox model
+# Cox model --------------------------------------------------------------------
 test_that("Checks the data argument in cox model", {
   model <- make_cox_model(environment())
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
@@ -78,7 +79,7 @@ test_that("Calculates the type 2 recalibrated predictions properly for cox model
   expect_identical(model$beta_overall, readRDS(test_path("fixtures", "cox", "beta_overall_cox.rds")))
 })
 
-# Logreg model
+# Logreg model -----------------------------------------------------------------
 test_that("Checks the data argument in logreg model", {
   model <- make_logreg_model(environment())
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
