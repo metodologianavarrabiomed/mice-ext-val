@@ -1,10 +1,8 @@
 inst/doc
 .Rproj.user
 data
-docs
 doc_no_git
 vignettes
-man
 .Rbuildignore
 .Rdata
 .Rhistory
