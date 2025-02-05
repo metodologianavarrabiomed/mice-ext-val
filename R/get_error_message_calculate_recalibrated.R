@@ -1,10 +1,10 @@
-#' generates the error messages for the `calculate_predictions_recalibrated_type_1`
+#' generates the error messages for the recalibrated predictions
 #'
 #' @param model
 #' @param data
 #'
 #' @returns the error message for the given model and data
-get_error_message_calculate_type_1 <- function(model, data) {
+get_error_message_calculate_recalibrated <- function(model, data) {
   error_message <- NULL
   # check that the dataset is multiple imputed and contains an id
   if (!".imp" %in% colnames(data)) {

@@ -59,42 +59,8 @@
 #'   calculate_predictions_recalibrated_type_1(data) |>
 #'   calculate_predictions_recalibrated_type_2(data)
 calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progress = FALSE) {
-  error_message <- NULL
-
-  # Returns an error if `.imp` is not part of the `data` parameter
-  if (!".imp" %in% colnames(data)) {
-    error_message <- c(error_message, cli::format_error("{.arg data} variable must contain {.arg .imp}"))
-  }
-
-  # Returns an error if `id` is not part of the `data` parameter
-  if (!"id" %in% colnames(data)) {
-    error_message <- c(error_message, cli::format_error("{.arg data} variable must contain {.arg id}"))
-  }
-
-  # Returns an error if `predictions_data` does not exist in `model`
-  if (!"predictions_data" %in% names(model) | !methods::is(model$predictions_data, "data.frame")) {
-    error_message <- c(error_message, cli::format_error("{.arg model} must have {.arg predictions_data} calculated"))
-  }
-
-  # Returns an error if the dependent variable in the model formula does not exist
-  # in `data` or is not a survival class
-  dependent_variable <- all.vars(model$formula)[1]
-  if (!dependent_variable %in% colnames(data)) {
-    error_message <- c(error_message, cli::format_error("the dependent variable must be part of {.arg data}"))
-  }
-  if (!methods::is(data[[dependent_variable]], "Surv")) {
-    error_message <- c(error_message, cli::format_error("the dependent variable must be of class {.arg Surv}"))
-  }
-
-  # Returns an error if `intercept` does not exist or it is bad defined
-  if (is.null(model$intercept) | !is.numeric(model$intercept)) {
-    error_message <- c(error_message, cli::format_error("{.arg intercept} must be a {.arg numeric}"))
-  }
-
-  if (!is.null(error_message)) {
-    names(error_message) <- rep("*", length(error_message))
-    cli::cli_abort(error_message)
-  }
+  error_message <- MiceExtVal:::get_error_message_calculate_recalibrated(model, data)
+  if (!is.null(error_message)) cli::cli_abort(error_message)
 
   # Progress bar code
   if (.progress) {
