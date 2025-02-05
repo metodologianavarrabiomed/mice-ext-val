@@ -22,7 +22,7 @@ test_that("Returns an error if `.imp` is not part of the `data` parameter", {
   model <- make_cox_model(environment()) |> calculate_predictions(data)
   data_no_imp <- data |> select(-.imp)
 
-  expect_error(model |> calculate_predictions_recalibrated_type_1(data_no_imp), "must contain `.imp`")
+  expect_error(model |> calculate_predictions_recalibrated_type_1(data_no_imp), "The variable `.imp`")
 })
 
 test_that("Returns an error if `id` is not part of the `data` parameter", {
@@ -30,7 +30,7 @@ test_that("Returns an error if `id` is not part of the `data` parameter", {
   model <- make_cox_model(environment()) |> calculate_predictions(data)
   data_no_id <- data |> select(-id)
 
-  expect_error(model |> calculate_predictions_recalibrated_type_1(data_no_id), "must contain `id`")
+  expect_error(model |> calculate_predictions_recalibrated_type_1(data_no_id), "The variable `id`")
 })
 
 
@@ -41,7 +41,7 @@ test_that("Returns an error if `predictions_data` does not exist in cox `model`"
 
   model_cox_no_predictions_data <- model_cox
   model_cox_no_predictions_data$predictions_data <- NULL
-  expect_error(calculate_predictions_recalibrated_type_1(model_cox_no_predictions_data, data), "`model` must have `predictions_data` calculated")
+  expect_error(calculate_predictions_recalibrated_type_1(model_cox_no_predictions_data, data), "In `model` there should be the argument `predictions_data` <tibble> calculated")
 })
 
 test_that("Returns an error if the dependent variable in the cox model formula does not exist in `data` or is not a survival class", {
@@ -51,9 +51,9 @@ test_that("Returns an error if the dependent variable in the cox model formula d
 
   model_cox_bad_dependent_variable <- model_cox
   model_cox_bad_dependent_variable$formula <- y ~ x + z
-  expect_error(calculate_predictions_recalibrated_type_1(model_cox_bad_dependent_variable, data), "the dependent variable must be of class `Surv`")
+  expect_error(calculate_predictions_recalibrated_type_1(model_cox_bad_dependent_variable, data), "The dependent variable `y` must be <Surv>")
   model_cox_bad_dependent_variable$formula <- no_exists ~ x + z
-  expect_error(calculate_predictions_recalibrated_type_1(model_cox_bad_dependent_variable, data), "the dependent variable must be part of `data`")
+  expect_error(calculate_predictions_recalibrated_type_1(model_cox_bad_dependent_variable, data), "The dependent variable `no_exists` must be part of `data`")
 })
 
 test_that("Returns an error if `S0` does not exist or it is bad defined in the cox model", {
@@ -63,9 +63,9 @@ test_that("Returns an error if `S0` does not exist or it is bad defined in the c
 
   model_cox_bad_s0 <- model_cox
   model_cox_bad_s0$S0 <- NULL
-  expect_error(calculate_predictions_recalibrated_type_1(model_cox_bad_s0, data), "`S0` must be a `numeric`")
+  expect_error(calculate_predictions_recalibrated_type_1(model_cox_bad_s0, data), "`S0` must be <numeric>")
   model_cox_bad_s0$S0 <- "a"
-  expect_error(calculate_predictions_recalibrated_type_1(model_cox_bad_s0, data), "`S0` must be a `numeric`")
+  expect_error(calculate_predictions_recalibrated_type_1(model_cox_bad_s0, data), "`S0` must be <numeric>")
 })
 
 test_that("Calculates the type 1 recalibrated predictions properly for cox model", {
@@ -92,7 +92,7 @@ test_that("Returns an error if `.imp` is not part of the `data` parameter", {
   model <- make_logreg_model(environment()) |> calculate_predictions(data)
   data_no_imp <- data |> select(-.imp)
 
-  expect_error(model |> calculate_predictions_recalibrated_type_1(data_no_imp), "must contain `.imp`")
+  expect_error(model |> calculate_predictions_recalibrated_type_1(data_no_imp), "The variable `.imp`")
 })
 
 test_that("Returns an error if `id` is not part of the `data` parameter", {
@@ -100,7 +100,7 @@ test_that("Returns an error if `id` is not part of the `data` parameter", {
   model <- make_logreg_model(environment()) |> calculate_predictions(data)
   data_no_id <- data |> select(-id)
 
-  expect_error(model |> calculate_predictions_recalibrated_type_1(data_no_id), "must contain `id`")
+  expect_error(model |> calculate_predictions_recalibrated_type_1(data_no_id), "The variable `id`")
 })
 
 test_that("Returns an error if `predictions_data` does not exist in logreg `model`", {
@@ -110,7 +110,7 @@ test_that("Returns an error if `predictions_data` does not exist in logreg `mode
 
   model_logreg_no_predictions_data <- model_logreg
   model_logreg_no_predictions_data$predictions_data <- NULL
-  expect_error(calculate_predictions_recalibrated_type_1(model_logreg_no_predictions_data, data), "`model` must have `predictions_data` calculated")
+  expect_error(calculate_predictions_recalibrated_type_1(model_logreg_no_predictions_data, data), "In `model` there should be the argument `predictions_data` <tibble> calculated")
 })
 
 test_that("Returns an error if the dependent variable in the logreg model formula does not exist in `data` or is not a survival class", {
@@ -120,9 +120,9 @@ test_that("Returns an error if the dependent variable in the logreg model formul
 
   model_logreg_bad_dependent_variable <- model_logreg
   model_logreg_bad_dependent_variable$formula <- y ~ x + z
-  expect_error(calculate_predictions_recalibrated_type_1(model_logreg_bad_dependent_variable, data), "the dependent variable must be of class `Surv`")
+  expect_error(calculate_predictions_recalibrated_type_1(model_logreg_bad_dependent_variable, data), "The dependent variable `y` must be <Surv>")
   model_logreg_bad_dependent_variable$formula <- no_exists ~ x + z
-  expect_error(calculate_predictions_recalibrated_type_1(model_logreg_bad_dependent_variable, data), "the dependent variable must be part of `data`")
+  expect_error(calculate_predictions_recalibrated_type_1(model_logreg_bad_dependent_variable, data), "The dependent variable `no_exists` must be part of `data`")
 })
 
 test_that("Returns an error if `intercept` does not exist or it is bad defined in the logreg model", {
@@ -132,9 +132,9 @@ test_that("Returns an error if `intercept` does not exist or it is bad defined i
 
   model_logreg_bad_intercept <- model_logreg
   model_logreg_bad_intercept$intercept <- NULL
-  expect_error(calculate_predictions_recalibrated_type_1(model_logreg_bad_intercept, data), "`intercept` must be a `numeric`")
+  expect_error(calculate_predictions_recalibrated_type_1(model_logreg_bad_intercept, data), "`intercept` must be <numeric>")
   model_logreg_bad_intercept$intercept <- "a"
-  expect_error(calculate_predictions_recalibrated_type_1(model_logreg_bad_intercept, data), "`intercept` must be a `numeric`")
+  expect_error(calculate_predictions_recalibrated_type_1(model_logreg_bad_intercept, data), "`intercept` must be <numeric>")
 })
 
 test_that("Calculates the type 1 recalibrated predictions properly for logreg model", {
