@@ -78,15 +78,15 @@ test_that("Returns an error if the dependent variable in the model formula does 
 
   model_cox_bad_dependent_variable <- model_cox
   model_cox_bad_dependent_variable$formula <- y ~ x + z
-  expect_error(calculate_c_index(model_cox_bad_dependent_variable, data), "the dependent variable must be of class `Surv`")
+  expect_error(calculate_c_index(model_cox_bad_dependent_variable, data), "the dependent variable `y` must be <Surv>")
   model_cox_bad_dependent_variable$formula <- no_exists ~ x + z
-  expect_error(calculate_c_index(model_cox_bad_dependent_variable, data), "the dependent variable must be part of `data`")
+  expect_error(calculate_c_index(model_cox_bad_dependent_variable, data), "the dependent variable `no_exists` must be part of `data`")
 
   model_logreg_bad_dependent_variable <- model_logreg
   model_logreg_bad_dependent_variable$formula <- y ~ x + z
-  expect_error(calculate_c_index(model_logreg_bad_dependent_variable, data), "the dependent variable must be of class `Surv`")
+  expect_error(calculate_c_index(model_logreg_bad_dependent_variable, data), "the dependent variable `y` must be <Surv>")
   model_logreg_bad_dependent_variable$formula <- no_exists ~ x + z
-  expect_error(calculate_c_index(model_logreg_bad_dependent_variable, data), "the dependent variable must be part of `data`")
+  expect_error(calculate_c_index(model_logreg_bad_dependent_variable, data), "the dependent variable `no_exists` must be part of `data`")
 })
 
 test_that("Calculates the c-index properly for a cox model", {
