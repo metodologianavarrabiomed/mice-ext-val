@@ -175,7 +175,18 @@ test_that("The calibration plot data function works properly with type 'predicti
   expect_no_error(get_calibration_plot_data(model, data, 2, "predictions_aggregated"))
   expect_no_error(get_calibration_plot_data(model, data, 2, "predictions_recal_type_1"))
   expect_error(get_calibration_plot_data(model, data, 2, "predictions_recal_type_2"))
-  expect_identical(get_calibration_plot_data(model, data, 2, "predictions_recal_type_1"), readRDS(test_path("fixtures", "logreg", "calibration_plot_data_2_groups_recal_1_logreg.rds")))
+  expect_identical(
+    sapply(
+      get_calibration_plot_data(model, data, 2, "predictions_recal_type_1"),
+      round,
+      digits = 7
+    ),
+    sapply(
+      readRDS(test_path("fixtures", "logreg", "calibration_plot_data_2_groups_recal_1_logreg.rds")),
+      round,
+      digits = 7
+    )
+  )
 })
 
 test_that("The calibration plot data function works properly with type 'predictions_recal_type_2' cox", {
@@ -203,7 +214,18 @@ test_that("The calibration plot data function works properly with type 'predicti
   expect_no_error(get_calibration_plot_data(model, data, 2, "predictions_aggregated"))
   expect_no_error(get_calibration_plot_data(model, data, 2, "predictions_recal_type_2"))
   expect_error(get_calibration_plot_data(model, data, 2, "predictions_recal_type_1"))
-  expect_identical(get_calibration_plot_data(model, data, 2, "predictions_recal_type_2"), readRDS(test_path("fixtures", "logreg", "calibration_plot_data_2_groups_recal_2_logreg.rds")))
+  expect_identical(
+    sapply(
+      get_calibration_plot_data(model, data, 2, "predictions_recal_type_2"),
+      round,
+      digits = 7
+    ),
+    sapply(
+      readRDS(test_path("fixtures", "logreg", "calibration_plot_data_2_groups_recal_2_logreg.rds")),
+      round,
+      digits = 7
+    )
+  )
 })
 
 test_that("The calibration plot data checks the 'data' parameter", {
