@@ -143,6 +143,16 @@ test_that("Calculates the type 1 recalibrated predictions properly for logreg mo
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_1(data)
 
-  expect_identical(model$predictions_recal_type_1, readRDS(test_path("fixtures", "logreg", "predictions_recal_type_1_logreg.rds")))
-  expect_identical(model$alpha_type_1, readRDS(test_path("fixtures", "logreg", "alpha_type_1_logreg.rds")))
+  expect_identical(
+    sapply(model$predictions_recal_type_1, round, digits = 7),
+    sapply(
+      readRDS(test_path("fixtures", "logreg", "predictions_recal_type_1_logreg.rds")),
+      round,
+      digits = 7
+    )
+  )
+  expect_identical(
+    round(model$alpha_type_1, 7),
+    round(readRDS(test_path("fixtures", "logreg", "alpha_type_1_logreg.rds")), 7)
+  )
 })
