@@ -80,7 +80,7 @@ test_that("Returns an error when the formula is not properly defined in cox", {
       n_groups = 2,
       type = "predictions_aggregated"
     ),
-    "the dependent variable must be of class `Surv`"
+    "the dependent variable `y` must be <Surv>"
   )
   model_cox_bad_dependent_variable$formula <- no_exists ~ x + z
   expect_error(
@@ -90,7 +90,7 @@ test_that("Returns an error when the formula is not properly defined in cox", {
       n_groups = 2,
       type = "predictions_aggregated"
     ),
-    "the dependent variable must be part of `data`"
+    "the dependent variable `no_exists` must be part of `data`"
   )
 })
 
@@ -108,7 +108,7 @@ test_that("Returns an error when the formula is not properly defined in logreg",
       n_groups = 2,
       type = "predictions_aggregated"
     ),
-    "the dependent variable must be of class `Surv`"
+    "the dependent variable `y` must be <Surv>"
   )
   model_logreg_bad_dependent_variable$formula <- no_exists ~ x + z
   expect_error(
@@ -118,7 +118,7 @@ test_that("Returns an error when the formula is not properly defined in logreg",
       n_groups = 2,
       type = "predictions_aggregated"
     ),
-    "the dependent variable must be part of `data`"
+    "the dependent variable `no_exists` must be part of `data`"
   )
 })
 
