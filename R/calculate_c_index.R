@@ -50,40 +50,33 @@ calculate_c_index <- function(model, data, .progress = FALSE) {
   error_message <- NULL
 
   if (!methods::is(model, "MiceExtVal")) {
-    error_message <- c(error_message, cli::format_error("{.arg model} must be of type `MiceExtVal`"))
+    error_message <- c(error_message, "*" = cli::format_error("{.arg model} must be {.cls MiceExtVal}"))
   }
   if (!methods::is(data, "data.frame")) {
-    error_message <- c(error_message, cli::format_error("{.arg data} must be of type `data.frame`"))
+    error_message <- c(error_message, "*" = cli::format_error("{.arg data} must be {.cls data.frame}"))
   } else {
     if (!".imp" %in% colnames(data)) {
-      error_message <- c(error_message, cli::format_error("{.arg data} must contain {.arg .imp}"))
+      error_message <- c(error_message, "*" = cli::format_error("{.arg data} must contain {.arg .imp}"))
     }
 
     if (!"predictions_data" %in% names(model)) {
-      error_message <- c(error_message, cli::format_error("{.arg model} must contain {.arg predictions_data} calculate it with {.fun MiceExtval::calculate_predictions}"))
+      error_message <- c(error_message, "*" = cli::format_error("{.arg model} must contain {.arg predictions_data} calculate it with {.fun MiceExtval::calculate_predictions}"))
     }
 
     if (!"formula" %in% names(model)) {
-      error_message <- c(error_message, cli::format_error("{.arg model} must contain a valid {.arg formula}"))
+      error_message <- c(error_message, "*" = cli::format_error("{.arg model} must contain a valid {.arg formula}"))
     } else {
       dependent_variable <- all.vars(model$formula)[1]
       if (!dependent_variable %in% colnames(data)) {
-        error_message <-  c(error_message, cli::format_error("the dependent variable must be part of {.arg data}"))
+        error_message <-  c(error_message, "*" = cli::format_error("the dependent variable {.var {dependent_variable}} must be part of {.arg data}"))
       }
       if (!methods::is(data[[dependent_variable]], "Surv")) {
-        error_message <- c(error_message, cli::format_error("the dependent variable must be of class {.arg Surv}"))
+        error_message <- c(error_message, "*" = cli::format_error("the dependent variable {.var {dependent_variable}} must be {.cls Surv}"))
       }
     }
   }
 
-  if (!is.null(error_message)) {
-    names(error_message) <- rep("*", length(error_message))
-    cli::cli_abort(error_message)
-  }
-
-  # Returns an error if the dependent variable in the model formula does not exist
-  # in `data` or is not a survival class
-
+  if (!is.null(error_message)) cli::cli_abort(error_message)
 
   # Code for the progress bar
   if (.progress) {

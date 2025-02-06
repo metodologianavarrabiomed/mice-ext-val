@@ -26,7 +26,7 @@ test_that("Returns an error if `.imp` is not part of the `data` parameter", {
   model <- make_cox_model(environment())
   data_no_imp <- data |> select(-.imp)
 
-  expect_error(model |> calculate_predictions(data_no_imp), "must contain `.imp`")
+  expect_error(model |> calculate_predictions(data_no_imp), "The variable `.imp`")
 })
 
 test_that("Returns an error if `id` is not part of the `data` parameter", {
@@ -34,7 +34,7 @@ test_that("Returns an error if `id` is not part of the `data` parameter", {
   model <- make_cox_model(environment())
   data_no_id <- data |> select(-id)
 
-  expect_error(model |> calculate_predictions(data_no_id), "must contain `id`")
+  expect_error(model |> calculate_predictions(data_no_id), "The variable `id`")
 })
 
 test_that("Returns an error if model `coefficients` names are inside the `data` parameter", {
@@ -42,7 +42,7 @@ test_that("Returns an error if model `coefficients` names are inside the `data` 
   model <- make_cox_model(environment())
 
   model$coefficients <- append(list(m = 0.875), model$coefficients)
-  expect_error(model |> calculate_predictions(data), "all the model coefficients must be present in `data`")
+  expect_error(model |> calculate_predictions(data), "The model coefficients `x` and `z` must be present in `data`")
 })
 
 test_that("Returns an error if model `means` names are inside the `data` parameter", {
@@ -50,7 +50,7 @@ test_that("Returns an error if model `means` names are inside the `data` paramet
   model <- make_cox_model(environment())
 
   model$means <- append(list(m = 4), model$means)
-  expect_error(model |> calculate_predictions(data), "all the means variables must be present in `data`")
+  expect_error(model |> calculate_predictions(data), "The model means `x` and `z` must be present in `data`")
 })
 
 test_that("Calculates the predictions properly in Cox model", {
@@ -72,7 +72,7 @@ test_that("Returns an error if `.imp` is not part of the `data` parameter", {
   model <- make_logreg_model(environment())
   data_no_imp <- data %>% select(-.imp)
 
-  expect_error(model |> calculate_predictions(data_no_imp), "must contain `.imp`")
+  expect_error(model |> calculate_predictions(data_no_imp), "The variable `.imp`")
 })
 
 test_that("Returns an error if `id` is not part of the `data` parameter", {
@@ -80,7 +80,7 @@ test_that("Returns an error if `id` is not part of the `data` parameter", {
   model <- make_logreg_model(environment())
   data_no_id <- data %>% select(-id)
 
-  expect_error(model |> calculate_predictions(data_no_id), "must contain `id`")
+  expect_error(model |> calculate_predictions(data_no_id), "The variable `id`")
 })
 
 test_that("Returns an error if model `coefficients` names are not in the `data` parameter", {
@@ -89,7 +89,7 @@ test_that("Returns an error if model `coefficients` names are not in the `data` 
 
   model$coefficients <- append(list(m = 0.875), model$coefficients)
 
-  expect_error(model |> calculate_predictions(data), "all the model coefficients must be present in `data`")
+  expect_error(model |> calculate_predictions(data), "The model coefficients `x` and `z` must be present in `data`")
 })
 
 test_that("Returns an error if model `intercept` does not exist", {
@@ -98,10 +98,10 @@ test_that("Returns an error if model `intercept` does not exist", {
 
   model$intercept <- NULL
 
-  expect_error(model |> calculate_predictions(data), "model `intercept` must be `numeric`")
+  expect_error(model |> calculate_predictions(data), "The model intercept must be <numeric>")
 
   model$intercept <- "a"
-  expect_error(model |> calculate_predictions(data), "model `intercept` must be `numeric`")
+  expect_error(model |> calculate_predictions(data), "The model intercept must be <numeric>")
 })
 
 test_that("Calculates the predictions properly in logreg model", {
@@ -116,3 +116,4 @@ test_that("Calculates the predictions properly in logreg model", {
   expect_identical(model$betax, readRDS(test_path("fixtures", "logreg", "betax_logreg.rds")))
   expect_identical(model$betax_data, readRDS(test_path("fixtures", "logreg", "betax_data_logreg.rds")))
 })
+

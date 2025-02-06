@@ -32,45 +32,42 @@
 get_calibration_plot_data <- function(model, data, n_groups, type = "predictions_aggregated") {
   error_message <- NULL
   if (!methods::is(model, "MiceExtVal")) {
-    error_message <- c(error_message, cli::format_error("{.arg model} must be of class {.arg MiceExtVal}"))
+    error_message <- c(error_message, "*" = cli::format_error("{.arg model} must be {.cls MiceExtVal}"))
   }
   if (!methods::is(data, "data.frame")) {
-    error_message <- c(error_message, cli::format_error("{.arg data} must be of class {.arg data.frame}"))
+    error_message <- c(error_message, "*" = cli::format_error("{.arg data} must be {.cls data.frame}"))
   } else {
 
   }
   if (!methods::is(n_groups, "numeric")) {
-    error_message <- c(error_message, cli::format_error("{.arg n_groups} must be of class {.arg numeric}"))
+    error_message <- c(error_message, "*" = cli::format_error("{.arg n_groups} must be {.cls numeric}"))
   }
 
   if (!any(type %in% c("predictions_aggregated", "predictions_recal_type_1", "predictions_recal_type_2"))) {
-    error_message <- c(error_message, cli::format_error("{.arg type} must be one of the following types: {.arg {c('predictions_aggregated', 'predictions_recal_type_1', 'predictions_recal_type_2')}}"))
+    error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('predictions_aggregated', 'predictions_recal_type_1', 'predictions_recal_type_2')}}"))
   }
 
   # Returns an error if `.imp` is not part of the `data` parameter
   if (!".imp" %in% colnames(data)) {
-    error_message <- c(error_message, cli::format_error("{.arg data} variable must contain {.arg .imp}"))
+    error_message <- c(error_message, "*" = cli::format_error("{.arg data} variable must contain {.arg .imp}"))
   }
 
   # Returns an error if `id` is not part of the `data` parameter
   if (!"id" %in% colnames(data)) {
-    error_message <- c(error_message, cli::format_error("{.arg data} variable must contain {.arg id}"))
+    error_message <- c(error_message, "*" = cli::format_error("{.arg data} variable must contain {.arg id}"))
   }
 
   # Returns an error if the dependent variable in the model formula does not exist
   # in `data` or is not a survival class
   dependent_variable <- all.vars(model$formula)[1]
   if (!dependent_variable %in% colnames(data)) {
-    error_message <- c(error_message, cli::format_error("the dependent variable must be part of {.arg data}"))
+    error_message <- c(error_message, "*" = cli::format_error("the dependent variable {.var {dependent_variable}} must be part of {.arg data}"))
   }
   if (!methods::is(data[[dependent_variable]], "Surv")) {
-    error_message <- c(error_message, cli::format_error("the dependent variable must be of class {.arg Surv}"))
+    error_message <- c(error_message, "*" = cli::format_error("the dependent variable {.var {dependent_variable}} must be {.cls Surv}"))
   }
 
-  if (!is.null(error_message)) {
-    names(error_message) <- rep("*", length(error_message))
-    cli::cli_abort(error_message)
-  }
+  if (!is.null(error_message)) cli::cli_abort(error_message)
 
   # We assume that the observed variable is completed and therefore the same in
   # all the imputed datasets. If not we should generate the aggregated result

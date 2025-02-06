@@ -36,8 +36,8 @@
 #' )
 #'
 #' data <- data.frame(
-#'   .imp = c(1,1,1,2,2,2,3,3,3),
-#'   id = c(1,2,3,1,2,3,1,2,3),
+#'   .imp = c(1, 1, 1, 2, 2, 2, 3, 3, 3),
+#'   id = c(1, 2, 3, 1, 2, 3, 1, 2, 3),
 #'   x = rnorm(9, 1, 0.25),
 #'   z = rnorm(9, 2, 0.75)
 #' )
@@ -46,27 +46,8 @@
 #' model |>
 #'   calculate_predictions(data)
 calculate_predictions.logreg <- function(model, data) {
-  error_message <- NULL
-  if (is.null(model$coefficients) | !all(names(model$coefficients) %in% colnames(data))) {
-    error_message <- c(error_message, cli::format_error("all the model coefficients must be present in {.arg data}"))
-  }
-
-  if (!".imp" %in% colnames(data)) {
-    error_message <- c(error_message, cli::format_error("{.arg data} must contain {.arg .imp}"))
-  }
-
-  if (!"id" %in% colnames(data)) {
-    error_message <- c(error_message, cli::format_error("{.arg data} must contain {.arg id}"))
-  }
-
-  if (!"intercept" %in% names(model) | !methods::is(model$intercept, "numeric")) {
-    error_message <- c(error_message, "model `intercept` must be `numeric` (check if exists)")
-  }
-
-  if (!is.null(error_message)) {
-    names(error_message) <- rep("*", length(error_message))
-    cli::cli_abort(error_message)
-  }
+  error_message <- MiceExtVal:::get_error_message_calculate(model, data)
+  if (!is.null(error_message)) cli::cli_abort(error_message)
 
   # Calculates the model predictions as 1 / (1 + exp(beta * x))
   variables <- sapply(
@@ -85,7 +66,9 @@ calculate_predictions.logreg <- function(model, data) {
     dplyr::group_by_at(dplyr::vars(".imp")) %>%
     dplyr::group_map(~ {
       # Calculates the predictions and generates the results as a `tibble`
-      with(.x, {1 / (1 + exp(-eval(expression)))}) %>%
+      with(.x, {
+        1 / (1 + exp(-eval(expression)))
+      }) %>%
         tibble::as_tibble() %>%
         tibble::add_column(.imp = .y$.imp) %>%
         tibble::add_column(id = .x$id) %>%
@@ -98,7 +81,9 @@ calculate_predictions.logreg <- function(model, data) {
   model$betax_data <- data %>%
     dplyr::group_by_at(dplyr::vars(".imp")) %>%
     dplyr::group_map(~ {
-      with(.x, {eval(expression)}) %>%
+      with(.x, {
+        eval(expression)
+      }) %>%
         tibble::as_tibble() %>%
         tibble::add_column(.imp = .y$.imp) %>%
         tibble::add_column(id = .x$id) %>%

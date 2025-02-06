@@ -44,27 +44,8 @@
 #'   z = rnorm(9, 2, 0.75)
 #' )
 calculate_predictions.cox <- function(model, data) {
-  error_message <- NULL
-  if (is.null(model$coefficients) | !all(names(model$coefficients) %in% colnames(data))) {
-    error_message <- c(error_message, cli::format_error("all the model coefficients must be present in {.arg data}"))
-  }
-
-  if (is.null(model$means) | !all(names(model$means) %in% colnames(data))) {
-    error_message <- c(error_message, cli::format_error("all the means variables must be present in {.arg data}"))
-  }
-
-  if (!".imp" %in% colnames(data)) {
-    error_message <- c(error_message, cli::format_error("{.arg data} must contain {.arg .imp}"))
-  }
-
-  if (!"id" %in% colnames(data)) {
-    error_message <- c(error_message, cli::format_error("{.arg data} must contain {.arg id}"))
-  }
-
-  if (!is.null(error_message)) {
-    names(error_message) <- rep("*", length(error_message))
-    cli::cli_abort(error_message)
-  }
+  error_message <- MiceExtVal:::get_error_message_calculate(model, data)
+  if (!is.null(error_message)) cli::cli_abort(error_message)
 
   # Obtain the expression that calculates the `betax` from the `coefficients` and `mean` paramters. Loop over all the variable names and generates the expression `(coef * (var - mean))`
   variables <- sapply(

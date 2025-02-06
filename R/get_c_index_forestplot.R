@@ -37,7 +37,7 @@ get_c_index_forestplot <- function(...) {
   model_names <- purrr::map2_chr(model_names_callname, model_names_call, ~ ifelse(is.na(.x) | .x == "", .y, .x))
 
   if (!all(is_model_class)) {
-    cli::cli_abort("The model{?s} {.arg {model_names[!is_model_class]}} must be from the class {.arg MiceExtVal}")
+    cli::cli_abort("The model{?s} {.arg {model_names[!is_model_class]}} must be {.cls MiceExtVal}")
   }
 
   has_c_index <- purrr::map_lgl(list(...), \(x) !is.null(x$c_index))
