@@ -12,14 +12,10 @@
 #'
 #' where we can see that the `intercept` value is not associated with any covariable. Therefore this function parameters are the minimum needed to obtain the predictions.
 #'
-#' @param coefficients A named list containing the \eqn{\beta} coefficients of the model without the intercept
 #' @param formula The model formula
-#' @param intercept Intercept value
 #'
 #' @return A model to be used along the package with the next characteristics that could be empty and will be generated with some other functions in the package.
-#'   * `coefficients`: \eqn{\beta} values of the model without the intercept.
-#'   * `formula`: Formula of the model.
-#'   * `intercept`: Intercept value of the model.
+#'   * `formula`: Formula of the model containing the coefficients and the intercept.
 #'   * `alpha_type_1`: The \eqn{\alpha} value for the type 1 recalibration.
 #'   * `alpha_type_2`: The \eqn{\alpha} value for the type 2 recalibration.
 #'   * `beta_overall`: The \eqn{\beta_{overall}} value for the type 2 recalibration.
@@ -39,34 +35,19 @@
 #'
 #' @examples
 #' model <- mv_model_logreg(
-#'   coefficients = list(x = 0.5, z = 0.3),
-#'   formula = event ~ x + z,
-#'   intercept = 1.2
+#'   formula = event ~ 0.5 * x + 0.3 * z - 1.2,
 #' )
 mv_model_logreg <- function(coefficients, formula, intercept) {
   error_message <- NULL
 
-  if (!methods::is(coefficients, "list")) {
-    error_message <- c(error_message, cli::format_error("{.arg coefficients} must be of type `list`"))
-  }
-
   if (!methods::is(formula, "formula")) {
-    error_message <- c(error_message, cli::format_error("{.arg formula} must be of type `formula`"))
+    error_message <- c(error_message, "*" = cli::format_error("{.arg formula} must be of type `formula`"))
   }
 
-  if (!methods::is(intercept, "numeric")) {
-    error_message <- c(error_message, cli::format_error("{.arg intercept} must be of type `numeric`"))
-  }
-
-  if (!is.null(error_message)) {
-    names(error_message) <- rep("*", length(error_message))
-    cli::cli_abort(error_message)
-  }
+  if (!is.null(error_message)) cli::cli_abort(error_message)
 
   model <- list(
-    coefficients = coefficients,
     formula = formula,
-    intercept = intercept,
     alpha_type_1 = NULL,
     alpha_type_2 = NULL,
     beta_overall = NULL,
