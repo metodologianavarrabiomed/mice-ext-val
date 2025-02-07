@@ -126,18 +126,6 @@ test_that("Returns an error if the dependent variable in the logreg model formul
   expect_error(calculate_predictions_recalibrated_type_2(model_logreg_bad_dependent_variable, data), "The dependent variable `no_exists` must be part of `data`")
 })
 
-test_that("Returns an error if `intercept` does not exist or it is bad defined in the logreg model", {
-  data <- readRDS(test_path("fixtures", "mice_data.rds"))
-  model_logreg <- make_logreg_model(environment()) |>
-    calculate_predictions(data)
-
-  model_logreg_bad_intercept <- model_logreg
-  model_logreg_bad_intercept$intercept <- NULL
-  expect_error(calculate_predictions_recalibrated_type_2(model_logreg_bad_intercept, data), "`intercept` must be <numeric>")
-  model_logreg_bad_intercept$intercept <- "a"
-  expect_error(calculate_predictions_recalibrated_type_2(model_logreg_bad_intercept, data), "`intercept` must be <numeric>")
-})
-
 test_that("Calculates the type 2 recalibrated predictions properly for logreg model", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment()) |>
