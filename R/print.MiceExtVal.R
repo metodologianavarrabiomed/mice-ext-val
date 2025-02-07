@@ -1,12 +1,28 @@
-#' Title
+#' A generic function to print the `MiceExtVal` model
 #'
-#' @param model
-#' @param ...
+#' @param x a `MiceExtVal` model
+#' @param ... ignored and not passed to any function
 #'
-#' @returns
+#' @returns the model printed
 #' @exportS3Method print MiceExtVal
 #'
 #' @examples
+#' model_cox <- mv_model_cox(
+#'   coefficients = list(x = 0.5, z = 0.3),
+#'   means = list(x = 1, z = 2),
+#'   formula = event ~ x + z,
+#'   S0 = 0.98765
+#' )
+#'
+#' print(model_cox)
+#'
+#' model_logreg <- mv_model_logreg(
+#'   coefficients = list(x = 0.5, z = 0.3),
+#'   formula = event ~ x + z,
+#'   intercept = 1.2
+#' )
+#'
+#' print(model_logreg)
 print.MiceExtVal <- function(x, ...) {
   cli::cli_h1("{.cls {class(x)}}")
 
