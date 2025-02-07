@@ -47,26 +47,13 @@ calculate_predictions.cox <- function(model, data) {
   error_message <- MiceExtVal:::get_error_message_calculate(model, data)
   if (!is.null(error_message)) cli::cli_abort(error_message)
 
-  # Obtain the expression that calculates the `betax` from the `coefficients` and `mean` paramters. Loop over all the variable names and generates the expression `(coef * (var - mean))`
-  variables <- sapply(
-    1:length(model$coefficient),
-    \(index) sprintf(
-      "(%f * (%s - %f))",
-      model$coefficients[[index]],
-      names(model$coefficients)[[index]],
-      model$mean[[index]]
-    )
-  )
-
-  expression <- parse(text = paste(variables, collapse = " + "))
-
   # Calculates the predictions evaluating the previous expression in each imputation
   model$predictions_data <- data %>%
     dplyr::group_by_at(dplyr::vars(".imp")) %>%
     dplyr::group_map(~ {
       # Calculates the predictions and generates the results as a `tibble`
       with(.x, {
-        1 - model$S0^exp(eval(expression))
+        1 - model$S0^exp(eval(model$formula[[3]]))
       }) %>%
         tibble::as_tibble() %>%
         tibble::add_column(.imp = .y$.imp) %>%
@@ -82,7 +69,7 @@ calculate_predictions.cox <- function(model, data) {
     dplyr::group_by_at(dplyr::vars(".imp")) %>%
     dplyr::group_map(~ {
       with(.x, {
-        eval(expression)
+        eval(eval(model$formula[[3]]))
       }) %>%
         tibble::as_tibble() %>%
         tibble::add_column(.imp = .y$.imp) %>%
