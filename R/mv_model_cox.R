@@ -14,9 +14,7 @@
 #' @param S0 Value of the \eqn{S_0(t)} function for the time of study.
 #'
 #' @return A model to be used along the package with the next characteristics that could be empty and will be generated with some other functions in the package.
-#'   * `coefficients`: \eqn{\beta} values of the model.
-#'   * `means`: Mean values of the variables in the derivation dataset.
-#'   * `formula`: Formula of the model.
+#'   * `formula`: Formula of how the \eqn{\beta \cdot X} will be calculated.
 #'   * `S0`: Value of the \eqn{S_0(t)} function for the time of study.
 #'   * `alpha`: Recalibration parameter for the type 1 recalibration.
 #'   * `S0_type_2`: Value of the \eqn{S_0(t)} function for the time of study for the type 2 recalibration.
@@ -39,38 +37,25 @@
 #' model <- mv_model_cox(
 #'   coefficients = list(x = 0.5, z = 0.3),
 #'   means = list(x = 3, z = 0.2),
-#'   formula = event ~ x + z,
+#'   formula = event ~ 0.5 * (x - 3) + 0.3 * (z - 0.2),
 #'   S0 = 0.98765
 #' )
 #'
-mv_model_cox <- function(coefficients, means, formula, S0 = NULL) {
+mv_model_cox <- function(formula, S0 = NULL) {
   # Checks preconditions
   error_message <- NULL
-  if (!methods::is(coefficients, "list")) {
-    error_message <- c(error_message, cli::format_error("{.arg coefficients} must be of type `list`"))
-  }
-
-  if (!methods::is(means, "list")) {
-    error_message <- c(error_message, cli::format_error("{.arg means} must be of type `list`"))
-  }
-
   if (!methods::is(formula, "formula")) {
-    error_message <- c(error_message, cli::format_error("{.arg formula} must be of type `formula`"))
+    error_message <- c(error_message, "*" = cli::format_error("{.arg formula} must be of type `formula`"))
   }
 
   if (!is.null(S0) && !methods::is(S0, "numeric")) {
-    error_message <- c(error_message, cli::format_error("{.arg S0} must be of type `numeric`"))
+    error_message <- c(error_message, "*" = cli::format_error("{.arg S0} must be of type `numeric`"))
   }
 
-  if (!is.null(error_message)) {
-    names(error_message) <- rep("*", length(error_message))
-    cli::cli_abort(error_message)
-  }
+  if (!is.null(error_message)) cli::cli_abort(error_message)
 
   # Creates an object
   object <- list(
-    coefficients = coefficients,
-    means = means,
     formula = formula,
     S0 = S0,
     # These parameters are defined to announce that they will be there at some point in time

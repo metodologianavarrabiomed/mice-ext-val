@@ -12,8 +12,6 @@
 #' @return
 make_logreg_model <- function(env) {
   mv_model_logreg(
-    coefficients = list(x = 0.1, z = 0.3),
-    formula = as.formula(event ~ x + z, env = env),
-    intercept = 0.8
+    formula = as.formula(event ~ 0.1 * x + 0.3 * z + 0.8, env = env)
     )
 }

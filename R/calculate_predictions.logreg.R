@@ -30,9 +30,7 @@
 #' set.seed(123)
 #'
 #' model <- mv_model_logreg(
-#'   coefficients = list(x = 0.5, z = 0.3),
-#'   formula = event ~ x + z,
-#'   intercept = 1.2
+#'   formula = event ~ 0.5 * x + 0.3 * z + 1.2
 #' )
 #'
 #' data <- data.frame(
@@ -49,25 +47,13 @@ calculate_predictions.logreg <- function(model, data) {
   error_message <- MiceExtVal:::get_error_message_calculate(model, data)
   if (!is.null(error_message)) cli::cli_abort(error_message)
 
-  # Calculates the model predictions as 1 / (1 + exp(beta * x))
-  variables <- sapply(
-    1:length(model$coefficient),
-    \(index) sprintf(
-      "(%f * %s)",
-      model$coefficients[[index]],
-      names(model$coefficients)[[index]]
-    )
-  )
-
-  expression <- parse(text = paste(c(model$intercept, variables), collapse = " + "))
-
   # Calculates the predictions evaluating the previous expression in each imputation
   model$predictions_data <- data %>%
     dplyr::group_by_at(dplyr::vars(".imp")) %>%
     dplyr::group_map(~ {
       # Calculates the predictions and generates the results as a `tibble`
       with(.x, {
-        1 / (1 + exp(-eval(expression)))
+        1 / (1 + exp(-eval(model$formula[[3]])))
       }) %>%
         tibble::as_tibble() %>%
         tibble::add_column(.imp = .y$.imp) %>%
@@ -82,7 +68,7 @@ calculate_predictions.logreg <- function(model, data) {
     dplyr::group_by_at(dplyr::vars(".imp")) %>%
     dplyr::group_map(~ {
       with(.x, {
-        eval(expression)
+        eval(model$formula[[3]])
       }) %>%
         tibble::as_tibble() %>%
         tibble::add_column(.imp = .y$.imp) %>%

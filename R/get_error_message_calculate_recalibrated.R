@@ -37,11 +37,5 @@ get_error_message_calculate_recalibrated <- function(model, data) {
     }
   }
 
-  if (methods::is(model, "logreg")) {
-    if (is.null(model$intercept) | !is.numeric(model$intercept)) {
-      error_message <- c(error_message, "*" = cli::format_error("{.arg intercept} must be {.cls numeric}"))
-    }
-  }
-
   return(error_message)
 }
