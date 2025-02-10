@@ -1,0 +1,57 @@
+#' A generic function to print the `MiceExtVal` model
+#'
+#' @param x a `MiceExtVal` model
+#' @param ... ignored and not passed to any function
+#'
+#' @returns the model printed
+#' @exportS3Method print MiceExtVal
+#'
+#' @examples
+#' model_cox <- mv_model_cox(
+#'   coefficients = list(x = 0.5, z = 0.3),
+#'   means = list(x = 1, z = 2),
+#'   formula = event ~ x + z,
+#'   S0 = 0.98765
+#' )
+#'
+#' print(model_cox)
+#'
+#' model_logreg <- mv_model_logreg(
+#'   coefficients = list(x = 0.5, z = 0.3),
+#'   formula = event ~ x + z,
+#'   intercept = 1.2
+#' )
+#'
+#' print(model_logreg)
+print.MiceExtVal <- function(x, ...) {
+  cli::cli_h1("{.cls {class(x)}}")
+
+  for (elem in names(x)) {
+    if (!is.null(x[[elem]])) {
+      cli::cli_h2(elem)
+
+      # show tibbles
+      if (methods::is(x[[elem]], "tbl_df")) {
+        print(head(x[[elem]], n = 5))
+      } else {
+        # show lists
+        if (methods::is(x[[elem]], "list")) {
+          list_text <- purrr::map2_chr(
+            names(x[[elem]]), x[[elem]], ~ cli::format_message("{.x} = {.val {.y}}")
+          )
+          cli::cli_text("{list_text}")
+        } else {
+          # c-index formatting
+          if (elem == "c_index") {
+            cli::cli_text(
+              "{.val {x[[elem]]['Estimate']}} (95% CI {.val {x[[elem]]['95% CI L']}}, {.val {x[[elem]]['95% CI U']}})"
+            )
+          } else {
+            # default
+            cli::cli_text(x[[elem]])
+          }
+        }
+      }
+    }
+  }
+}
