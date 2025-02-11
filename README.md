@@ -29,6 +29,10 @@ You can install the development version of MiceExtVal from [GitHub](https://gith
 ``` r
 # install.packages("devtools")
 devtools::install_github("metodologianavarrabiomed/mice-ext-val")
+
+# alternativelly you can use the `pak` package
+# install.packages("pak")
+pak::pkg_install("metodologianavarrabiomed/mice-ext-val")
 ```
 
 ## Example
@@ -57,34 +61,49 @@ By using the `mv_model` we can generate the package model definitions. To define
 
 To define the cox model we need to be able to describe the following characteristics of the model.
 
-* `coefficients`: A `list` with the model coefficients
-* `means`: A `list` with the mean value in the derivation cohort for each of the model variables
-* `formula`: Model `formula`
+* `formula`: Model formula to calculate the $\beta \cdot X$ values.
 * $S_0(t)$: Value of the basal survival function at the time study $t$
 
+As an example we have defined a Cox model that is defined by the formula 
+
+$$
+0.98765^{exp(0.5 \cdot (x - 3) + 0.3 \cdot (z - 0.2))}
+$$
+
 ```r
-cox_model <- mv_model_cox(
- coefficients = list(x = 0.5, z = 0.3),
- means = list(x = 3, z = 0.2),
- formula = event ~ x + z,
+cox_model <- MiceExtVal::mv_model_cox(
+ formula = event ~ 0.5 * (x - 3) + 0.3 * (z - 0.2),
  S0 = 0.98765
 )
 ```
+
+> [!IMPORTANT]
+> The `formula` argument consists in the code that calculates the $\beta \cdot X$ values. In this formula should be included the model coefficients and also the mean values if there is a need of centering the results.
+>
+> The formula have two parts the left and the right, in the left part we must include the dependent variable (outcome of interest) and in the right part we must define the calculation formula for the $\beta \cdot X$.
+>
+> The variables used in the formula must be part of the external validation dataset. The dependent variable must be a `Surv` object and the right part of the formula needs to be executable code to calculate the $\beta \cdot X$.
+>
+> It will be executable code if it can be executed as the following code snippet.
+>
+> ```r
+>   # this is not actual package code
+>   data |>
+>     dplyr::mutate(risk_prediction = 1 - S0^exp(eval(right_formula)))
+> ```
+>
+> The variables must be defined in the external validation dataset and they must be a type of variables that `eval(right_formula)` returns a value. It is important to take care of the `factor` and `character` variables that could throw errors or non-value results. It could be interesting to transform this variables to dummies.
 
 #### Logistic regression model
 
 Similarly to the Cox model we need to be able to describe the following characteristics of the model.
 
-* `coefficients`: A `list` with the model coefficients
-* `formula`: Model `formula`
-* `intercept`: Value of the `intercept` or $\beta_0$
+* `formula`: Model formula to calculate the linear predictors.
+
+As an example we have defined a model with $\beta_0 = -1.2, \beta_x = 0.5, beta_z = 0.3$
 
 ```r
-logreg_model <- mv_model_logreg(
- coefficients = list(x = 0.5, z = 0.3),
- formula = event ~ x + z,
- intercept = 1.2
-)
+logreg_model <- mv_model_logreg(formula = event ~ 0.5 * x + 0.3 * z - 1.2)
 ```
 
 ### Calculate the results
@@ -111,38 +130,26 @@ The external validation results are summarized into `calibration plots` and the 
 Suppose we want to calculate the model predictions in the external validation cohort, we use the function `calculate_predictions` as follows.
 
 ```r
-model <- model %>% calculate_predictions(external_validation_data)
+model <- model |> calculate_predictions(external_validation_data)
 ```
 
 > [!TIP]
-> If you are working with the [`magrittr` package](https://cran.r-project.org/web/packages/magrittr/index.html) it is possible to rewrite the code as follows
+> You can concatenate the prediction functions by using the pipe operator `%>%` or `|>`. We recommend to use the R native pipe operator `|>`. 
 >
 > ```r
-> model %<>% calculate_predictions(external_validation_data)
->```
->
-> The function `%<>%` pipes and assign the result to the value `model`
-
-To calculate the recalibrated predictions it is needed to previously have calculated the model predictions. To know how far away the model is estimating from the observed risk we obviously need to know the model predictions. We can calculate the type 1 recalibrated predictions in `model`.
-
-```r
-model %<>% calculate_predictions_recalibrated_type_1(external_validation_data)
-```
-
-> [!TIP]
-> You can concatenate the prediction functions by using the pipe operator `%>%` or `|>`
->
-> ```r
->model %<>%
->  calculate_predictions(external_validation_data) %>%
->  calculate_predictions_recalibrated_type_1(external_validation_data) %>%
+>model <- model |>
+>  calculate_predictions(external_validation_data) |>
+>  calculate_predictions_recalibrated_type_1(external_validation_data) |>
 >  calculate_predictions_recalibrated_type_2(external_validation_data) 
 > ```
 
-The Harrell C-index calculation can be done by the function `calculate_c_index`. It also needs the model predictions without any recalibration to be calculated.
+The Harrell C-index calculation can be done using the function `calculate_c_index`. This functions needs at least the model prediction calculated.
 
 ```r
-model %<>% calculate_c_index(external_validation_data)
+model <- model |> 
+  # only calculate the predictions if they are not already part of the model
+  calculate_predictions(external_validation_data) |>
+  calculate_c_index(external_validation_data)
 ```
 
 ### Visualizing the results
@@ -171,12 +178,14 @@ end
 To obtain the calibration plots we need to use two functions `get_calibration_plot_data` that generates the needed data to actually generate the calibration plot and the `get_calibration_plot` whose only needed parameter is the outcome of `get_calibration_plot_data`. We can generate a calibration plot as shown in the next code snippet with the function `get_calibration_plot`. The function returns a [`ggplot2` object](https://cran.r-project.org/web/packages/ggplot2/index.html) so it can be further styled than the default plot of the package.
 
 ```r
-model %>%
+model |>
+  # only calculate the predictions if they are not already part of the model
+  calculate_predictions(external_validation_data) |>
   get_calibration_plot_data(
     data = external_validation_data, 
     n_groups = 10, 
     type = "predictions_aggregated"
-  ) %>%
+  ) |>
   get_calibration_plot()
 ```
 
@@ -184,16 +193,25 @@ model %>%
 > The argument `type` can be used to generate calibration plots of the recalibrated predictions. The next code snippet will generate the calibration plot of the type 1 recalibrated predictions
 >
 > ```r
-> model %>%
+> model |>
+>  # only calculate the predictions if they are not already part of the model
+>  calculate_predictions(external_validation_data) |>
+>  calculate_predictions_recalibrated_type_1(external_validation_data) |>
 >  get_calibration_plot_data(
 >    data = external_validation_data, 
 >    n_groups = 10, 
 >    type = "predictions_recal_type_1"
->  ) %>%
+>  ) |>
 >  get_calibration_plot()
 > ```
 
+> [!TIP]
+> The function returns a `ggplot2` object. If you are in need to modify further the plot you can modify it as any other `ggplot2` plot.
+
 #### C-index forestplot
+
+> [!WARNING]
+> This feature is currently under development.
 
 The external validations are normally formed by many models and we want to compare their results. Forestplots are a great way of visualizing the c-index values of multiple models in one graph. The package provides the function `get_c_index_forestplot`. You can provide an illimited number of models that have their `c_index` calculated and it returns a forestplot generated with the [`forestplot` package](https://cran.r-project.org/web/packages/forestplot/index.html).
 
