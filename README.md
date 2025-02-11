@@ -5,7 +5,9 @@
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-The goal of MiceExtVal is to give the users tools to externally validate models using the multiple imputation methodology. There are lots of tools to externally validate models in complete datasets but there is a lack of tools when we are working with multiple imputed datasets. It is recommended to use techniques like multiple imputation by chained equations ([MICE](https://stefvanbuuren.name/fimd/)) to impute the missing values when they are present, the MICE methodology requires to realize as many alanysis as imputed datasets are. The next graph shows the flowchart of a multple imputed analysis. The package is generated to assist the users along the external validation analysis.
+The goal of `MiceExtVal` is to give the users tools to externally validate models using the multiple imputation methodology. There are lots of packages to externally validate models in complete datasets but there is a lack of tools when we are working with multiple imputed datasets. 
+
+It is recommended to use techniques like multiple imputation by chained equations ([MICE](https://stefvanbuuren.name/fimd/)) to impute the missing values when they are present, the MICE methodology requires to realize as many alanysis as imputed datasets are. The next graph shows the flowchart of a multple imputed analysis. This package is generated to assist the users along the external validation analysis.
 
 ```mermaid
 flowchart LR
@@ -24,7 +26,7 @@ total_results --> c_index(c index forestplot)
 
 ## Installation
 
-You can install the development version of MiceExtVal from [GitHub](https://github.com/) with:
+You can install the development version of `MiceExtVal` from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
@@ -37,7 +39,7 @@ pak::pkg_install("metodologianavarrabiomed/mice-ext-val")
 
 ## Example
 
-The package assumes that there is a multiple imputed dataset in `long` format with only the imputed datasets. The functions are divided in three groups, the model definition functions starting wit `mv_model`, the calculating model results starting with `calculate_` and the plots starting with `get_`.
+The package assumes that the user have generated a multiple imputed dataset. The imputed dataset must be stored in `long` format. We have considered that the multiple imputation is generated with the [`mice` package](https://cran.r-project.org/web/packages/mice/index.html).
 
 > [!TIP]
 >
@@ -47,7 +49,9 @@ The package assumes that there is a multiple imputed dataset in `long` format wi
 > complete <- mice::complete(imp, action = "long")
 > ```
 
-Through this example we assume that the complete dataset is called `external_validation_data`. Firstly, we import the package.
+The external validation dataset must only contain the information about the imputed dataset and no information about the original dataset. The package functions are divided in three groups, the model definition functions starting with `mv_model`, the functions that calculate model results starting with `calculate_`, and the plot functions starting with `get_`. Through this example we have also assumed that the complete dataset is called `external_validation_data`.
+
+Firstly, we import the package.
 
 ``` r
 library(MiceExtVal)
@@ -55,16 +59,16 @@ library(MiceExtVal)
 
 ### Defining a model
 
-By using the `mv_model` we can generate the package model definitions. To define a Cox model we use the function `mv_model_cox` and to define a logistic regression model we use the function `mv_model_logreg`. Each model have different requirements to be generated.
+By using the `mv_model` functions we can generate the package model definitions. To define a Cox model we use the function `mv_model_cox` and to define a logistic regression model we use the function `mv_model_logreg`. Each model have different requirements to be generated.
 
 #### Cox model
 
 To define the cox model we need to be able to describe the following characteristics of the model.
 
 * `formula`: Model formula to calculate the $\beta \cdot X$ values.
-* $S_0(t)$: Value of the basal survival function at the time study $t$
+* $S_0(t)$: Value of the basal survival function at the time of study $t$ (must be the maximum time in the dataset)
 
-As an example we have defined a Cox model that is defined by the formula 
+As an example we have defined a Cox model that is defined by the formula:
 
 $$
 0.98765^{exp(0.5 \cdot (x - 3) + 0.3 \cdot (z - 0.2))}
@@ -78,9 +82,9 @@ cox_model <- MiceExtVal::mv_model_cox(
 ```
 
 > [!IMPORTANT]
-> The `formula` argument consists in the code that calculates the $\beta \cdot X$ values. In this formula should be included the model coefficients and also the mean values if there is a need of centering the results.
+> The `formula` argument is the declaration of the code that calculates the $\beta \cdot X$ values. In this formula should be included the model coefficients and also the mean values, if there is a need of centering the results.
 >
-> The formula have two parts the left and the right, in the left part we must include the dependent variable (outcome of interest) and in the right part we must define the calculation formula for the $\beta \cdot X$.
+> The formula have two parts the left part and the right part, in the left part we must include the dependent variable (outcome of interest) and in the right part we must define the calculation formula for the $\beta \cdot X$.
 >
 > The variables used in the formula must be part of the external validation dataset. The dependent variable must be a `Surv` object and the right part of the formula needs to be executable code to calculate the $\beta \cdot X$.
 >
@@ -108,6 +112,8 @@ logreg_model <- mv_model_logreg(formula = event ~ 0.5 * x + 0.3 * z - 1.2)
 
 ### Calculate the results
 
+Once we have defined our models the next step is to actually calculate their results. In the diagram we are now in the part where results are calculated. The statistical analysis must be performed in each of the imputed datasets separatelly and we aggregate the results afterwards.
+
 ```mermaid
 flowchart LR
   data[(fa:fa-database multiple imputed data)] --> a1(fa:fa-chart-simple analysis dataset 1)
@@ -125,7 +131,9 @@ flowchart LR
   total_results --> c_index(c index forestplot)
 ```
 
-The external validation results are summarized into `calibration plots` and the `c-index foresplot`, but to generate this plots it is needed to previously calculate the model predictions in the external validation cohort. We can calculate the model predictions by using `calculate_predictions`, `calculate_predictions_recalibrated_type_1` and `calculate_predictions_recalibrated_type_2` functions.
+The external validation results are summarized into `calibration plots` and the `c-index foresplot`, but to generate this plots it is needed to previously calculate the model predictions in the external validation cohort. 
+
+We can calculate the model predictions by using `calculate_predictions`, `calculate_predictions_recalibrated_type_1` and `calculate_predictions_recalibrated_type_2` functions.
 
 Suppose we want to calculate the model predictions in the external validation cohort, we use the function `calculate_predictions` as follows.
 
@@ -143,7 +151,7 @@ model <- model |> calculate_predictions(external_validation_data)
 >  calculate_predictions_recalibrated_type_2(external_validation_data) 
 > ```
 
-The Harrell C-index calculation can be done using the function `calculate_c_index`. This functions needs at least the model prediction calculated.
+The Harrell's C-index calculation can be done using the function `calculate_c_index`. This function needs at least the model prediction calculated to be able to obtain the aggregated Harrell's C-index.
 
 ```r
 model <- model |> 
@@ -154,7 +162,7 @@ model <- model |>
 
 ### Visualizing the results
 
-Once all the results are generated in the model we can start to generate the plots to visualize them. As shown in the next graph this is the last step of the package pipeline where we visualize the results. In the package there are two plots defined. The `calibration plots` that shows how the predictions matched the observed risk and the `c-index foresplot` that shows the discrimination abilities of different models.
+With all the results already generated in the model we can start to visualize them. As shown in the next graph this is the last step of the package pipeline, results visualization. In the package there are two plots defined. The `calibration plots` that shows how the model predictions matched the observed risk and the `c-index foresplot` that shows the discrimination abilities of different models.
 
 ```mermaid
 flowchart LR
@@ -175,7 +183,10 @@ end
 
 #### Calibration plots
 
-To obtain the calibration plots we need to use two functions `get_calibration_plot_data` that generates the needed data to actually generate the calibration plot and the `get_calibration_plot` whose only needed parameter is the outcome of `get_calibration_plot_data`. We can generate a calibration plot as shown in the next code snippet with the function `get_calibration_plot`. The function returns a [`ggplot2` object](https://cran.r-project.org/web/packages/ggplot2/index.html) so it can be further styled than the default plot of the package.
+To obtain the calibration plots we need to use two functions `get_calibration_plot_data` that generates the needed data to actually generate the calibration plot and the `get_calibration_plot` whose only needed parameter is the outcome of `get_calibration_plot_data`. We can generate a calibration plot as shown in the next code snippet with the function `get_calibration_plot`. 
+
+> [!TIP]
+> The function returns a [`ggplot2` object](https://cran.r-project.org/web/packages/ggplot2/index.html). Therefore, it can be modified as any other `ggplot2` plot.
 
 ```r
 model |>
@@ -204,9 +215,6 @@ model |>
 >  ) |>
 >  get_calibration_plot()
 > ```
-
-> [!TIP]
-> The function returns a `ggplot2` object. If you are in need to modify further the plot you can modify it as any other `ggplot2` plot.
 
 #### C-index forestplot
 
