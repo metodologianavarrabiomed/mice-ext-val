@@ -5,9 +5,9 @@
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-The goal of `MiceExtVal` is to give the users tools to externally validate models using the multiple imputation methodology. There are lots of packages to externally validate models in complete datasets but there is a lack of tools when we are working with multiple imputed datasets. 
+The goal of `MiceExtVal` is to give the users tools to externally validate models using the multiple imputation methodology. There are plenty of packages, functions, and literature to externally validate models in complete datasets but there is a lack of tools when we are working with multiple imputed datasets.
 
-It is recommended to use techniques like multiple imputation by chained equations ([MICE](https://stefvanbuuren.name/fimd/)) to impute the missing values when they are present, the MICE methodology requires to realize as many alanysis as imputed datasets are. The next graph shows the flowchart of a multple imputed analysis. This package is generated to assist the users along the external validation analysis.
+Nowadays it is recommended to use techniques like multiple imputation by chained equations ([MICE](https://stefvanbuuren.name/fimd/)) to impute the missing values when they are present, the MICE methodology requires to realize as many analysis as imputed datasets are, as shown in the following graph. This package is generated to assist the users along the external validation analysis of Cox and Logistic Regression models.
 
 ```mermaid
 flowchart LR
@@ -37,9 +37,9 @@ devtools::install_github("metodologianavarrabiomed/mice-ext-val")
 pak::pkg_install("metodologianavarrabiomed/mice-ext-val")
 ```
 
-## Example
+## Examples
 
-The package assumes that the user have generated a multiple imputed dataset. The imputed dataset must be stored in `long` format. We have considered that the multiple imputation is generated with the [`mice` package](https://cran.r-project.org/web/packages/mice/index.html).
+The package is created to perform the analysis over a MICE cohort. The package also asumed that the imputed cohort should be generated with the [`mice` package](https://cran.r-project.org/web/packages/mice/index.html) or at least have the same structure and variables. The dataset needs to be in `long` format.
 
 > [!TIP]
 >
@@ -48,10 +48,12 @@ The package assumes that the user have generated a multiple imputed dataset. The
 > ```r
 > complete <- mice::complete(imp, action = "long")
 > ```
+>
+> This function introduces all the imputed datasets into a single table and adds two variables `.id` and `.imp`. The variable `.id` is a single id for each of the rows in the `long` format table and the `.imp` variable indicates to which imputation each row belongs.
 
 The external validation dataset must only contain the information about the imputed dataset and no information about the original dataset. The package functions are divided in three groups, the model definition functions starting with `mv_model`, the functions that calculate model results starting with `calculate_`, and the plot functions starting with `get_`. Through this example we have also assumed that the complete dataset is called `external_validation_data`.
 
-Firstly, we import the package.
+Firstly, we import the package. In R you can also access the variables without importing the package by putting the package as prefix like `MiceExtVal::function`. It is a good practice to use this second declaration to know to which package each function belongs.
 
 ``` r
 library(MiceExtVal)
@@ -104,7 +106,7 @@ Similarly to the Cox model we need to be able to describe the following characte
 
 * `formula`: Model formula to calculate the linear predictors.
 
-As an example we have defined a model with $\beta_0 = -1.2, \beta_x = 0.5, beta_z = 0.3$
+As an example we have defined a model with $\beta_0 = -1.2, \beta_x = 0.5, \beta_z = 0.3$
 
 ```r
 logreg_model <- mv_model_logreg(formula = event ~ 0.5 * x + 0.3 * z - 1.2)
@@ -112,7 +114,7 @@ logreg_model <- mv_model_logreg(formula = event ~ 0.5 * x + 0.3 * z - 1.2)
 
 ### Calculate the results
 
-Once we have defined our models the next step is to actually calculate their results. In the diagram we are now in the part where results are calculated. The statistical analysis must be performed in each of the imputed datasets separatelly and we aggregate the results afterwards.
+Once we have defined our models the next step is to actually calculate their results. The `calculate_` functions allow us to recreate the highlighted part of the diagram. The statistical analysis must be performed in each of the imputed datasets separatelly and we aggregate the results afterwards.
 
 ```mermaid
 flowchart LR
@@ -131,18 +133,18 @@ flowchart LR
   total_results --> c_index(c index forestplot)
 ```
 
-The external validation results are summarized into `calibration plots` and the `c-index foresplot`, but to generate this plots it is needed to previously calculate the model predictions in the external validation cohort. 
+In an external validation the analysis that we are normally performing are the calculation of the model predictions. This predictions will be summarized into indexes like C-Index or in plots like the calibration plots. The predictions could or could not be matching the reality. The calibration plots allow us to look for this accuracy. 
 
-We can calculate the model predictions by using `calculate_predictions`, `calculate_predictions_recalibrated_type_1` and `calculate_predictions_recalibrated_type_2` functions.
+In the package we have define three types of predictions, the model original predictions calculated with the function `calculate_predictions`, a first approach to adjust the model prediction to the observed risk calculated with the function `calculate_predictions_recalibrated_type_1`, and a second approach to adjust the model prediction to the reality calculated with the function `calculate_predictions_recalibrated_type_2`.
 
-Suppose we want to calculate the model predictions in the external validation cohort, we use the function `calculate_predictions` as follows.
+Therefore, the first step to be able to obtain the external validation results is to calculate the original model predictions. Suppose we want to calculate the model predictions in the external validation cohort, we use the function `calculate_predictions` as follows.
 
 ```r
 model <- model |> calculate_predictions(external_validation_data)
 ```
 
 > [!TIP]
-> You can concatenate the prediction functions by using the pipe operator `%>%` or `|>`. We recommend to use the R native pipe operator `|>`. 
+> You can concatenate the prediction functions by using the pipe operator `%>%` or `|>`. We recommend to use the R native pipe operator `|>`.
 >
 > ```r
 >model <- model |>
@@ -162,7 +164,7 @@ model <- model |>
 
 ### Visualizing the results
 
-With all the results already generated in the model we can start to visualize them. As shown in the next graph this is the last step of the package pipeline, results visualization. In the package there are two plots defined. The `calibration plots` that shows how the model predictions matched the observed risk and the `c-index foresplot` that shows the discrimination abilities of different models.
+With all the results already generated in the model, we are ready to visualize them. As shown in the next graph this is the last step of the package pipeline, results visualization. In the package there are two plots defined, the `calibration plots` that shows how the model predictions matched the observed risk, and the `c-index foresplot` that shows the discrimination abilities of different models.
 
 ```mermaid
 flowchart LR
@@ -183,7 +185,7 @@ end
 
 #### Calibration plots
 
-To obtain the calibration plots we need to use two functions `get_calibration_plot_data` that generates the needed data to actually generate the calibration plot and the `get_calibration_plot` whose only needed parameter is the outcome of `get_calibration_plot_data`. We can generate a calibration plot as shown in the next code snippet with the function `get_calibration_plot`. 
+To obtain the calibration plots we need to use two functions `get_calibration_plot_data` that generates the needed data to actually generate the calibration plot and the `get_calibration_plot` whose only needed parameter is the outcome of `get_calibration_plot_data`. We can generate a calibration plot as shown in the next code snippet with the function `get_calibration_plot`.
 
 > [!TIP]
 > The function returns a [`ggplot2` object](https://cran.r-project.org/web/packages/ggplot2/index.html). Therefore, it can be modified as any other `ggplot2` plot.
