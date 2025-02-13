@@ -20,20 +20,15 @@ A generic method for calculating predictions for a given model. Further paramete
 \examples{
 set.seed(123)
 
-model <- mv_model_logreg(
-  coefficients = list(x = 0.5, z = 0.3),
-  formula = event ~ x + z,
-  intercept = 1.2
-)
+model <- mv_model_logreg(formula = event ~ 0.5 * (x - 1) + 0.3 * (z - 2))
 
 data <- data.frame(
   .imp = c(1, 1, 1, 2, 2, 2, 3, 3, 3),
   id = c(1, 2, 3, 1, 2, 3, 1, 2, 3),
+  event = survival::Surv(rpois(9, 5), rbinom(n = 9, size = 1, prob = 0.2)),
   x = rnorm(9, 1, 0.25),
   z = rnorm(9, 2, 0.75)
 )
 
-
-model |>
-  calculate_predictions(data)
+model |> calculate_predictions(data)
 }

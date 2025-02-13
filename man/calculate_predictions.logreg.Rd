@@ -37,11 +37,11 @@ model <- mv_model_logreg(
 data <- data.frame(
   .imp = c(1, 1, 1, 2, 2, 2, 3, 3, 3),
   id = c(1, 2, 3, 1, 2, 3, 1, 2, 3),
+  event = survival::Surv(rpois(9, 5), rbinom(n = 9, size = 1, prob = 0.2)),
   x = rnorm(9, 1, 0.25),
   z = rnorm(9, 2, 0.75)
 )
 
 
-model |>
-  calculate_predictions(data)
+model |> calculate_predictions(data)
 }

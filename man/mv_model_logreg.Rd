@@ -4,10 +4,10 @@
 \alias{mv_model_logreg}
 \title{Creates a logistic regression model}
 \usage{
-mv_model_logreg(coefficients, formula, intercept)
+mv_model_logreg(formula)
 }
 \arguments{
-\item{formula}{The model formula}
+\item{formula}{The model formula to calculate the linear predictor, including coefficients and intercept}
 }
 \value{
 A model to be used along the package with the next characteristics that could be empty and will be generated with some other functions in the package.
@@ -37,7 +37,5 @@ where we can observe that the prediction only depends on the \eqn{\beta} coeffic
 where we can see that the \code{intercept} value is not associated with any covariable. Therefore this function parameters are the minimum needed to obtain the predictions.
 }
 \examples{
-model <- mv_model_logreg(
-  formula = event ~ 0.5 * x + 0.3 * z - 1.2,
-)
+model <- mv_model_logreg(formula = event ~ 0.5 * x + 0.3 * z - 1.2)
 }
