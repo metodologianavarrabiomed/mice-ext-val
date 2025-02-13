@@ -8,7 +8,9 @@ correct}
 get_error_message_calculate(model, data)
 }
 \arguments{
-\item{model}{}
+\item{model}{\code{MiceExtVal} model to check the errors}
+
+\item{data}{External validation dataset where the model should be evaluated}
 }
 \value{
 \code{NULL} if no errors were found or the actual error if some errors

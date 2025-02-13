@@ -7,7 +7,9 @@
 get_error_message_calculate_recalibrated(model, data)
 }
 \arguments{
-\item{data}{}
+\item{model}{\code{MiceExtVal} model to check the errors}
+
+\item{data}{External validation dataset where the model should be evaluated}
 }
 \value{
 the error message for the given model and data
