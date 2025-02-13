@@ -6,6 +6,8 @@
 #' @returns the model printed
 #' @exportS3Method print MiceExtVal
 #'
+#' @importFrom utils head
+#'
 #' @examples
 #' model_cox <- mv_model_cox(
 #'   coefficients = list(x = 0.5, z = 0.3),
