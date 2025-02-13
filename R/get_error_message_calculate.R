@@ -1,8 +1,8 @@
 #' Logic for checkin all the needed parameters for `calculate_` functions are
 #' correct
 #'
-#' @param data
-#' @param model
+#' @param model `MiceExtVal` model to check the errors
+#' @param data External validation dataset where the model should be evaluated
 #'
 #' @return `NULL` if no errors were found or the actual error if some errors
 #' were found.
