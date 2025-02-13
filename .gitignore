@@ -7,3 +7,5 @@ vignettes
 .Rdata
 .Rhistory
 .RDataTmp
+/doc/
+/Meta/
