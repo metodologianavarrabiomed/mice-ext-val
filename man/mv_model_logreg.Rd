@@ -7,18 +7,12 @@
 mv_model_logreg(coefficients, formula, intercept)
 }
 \arguments{
-\item{coefficients}{A named list containing the \eqn{\beta} coefficients of the model without the intercept}
-
 \item{formula}{The model formula}
-
-\item{intercept}{Intercept value}
 }
 \value{
 A model to be used along the package with the next characteristics that could be empty and will be generated with some other functions in the package.
 \itemize{
-\item \code{coefficients}: \eqn{\beta} values of the model without the intercept.
-\item \code{formula}: Formula of the model.
-\item \code{intercept}: Intercept value of the model.
+\item \code{formula}: Formula of the model containing the coefficients and the intercept.
 \item \code{alpha_type_1}: The \eqn{\alpha} value for the type 1 recalibration.
 \item \code{alpha_type_2}: The \eqn{\alpha} value for the type 2 recalibration.
 \item \code{beta_overall}: The \eqn{\beta_{overall}} value for the type 2 recalibration.
@@ -44,8 +38,6 @@ where we can see that the \code{intercept} value is not associated with any cova
 }
 \examples{
 model <- mv_model_logreg(
-  coefficients = list(x = 0.5, z = 0.3),
-  formula = event ~ x + z,
-  intercept = 1.2
+  formula = event ~ 0.5 * x + 0.3 * z - 1.2,
 )
 }
