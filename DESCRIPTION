@@ -11,8 +11,9 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests: 
     knitr (>= 1.45),
-    rmarkdown (>= 2.25),
-    testthat (>= 3.0.0)
+    quarto (>= 1.4),
+    testthat (>= 3.0.0), 
+    gtsummary (>= 2.0.4)
 Imports:
     Hmisc (>= 5.1-1),
     dplyr (>= 1.1.4),
