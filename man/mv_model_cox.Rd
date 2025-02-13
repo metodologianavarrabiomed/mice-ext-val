@@ -4,21 +4,23 @@
 \alias{mv_model_cox}
 \title{Creates a cox model.}
 \usage{
-mv_model_cox(formula, S0 = NULL)
+mv_model_cox(coefficients, means, formula, S0 = NULL)
 }
 \arguments{
-\item{formula}{Formula of the model.}
-
-\item{S0}{Value of the \eqn{S_0(t)} function for the time of study.}
-
 \item{coefficients}{\eqn{\beta} values of the model.}
 
 \item{means}{Mean values of the variables in the derivation dataset.}
+
+\item{formula}{Formula of the model.}
+
+\item{S0}{Value of the \eqn{S_0(t)} function for the time of study.}
 }
 \value{
 A model to be used along the package with the next characteristics that could be empty and will be generated with some other functions in the package.
 \itemize{
-\item \code{formula}: Formula of how the \eqn{\beta \cdot X} will be calculated.
+\item \code{coefficients}: \eqn{\beta} values of the model.
+\item \code{means}: Mean values of the variables in the derivation dataset.
+\item \code{formula}: Formula of the model.
 \item \code{S0}: Value of the \eqn{S_0(t)} function for the time of study.
 \item \code{alpha}: Recalibration parameter for the type 1 recalibration.
 \item \code{S0_type_2}: Value of the \eqn{S_0(t)} function for the time of study for the type 2 recalibration.
@@ -43,7 +45,7 @@ so we need to fullfill all the requirements of the model. When we are predicting
 model <- mv_model_cox(
   coefficients = list(x = 0.5, z = 0.3),
   means = list(x = 3, z = 0.2),
-  formula = event ~ 0.5 * (x - 3) + 0.3 * (z - 0.2),
+  formula = event ~ x + z,
   S0 = 0.98765
 )
 

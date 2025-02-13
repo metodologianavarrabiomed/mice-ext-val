@@ -31,12 +31,14 @@ where \eqn{X} stands for the covariable values and \eqn{\beta} for the coefficie
 set.seed(123)
 
 model <- mv_model_logreg(
-  formula = event ~ 0.5 * x + 0.3 * z + 1.2
+  coefficients = list(x = 0.5, z = 0.3),
+  formula = event ~ x + z,
+  intercept = 1.2
 )
 
 data <- data.frame(
-  .imp = c(1, 1, 1, 2, 2, 2, 3, 3, 3),
-  id = c(1, 2, 3, 1, 2, 3, 1, 2, 3),
+  .imp = c(1,1,1,2,2,2,3,3,3),
+  id = c(1,2,3,1,2,3,1,2,3),
   x = rnorm(9, 1, 0.25),
   z = rnorm(9, 2, 0.75)
 )
