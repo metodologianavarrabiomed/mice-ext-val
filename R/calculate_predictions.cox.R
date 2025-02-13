@@ -44,7 +44,7 @@
 #'   z = rnorm(9, 2, 0.75)
 #' )
 calculate_predictions.cox <- function(model, data) {
-  error_message <- MiceExtVal:::get_error_message_calculate(model, data)
+  error_message <- get_error_message_calculate(model, data)
   if (!is.null(error_message)) cli::cli_abort(error_message)
 
   # Calculates the predictions evaluating the previous expression in each imputation

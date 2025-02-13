@@ -57,7 +57,7 @@
 #'   calculate_predictions(data) |>
 #'   calculate_predictions_recalibrated_type_1(data)
 calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progress = FALSE) {
-  error_message <- MiceExtVal:::get_error_message_calculate_recalibrated(model, data)
+  error_message <- get_error_message_calculate_recalibrated(model, data)
   if (!is.null(error_message)) cli::cli_abort(error_message)
 
   # Progress bar code
