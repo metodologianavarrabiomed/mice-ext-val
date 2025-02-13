@@ -78,7 +78,7 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
 
       # Obtains the data of the event variable
       survival_data <- .x[[all.vars(model$formula)[1]]]
-      survival_predictions <- model$predictions_data %>%
+      survival_predictions <- 1 - model$predictions_data %>%
         dplyr::filter(.imp == .y$.imp) %>%
         dplyr::pull(prediction)
 
