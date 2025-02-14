@@ -8,9 +8,7 @@
 #'
 #' so we need to fullfill all the requirements of the model. When we are predicting the survival/risk for a \eqn{X} we have to center the values with the meas on the derivation data, normally reported inside the articles.
 #'
-#' @param coefficients \eqn{\beta} values of the model.
-#' @param means Mean values of the variables in the derivation dataset.
-#' @param formula Formula of the model.
+#' @param formula Formula of the model to calculate the \eqn{\beta \cdot X} values, including coefficients and means if needed.
 #' @param S0 Value of the \eqn{S_0(t)} function for the time of study.
 #'
 #' @return A model to be used along the package with the next characteristics that could be empty and will be generated with some other functions in the package.
@@ -35,8 +33,6 @@
 #'
 #' @examples
 #' model <- mv_model_cox(
-#'   coefficients = list(x = 0.5, z = 0.3),
-#'   means = list(x = 3, z = 0.2),
 #'   formula = event ~ 0.5 * (x - 3) + 0.3 * (z - 0.2),
 #'   S0 = 0.98765
 #' )

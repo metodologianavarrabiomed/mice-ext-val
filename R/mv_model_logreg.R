@@ -12,7 +12,7 @@
 #'
 #' where we can see that the `intercept` value is not associated with any covariable. Therefore this function parameters are the minimum needed to obtain the predictions.
 #'
-#' @param formula The model formula
+#' @param formula The model formula to calculate the linear predictor, including coefficients and intercept
 #'
 #' @return A model to be used along the package with the next characteristics that could be empty and will be generated with some other functions in the package.
 #'   * `formula`: Formula of the model containing the coefficients and the intercept.
@@ -34,10 +34,8 @@
 #' @export
 #'
 #' @examples
-#' model <- mv_model_logreg(
-#'   formula = event ~ 0.5 * x + 0.3 * z - 1.2,
-#' )
-mv_model_logreg <- function(coefficients, formula, intercept) {
+#' model <- mv_model_logreg(formula = event ~ 0.5 * x + 0.3 * z - 1.2)
+mv_model_logreg <- function(formula) {
   error_message <- NULL
 
   if (!methods::is(formula, "formula")) {

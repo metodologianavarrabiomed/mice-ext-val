@@ -1,7 +1,7 @@
 #' generates the error messages for the recalibrated predictions
 #'
-#' @param model
-#' @param data
+#' @param model `MiceExtVal` model to check the errors
+#' @param data External validation dataset where the model should be evaluated
 #'
 #' @returns the error message for the given model and data
 get_error_message_calculate_recalibrated <- function(model, data) {

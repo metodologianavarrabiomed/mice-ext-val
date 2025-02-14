@@ -31,20 +31,21 @@
 #' set.seed(123)
 #'
 #' model <- mv_model_cox(
-#'   coefficients = list(x = 0.5, z = 0.3),
-#'   means = list(x = 1, z = 2),
-#'   formula = event ~ x + z,
+#'   formula = event ~ 0.5 * (x - 1) + 0.3 * (z - 2),
 #'   S0 = 0.98765
 #' )
 #'
 #' data <- data.frame(
 #'   .imp = c(1, 1, 1, 2, 2, 2, 3, 3, 3),
 #'   id = c(1, 2, 3, 1, 2, 3, 1, 2, 3),
+#'   event = survival::Surv(rpois(9, 5), rbinom(n = 9, size = 1, prob = 0.2)),
 #'   x = rnorm(9, 1, 0.25),
 #'   z = rnorm(9, 2, 0.75)
 #' )
+#'
+#' model |> calculate_predictions(data)
 calculate_predictions.cox <- function(model, data) {
-  error_message <- MiceExtVal:::get_error_message_calculate(model, data)
+  error_message <- get_error_message_calculate(model, data)
   if (!is.null(error_message)) cli::cli_abort(error_message)
 
   # Calculates the predictions evaluating the previous expression in each imputation
