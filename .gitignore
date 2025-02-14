@@ -2,7 +2,6 @@ inst/doc
 .Rproj.user
 data
 doc_no_git
-vignettes
 .Rbuildignore
 .Rdata
 .Rhistory
