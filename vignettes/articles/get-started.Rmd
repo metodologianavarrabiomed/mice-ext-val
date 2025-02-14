@@ -3,14 +3,7 @@ title: "MiceExtVal example of use"
 author: 
  - name: "Asier Ballesteros Domínguez"
    orcid: 0000-0002-2195-4669
-format: 
-  html:
-    # code-fold: true
-    code-summary: "Show the code"
-    code-link: true
-    code-overflow: wrap
-    embed-resources: true
-callout-appearance: simple
+output: html_document
 toc: true
 bibliography: references.bib
 csl: apa.csl
@@ -19,16 +12,8 @@ vignette: >
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
   %\VignetteDepends{gtsummary}
+  %\VignetteDepends{kableExtra}
 ---
-
-```{css, echo=FALSE}
-p {
-  text-align: justify;
-  text-justify: inter-word;
-}
-```
-
-::: {.callout-note collapse="true"}
 
 # Required libraries
 
@@ -50,8 +35,6 @@ library(tibble)
 library(survival)
 ```
 
-:::
-
 As an example of the package `MiceExtVal` use we will externally validate the Framingham model, see @framingham. We will use a dataset obtained from [kaggle](https://www.kaggle.com). The example of use will be structured as follows.
 
 1. Read and explore the dataset
@@ -61,14 +44,15 @@ As an example of the package `MiceExtVal` use we will externally validate the Fr
 
 # Read and Explore the Dataset
 
-To recreate an external validation of the Framingham model we need a dataset with the model variables. In the package we have included the Framingham dataset provided in [kaggle](https://www.kaggle.com) by [Shrey Jain](https://www.kaggle.com/datasets/shreyjain601/framingham-heart-study). The dataset contains the variables described in @tbl-summary-data. We can observe that there exists some missing values in some variables. 
+To recreate an external validation of the Framingham model we need a dataset with the model variables. In the package we have included the Framingham dataset provided in [kaggle](https://www.kaggle.com) by [Shrey Jain](https://www.kaggle.com/datasets/shreyjain601/framingham-heart-study). The dataset contains the variables described in next table. We can observe that there exists some missing values in some variables. 
 
-```{r}
+```{r, warning=FALSE, echo=FALSE}
 #| warning: false
 #| label: tbl-summary-data
 #| tbl-cap: Summary table of the Framingham dataset
 #| classes: plain .table-sm
 #| code-fold: true
+
 MiceExtVal::framingham |>
   dplyr::select(-randid, -period) |>
   gtsummary::tbl_summary(
@@ -83,14 +67,14 @@ MiceExtVal::framingham |>
   )
 ```
 
-In @tbl-perc-miss there are represented the percentage o missings in the variables that have at least one row with a missing value. 
+In the following table there are represented the percentage o missings in the variables that have at least one row with a missing value. 
 
-```{r}
+```{r, echo=FALSE}
 #| echo: false
 #| tbl-cap: Percentage of missings
 #| label: tbl-perc-miss
 #| classes: plain .table-sm
-framingham |>
+MiceExtVal::framingham |>
   dplyr::summarise(
     dplyr::across(dplyr::everything(), ~ mean(is.na(.)) * 100)
   ) |>
@@ -111,31 +95,35 @@ To ammend these missing values we will impute their expected values using the mi
 
 ```{r}
 #| eval: false
-pred_matrix <- mice::make.predictorMatrix(framingham)
+pred_matrix <- mice::make.predictorMatrix(MiceExtVal::framingham)
 pred_matrix[, "randid"] <- 0
 pred_matrix[, "period"] <- 0
 
-mice_data <- mice::mice(framingham)
+mice_data <- mice::mice(MiceExtVal::framingham)
 fram_long <- mice::complete(mice_data, "long")
 ```
 
 ```{r}
 #| include: false
-pred_matrix <- mice::make.predictorMatrix(framingham)
+pred_matrix <- mice::make.predictorMatrix(MiceExtVal::framingham)
 pred_matrix[, "randid"] <- 0
 pred_matrix[, "period"] <- 0
 
-mice_data <- mice::mice(framingham, predictorMatrix = pred_matrix)
-fram_long <- mice::complete(mice_data, "long") |> dplyr::filter(period == 1)
+mice_data <- mice::mice(MiceExtVal::framingham, predictorMatrix = pred_matrix)
+fram_long <- mice::complete(mice_data, "long") |>
+  dplyr::filter(period == 1) |>
+  dplyr::rename(id = randid)
 ```
 
 # The Framingham Model
 
-With the data ready to be used we need to take some time to understand the model that we want to validate, the Framingham model. This model is a Cox model that predicts the risk to suffer a coronary heart disease in patients that are $30-79$ years old. The Framingham model coefficients are represented in @tbl-framingham-coefficients.
+With the data ready to be used we need to take some time to understand the model that we want to validate, the Framingham model. This model is a Cox model that predicts the risk to suffer a coronary heart disease in patients that are $30-79$ years old. The Framingham model coefficients are represented in the following table.
 
 ```{r}
 #| echo: false
 #| tbl-cap: Framingham model coefficients
+#| tbl.alt: >
+#|  Framingham model coefficients
 #| label: tbl-framingham-coefficients
 #| classes: plain .table-sm
 options(knitr.kable.NA = "-")
@@ -171,74 +159,11 @@ tibble::tribble(
 
 ## Requirements to Define the Model
 
-The Framingham model had defined the variables that are used to calculate the model predictions. In the dataset we have the data needed to meet this requirements. Before defining the model we need to generate the variables that are not present in the dataset. In @tbl-framingham-coefficients we can observe that some continous variables are converted into categorical. More precisely, the total cholesterol, HDL cholesterol and blood pressure are categorized.
+The Framingham model had defined the variables that are used to calculate the model predictions. In the dataset we have the data needed to meet this requirements. Before defining the model we need to generate the variables that are not present in the dataset. In the previous table we can observe that some continous variables are converted into categorical. More precisely, the total cholesterol, HDL cholesterol and blood pressure are categorized.
 
 ### Total Cholesterol
 
 The total cholesterol variable is categorized into five categories, less than 160 mg/dL, between 160 and 199 mg/dL, between 200 and 239 mg/dL, between 240 and 279 mg/dl, and more than 280 mg/dL. The following code snippet generates the variable in the dataset.
-
-```{r}
-fram_long_var <- fram_long |>
-  dplyr::mutate(
-    chol = cut(
-      totchol,
-      breaks = c(-Inf, 160, 200, 240, 280, Inf),
-      labels = c("<160", "160-199", "200-239", "240-279", ">280")
-    )
-  ) |> 
-  dplyr::rename(id = randid)
-```
-
-### HDL cholesterol
-
-The Framingham model characterizes the HDL cholesterol into five groups, less than 35 mg/dL, between 35 and 44 mg/dL, between 45 and 49 mg/dL, between 50 and 59 mg/dL, and more than 60 mg/dL. As before the following code snippet generates the variable in the dataset.
-
-```{r}
-fram_long_var <- fram_long_var |>
-  dplyr::mutate(
-    hdl = cut(
-      hdlc,
-      breaks = c(-Inf, 35, 45, 50, 60, Inf),
-      labels = c("<35", "35-44", "45-49", "50-59", ">60")
-    )
-  )
-```
-
-### Blood pressure
-
-In the model it is defined a variable that aggregates the systolyc blood pressure and diastolic blood pressure into five groups of hypertension. As defined by @framingham, we categorize each of the individual blood pressure variables into five groups, optimal, normal, high-normal, hypertension I, and hypertension II-IV. If a patient have different blood pressure categories we use the highest one as a representation of they state. The following code adds the variable to the dataset, we first generate the individual categorization variables and generate the `pressure` variable as the aggregation of both.
-
-```{r}
-fram_long_var <- fram_long_var |>
-  dplyr::mutate(
-    sys_lvl = cut(
-      sysbp,
-      breaks = c(-Inf, 120, 130, 140, 160, Inf),
-      labels = c("optimal", "normal", "high-normal", "hypertension I", "hypertension II-IV")
-    ),
-    dys_lvl = cut(
-      diabp,
-      breaks = c(-Inf, 80, 85, 90, 100, Inf),
-      labels = c("optimal", "normal", "high-normal", "hypertension I", "hypertension II-IV")
-    ),
-    pressure = purrr::map2_int(as.numeric(sys_lvl), as.numeric(dys_lvl), ~ max(.x, .y)),
-    pressure = factor(
-      pressure,
-      labels = c("optimal", "normal", "high-normal", "hypertension I", "hypertension II-IV")
-    )
-  )
-```
-
-## Selecting the Needed Variables
-
-Once the Framingham variables are generated we need to create the model in the `MiceExtVal` package. The Framingham model is stratified by sex. Therefore, we need to generate two models, one for males and another for females. The `MiceExtVal` package allow us to define a Cox model using the `MiceExtVal::mv_model_cox` function where we need to introduce the model (`coefficients`), the mean value in the derivation cohort for each of the variables (`means`), the model formula to know the dependent variable (`formula`) and the survival basal function for the time of the study (`S0`).
-
-### Generate the model variables
-We have defined the variables, but we need to generate their representation inside the dataset. We have already generated the factor variables that represent each one of the levels for the different continous variables as total cholesterol, hdl cholesterol and pulse pressure. But we need to generate the individual variables for each of them in order to be able to calculate the Framingham model predictions.
-
-#### Total cholesterol
-
-We need to generate the individual variables for each of the model coefficients defined in @tbl-framingham-coefficients. Remembered in the following table.
 
 | Variable             |   Men   |  Women  |
 | :------------------- | :-----: | :-----: |
@@ -248,10 +173,9 @@ We need to generate the individual variables for each of the model coefficients 
 | 200-239              | 0.1769  | 0.2077  |
 | 240-279              | 0.5054  | 0.2439  |
 | >280                 | 0.6571  | 0.5351  |
-: {.plain .table-sm}
 
 ```{r}
-fram_long_var <- fram_long_var |>
+fram_long <- fram_long |>
   dplyr::mutate(
     totchol_less_160 = as.numeric(totchol < 160),
     totchol_160_199 = as.numeric(totchol >= 160 & totchol < 200),
@@ -261,8 +185,9 @@ fram_long_var <- fram_long_var |>
   )
 ```
 
-#### HDL cholesterol
-We need to generate the individual variables for the HDL cholesterol. The variables and its coefficients are described in the following table.
+### HDL cholesterol
+
+The Framingham model characterizes the HDL cholesterol into five groups, less than 35 mg/dL, between 35 and 44 mg/dL, between 45 and 49 mg/dL, between 50 and 59 mg/dL, and more than 60 mg/dL. As before the following code snippet generates the variable in the dataset.
 
 | Variable             |   Men    |  Women   |
 | :------------------- | :------: | :------: |
@@ -275,7 +200,7 @@ We need to generate the individual variables for the HDL cholesterol. The variab
 : {.plain .table-sm}
 
 ```{r}
-fram_long_var <- fram_long_var |>
+fram_long <- fram_long |>
   dplyr::mutate(
     hdl_less_35 = as.numeric(hdlc < 35),
     hdl_35_44 = as.numeric(hdlc >= 35 & hdlc < 44),
@@ -285,8 +210,9 @@ fram_long_var <- fram_long_var |>
   )
 ```
 
-#### Blood Pressure
-For the blood pressure we can generate the dummy variables from the `pressure`. The different levels are defined in the following table.
+### Blood pressure
+
+In the model it is defined a variable that aggregates the systolyc blood pressure and diastolic blood pressure into five groups of hypertension. As defined by @framingham, we categorize each of the individual blood pressure variables into five groups, optimal, normal, high-normal, hypertension I, and hypertension II-IV. If a patient have different blood pressure categories we use the highest one as a representation of they state. The following code adds the variable to the dataset, we first generate the individual categorization variables and generate the `pressure` variable as the aggregation of both.
 
 | Variable                 | Men      | Women    |
 | :----------------------- | :------- | :------- |
@@ -298,8 +224,38 @@ For the blood pressure we can generate the dummy variables from the `pressure`. 
 | Stage II-IV hypertension | 0.61859  | 0.46573  |
 : {.plain .table-sm}
 
+We first generate a variable called `pressure` that categorize both pressures into one variable. 
+
 ```{r}
-fram_long_var <- fram_long_var |>
+pressure_labels <- c(
+  "optimal", "normal", "high-normal", "hypertension I", "hypertension II-IV"
+)
+fram_long <- fram_long |>
+  dplyr::mutate(
+    sys_lvl = cut(
+      sysbp,
+      breaks = c(-Inf, 120, 130, 140, 160, Inf),
+      labels = pressure_labels
+    ),
+    dys_lvl = cut(
+      diabp,
+      breaks = c(-Inf, 80, 85, 90, 100, Inf),
+      labels = pressure_labels
+    ),
+    pressure = purrr::map2_int(
+      as.numeric(sys_lvl), as.numeric(dys_lvl), ~ max(.x, .y)
+      ),
+    pressure = factor(
+      pressure,
+      labels = pressure_labels
+    )
+  )
+```
+
+With the `pressure` variable we generate the variables used in the model.
+
+```{r}
+fram_long <- fram_long |>
   dplyr::mutate(
     bp_optimal = as.numeric(pressure == "optimal"),
     bp_high_normal = as.numeric(pressure == "high-normal"),
@@ -308,15 +264,19 @@ fram_long_var <- fram_long_var |>
   )
 ```
 
-#### Generating Extra Needed Variables
+## Selecting the Needed Variables
+
+Once the Framingham variables are generated we need to create the model in the `MiceExtVal` package. The Framingham model is stratified by sex. Therefore, we need to generate two models, one for males and another for females. The `MiceExtVal` package allow us to define a Cox model using the `MiceExtVal::mv_model_cox` function where we need to introduce the model (`coefficients`), the mean value in the derivation cohort for each of the variables (`means`), the model formula to know the dependent variable (`formula`) and the survival basal function for the time of the study (`S0`).
+
+### Generating Extra Needed Variables
 Some variables like `cursmoke` or `diabetes` are factors and to be used in the model we need to transform them to numeric variables where $1$ indicates `TRUE` and $0$ indicates `FALSE`. We will also generate the variable `age2` $age^2$ needed for the females model. Additionally, we generate the survival outcome. 
 
 ```{r}
-fram_long_var <- fram_long_var |>
+fram_long <- fram_long |>
   dplyr::mutate(
     cursmoke = as.numeric(cursmoke == "1"),
-    diabetes = as.numeric(diabetes == "1"), 
-    age2 = age**2, 
+    diabetes = as.numeric(diabetes == "1"),
+    age2 = age**2,
     anychd_surv = survival::Surv(timechd, anychd == "Yes")
   )
 ```
@@ -324,10 +284,9 @@ fram_long_var <- fram_long_var |>
 Finally, we generate the males and females datasets.
 
 ```{r}
-male_fram_long <- fram_long_var |> dplyr::filter(sex == 1)
-female_fram_long <- fram_long_var |> dplyr::filter(sex == 2)
+male_fram_long <- fram_long |> dplyr::filter(sex == 1)
+female_fram_long <- fram_long |> dplyr::filter(sex == 2)
 ```
-
 
 ### Generate the models
 
@@ -335,19 +294,24 @@ The models in the package are created using the `MiceExtVal::mv_model_cox` funct
 
 Each model needs different information in order to calculate the predictions in the Cox model we need to introduce the following parameters.
 
-* `coefficients`: A named list with the model coefficients. 
-* `means`: A named list witht the mean values in the derivation dataset. If the variables are centered we need to generate this named list with mean value $0$ for each of the model variables.
-* `formula`: A formula that defines the model. It is internally used to know the dependent variable that must be present in the dataset. 
+* `formula`: A formula that defines the model. In this formula we need to define the model coefficients and if needed, like in this case, the means to center the variables in the $\beta \cdot X$ calculation. 
 * `S0`: The value of $S_0(t)$ for the time of study $t$ in the model. In this case $t = 10 \text{ years}$.
 
 As the Framingham model is stratified by sex, we need to generate two models to externally validate it.
 
 #### Males
-
-As we have mentioned before we need to define the `coefficients`, `means`, `formula`, and `S0`. The males coefficeients are defined in @tbl-framingham-coefficients.
+The next code snippet generates the males model formula following the original mean values and the coefficients described in the previous tables.
 
 ```{r}
-males_formula <- anychd_surv ~ 0.0483 * (age - 48.3) + 0.4284 * (diabetes - 0.05) + 0.5234 * (cursmoke - 0.403) + -0.6595 * (totchol_less_160 - 0.075) + 0.1769 * (totchol_200_239 - 0.39) + 0.5054 * (totchol_240_279 - 0.165) + 0.6571 * (totchol_greater_280 - 0.057) + 0.4974 * (hdl_less_35 - 0.192) + 0.2431 * (hdl_35_44 - 0.357) + -0.0511 * (hdl_50_59 - 0.19) + -0.4866 * (hdl_greater_60 - 0.106) + -0.0023 * (bp_optimal - 0.202) + 0.2832 * (bp_high_normal - 0.202) + 0.5217 * (bp_hypertension_i - 0.225) + 0.6186 * (bp_hypertension_ii_iv - 0.128)
+males_formula <- anychd_surv ~ 0.0483 * (age - 48.3) +
+  0.4284 * (diabetes - 0.05) + 0.5234 * (cursmoke - 0.403) -
+  0.6595 * (totchol_less_160 - 0.075) + 0.1769 * (totchol_200_239 - 0.39) +
+  0.5054 * (totchol_240_279 - 0.165) + 0.6571 * (totchol_greater_280 - 0.057) +
+  0.4974 * (hdl_less_35 - 0.192) + 0.2431 * (hdl_35_44 - 0.357) -
+  0.0511 * (hdl_50_59 - 0.19) - 0.4866 * (hdl_greater_60 - 0.106) -
+  0.0023 * (bp_optimal - 0.202) + 0.2832 * (bp_high_normal - 0.202) +
+  0.5217 * (bp_hypertension_i - 0.225) +
+  0.6186 * (bp_hypertension_ii_iv - 0.128)
 ```
 
 Once we have defined the needed parameters of the model we can create the model as follows.
@@ -360,11 +324,18 @@ male_model <- MiceExtVal::mv_model_cox(
 ```
 
 #### Females
-
-The framingham model have different variables for males and females and have also different coefficients, therefore we need to define the `coefficients` parameter. Thus, we generate the parameter with the coefficients present in @tbl-framingham-coefficients.
+For females we can reproduce what we have already done for males.
 
 ```{r}
-females_formula <- anychd_surv ~ 0.3377 * (age - 49.6) + -0.0027 * (age2 - 2604.5) + 0.5963 * (diabetes - 0.038) + 0.2925 * (cursmoke - 0.378) + -0.2614 * (totchol_less_160 - 0.079) + 0.2077 * (totchol_200_239 - 0.327) + 0.2439 * (totchol_240_279 - 0.2) + 0.5351 * (totchol_greater_280 - 0.91) + 0.8431 * (hdl_less_35 - 0.043) + 0.378 * (hdl_35_44 - 0.149) + 0.1978 * (hdl_45_49 - 0.124) + -0.4295 * (hdl_greater_60 - 0.407) + -0.5336 * (bp_optimal - 0.348) + -0.0677 * (bp_high_normal - 0.15) + 0.2629 * (bp_hypertension_i - 0.186) + 0.4657 * (bp_hypertension_ii_iv - 0.1)
+females_formula <- anychd_surv ~ 0.3377 * (age - 49.6) -
+  0.0027 * (age2 - 2604.5) + 0.5963 * (diabetes - 0.038) +
+  0.2925 * (cursmoke - 0.378) + -0.2614 * (totchol_less_160 - 0.079) +
+  0.2077 * (totchol_200_239 - 0.327) + 0.2439 * (totchol_240_279 - 0.2) +
+  0.5351 * (totchol_greater_280 - 0.91) + 0.8431 * (hdl_less_35 - 0.043) +
+  0.378 * (hdl_35_44 - 0.149) + 0.1978 * (hdl_45_49 - 0.124) -
+  0.4295 * (hdl_greater_60 - 0.407) - 0.5336 * (bp_optimal - 0.348) -
+  0.0677 * (bp_high_normal - 0.15) + 0.2629 * (bp_hypertension_i - 0.186) +
+  0.4657 * (bp_hypertension_ii_iv - 0.1)
 ```
 
 From the previous parameters we generate the `female_model` to externally validate the Framingham female model.
@@ -396,11 +367,8 @@ female_model <- female_model |>
   MiceExtVal::calculate_predictions(model = _, data = female_fram_long)
 ```
 
-As a result inside the model there are generated two tables `predictions_data` and `predictions_aggregated`. The first table contains all the predictions in each of the imputed datasets, see @tbl-pred-data, and the second table contains the aggregated prediction for each of the patients, see @tbl-pred-agg.
+As a result inside the model there are generated two tables `predictions_data` and `predictions_aggregated`. In the next table there are shown the first rows of the `predictions_data` table, where there are all the predicted values for each of the imputations.
 
-:::{.grid}
-
-:::{.g-col-6}
 
 ```{r}
 #| label: tbl-pred-data
@@ -411,22 +379,16 @@ head(male_model$predictions_data) |>
   kableExtra::kbl(digits = 3)
 ```
 
-:::
-
-:::{.g-col-6}
+In this second table there are shown the first rows of `predictions_aggregated` where there are only one aggregated prediction for each patient.
 
 ```{r}
 #| label: tbl-pred-agg
 #| classes: plain .table-sm
 #| tbl-cap: Example of `predictions_aggregated`
 #| echo: false
-head(male_model$predictions_aggregated) |> 
+head(male_model$predictions_aggregated) |>
   kableExtra::kbl(digits = 3)
 ```
-
-:::
-
-:::
 
 ## Model performance
 The model performance can be separated in two. The ability of the model to discriminate high-risk patients from low-risk patients and its calibration i.e. the ability to match the real risk and predicted risk. The model C-Index is calculated using the Harrell's C-Index and the calibration ability by generating calibration plots.
@@ -436,7 +398,7 @@ The model performance can be separated in two. The ability of the model to discr
 #### C-Index in Males
 
 ```{r}
-male_model <- male_model |> 
+male_model <- male_model |>
   MiceExtVal::calculate_c_index(model = _, data = male_fram_long)
 ```
 
@@ -449,7 +411,9 @@ female_model <- female_model |>
 ### Calculating Calibration Plot
 
 #### Calibration Plot Males
-```{r}
+```{r, message=FALSE, warning=FALSE}
+#| fig.alt: >
+#|   Calibration plot for males
 #| warning: false
 male_model |>
   MiceExtVal::get_calibration_plot_data(
@@ -462,7 +426,9 @@ male_model |>
 ```
 
 #### Calibration Plot Females
-```{r}
+```{r, message=FALSE, warning=FALSE}
+#| fig.alt: >
+#|   Calibration plot for females
 #| warning: false
 female_model |>
   MiceExtVal::get_calibration_plot_data(
@@ -475,11 +441,17 @@ female_model |>
 ```
 
 ## Recalibration
-```{r}
+```{r, message=FALSE, warning=FALSE}
+#| fig.alt: >
+#|   Type 1 calibration plot for males
 #| warning: false
-male_model <- male_model |> 
-  MiceExtVal::calculate_predictions_recalibrated_type_1(model = _, data = male_fram_long) |>
-  MiceExtVal::calculate_predictions_recalibrated_type_2(model = _, data = male_fram_long)
+male_model <- male_model |>
+  MiceExtVal::calculate_predictions_recalibrated_type_1(
+    model = _, data = male_fram_long
+  ) |>
+  MiceExtVal::calculate_predictions_recalibrated_type_2(
+    model = _, data = male_fram_long
+  )
 
 male_model |>
   MiceExtVal::get_calibration_plot_data(
@@ -489,7 +461,11 @@ male_model |>
     type = "predictions_recal_type_1"
   ) |>
   MiceExtVal::get_calibration_plot(data = _)
+```
 
+```{r, message=FALSE, warning=FALSE}
+#| fig.alt: >
+#|   Type 2 calibration plot for males
 male_model |>
   MiceExtVal::get_calibration_plot_data(
     model = _,
@@ -499,11 +475,17 @@ male_model |>
   ) |>
   MiceExtVal::get_calibration_plot(data = _)
 ```
-```{r}
+```{r, message=FALSE, warning=FALSE}
 #| warning: false
-female_model <- female_model |> 
-  MiceExtVal::calculate_predictions_recalibrated_type_1(model = _, data = female_fram_long) |>
-  MiceExtVal::calculate_predictions_recalibrated_type_2(model = _, data = female_fram_long)
+#| fig.alt: >
+#|   Type 1 calibration plot for females
+female_model <- female_model |>
+  MiceExtVal::calculate_predictions_recalibrated_type_1(
+    model = _, data = female_fram_long
+  ) |>
+  MiceExtVal::calculate_predictions_recalibrated_type_2(
+    model = _, data = female_fram_long
+  )
 
 female_model |>
   MiceExtVal::get_calibration_plot_data(
@@ -513,7 +495,11 @@ female_model |>
     type = "predictions_recal_type_1"
   ) |>
   MiceExtVal::get_calibration_plot(data = _)
+```
 
+```{r, message=FALSE, warning=FALSE}
+#| fig.alt: >
+#|   Type 2 calibration plot for females
 female_model |>
   MiceExtVal::get_calibration_plot_data(
     model = _,
@@ -524,3 +510,4 @@ female_model |>
   MiceExtVal::get_calibration_plot(data = _)
 ```
 
+## References

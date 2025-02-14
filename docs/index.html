@@ -8,8 +8,8 @@
 <title>Tools for external validation in Multiple Imputation by Chained Equations methodology • MiceExtVal</title>
 <script src="lightswitch.js"></script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><script src="deps/MathJax-3.2.2/tex-chtml.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tools for external validation in Multiple Imputation by Chained Equations methodology">
 <meta name="description" content="This pacakge allows the user to externally validate Cox and Logistic Regression models from the data that are usually reported in the articles. The package is formed by functions that allow the user to recalibrate the models and also obtain the discrimination and calibration performance while working with multiple imputed data.">
 <meta property="og:description" content="This pacakge allows the user to externally validate Cox and Logistic Regression models from the data that are usually reported in the articles. The package is formed by functions that allow the user to recalibrate the models and also obtain the discrimination and calibration performance while working with multiple imputed data.">
@@ -32,6 +32,12 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="articles/get-started.html">MiceExtVal example of use</a></li>
+  </ul>
+</li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -57,55 +63,73 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of MiceExtVal is to give the users tools to externally validate models using the multiple imputation methodology. There are lots of tools to externally validate models in complete datasets but there is a lack of tools when we are working with multiple imputed datasets. It is recommended to use techniques like multiple imputation by chained equations (<a href="https://stefvanbuuren.name/fimd/" class="external-link">MICE</a>) to impute the missing values when they are present, the MICE methodology requires to realize as many alanysis as imputed datasets are. The next graph shows the flowchart of a multple imputed analysis. The package is generated to assist the users along the external validation analysis.</p>
-<p><img src="reference/figures/mermaid_diagram_1.svg"></p>
+<p>The goal of <code>MiceExtVal</code> is to give the users tools to externally validate models using the multiple imputation methodology. There are plenty of packages, functions, and literature to externally validate models in complete datasets but there is a lack of tools when we are working with multiple imputed datasets.</p>
+<p>Nowadays it is recommended to use techniques like multiple imputation by chained equations (<a href="https://stefvanbuuren.name/fimd/" class="external-link">MICE</a>) to impute the missing values when they are present. The MICE methodology requires to realize as many analysis as imputed datasets are, as shown in the following graph.</p>
+<div class="float">
+<img src="reference/figures/mermaid_diagram_1.svg" alt="Flow diagram for the multiple imputation by chained equations methodology"><div class="figcaption">Flow diagram for the multiple imputation by chained equations methodology</div>
+</div>
+<p>This package is generated to assist the users along the external validation analysis of Cox and Logistic Regression models.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of MiceExtVal from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>You can install the development version of <code>MiceExtVal</code> from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"metodologianavarrabiomed/mice-ext-val"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"metodologianavarrabiomed/mice-ext-val"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># alternativelly you can use the `pak` package</span></span>
+<span><span class="co"># install.packages("pak")</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu">pkg_install</span><span class="op">(</span><span class="st">"metodologianavarrabiomed/mice-ext-val"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
-<p>The package assumes that there is a multiple imputed dataset in <code>long</code> format with only the imputed datasets. The functions are divided in three groups, the model definition functions starting wit <code>mv_model</code>, the calculating model results starting with <code>calculate_</code> and the plots starting with <code>get_</code>.</p>
+<p>The package is created to perform the analysis over a MICE cohort. The package also asumed that the imputed cohort should be generated with the <a href="https://cran.r-project.org/web/packages/mice/index.html" class="external-link"><code>mice</code> package</a> and also be in <code>long</code> format. If the imputed dataset is not generated with this package the impute dataset at least should have the same structure and variables.</p>
+<p>The external validation dataset must only contain the information about the imputed datasets and no information of the original dataset.</p>
 <blockquote>
-<p>From the <a href="https://cran.r-project.org/web/packages/mice/index.html" class="external-link"><code>mice</code> package</a> you can obtain the complete dataset in long format as</p>
+<p>From the <a href="https://cran.r-project.org/web/packages/mice/index.html" class="external-link"><code>mice</code> package</a> you can obtain the complete dataset in <code>long</code> format as</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">complete</span> <span class="op">&lt;-</span> <span class="fu">mice</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/complete.html" class="external-link">complete</a></span><span class="op">(</span><span class="va">imp</span>, action <span class="op">=</span> <span class="st">"long"</span><span class="op">)</span></span></code></pre></div>
+<p>This function introduces all the imputed datasets into a single table and adds two variables <code>.id</code> and <code>.imp</code>. The variable <code>.id</code> is a single id for each of the rows in the <code>long</code> format table and the <code>.imp</code> variable indicates to which imputation each row belongs.</p>
 </blockquote>
-<p>Through this example we assume that the complete dataset is called <code>external_validation_data</code>. Firstly, we import the package.</p>
+<p>The package functions are divided in three groups, the model definition functions starting with <code>mv_model</code>, the functions that calculate model results starting with <code>calculate_</code>, and the plot functions starting with <code>get_</code>. Through this example we have also assumed that the complete dataset is called <code>external_validation_data</code>.</p>
+<p>Firstly, we import the package. In R you can also access the variables without importing the package by putting the package as prefix like <code>MiceExtVal::function</code>. It is a good practice to use this second declaration to know to which package each function belongs.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">MiceExtVal</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="defining-a-model">Defining a model<a class="anchor" aria-label="anchor" href="#defining-a-model"></a>
 </h3>
-<p>By using the <code>mv_model</code> we can generate the package model definitions. To define a Cox model we use the function <code>mv_model_cox</code> and to define a logistic regression model we use the function <code>mv_model_logreg</code>. Each model have different requirements to be generated.</p>
+<p>By using the <code>mv_model</code> functions we can generate the package model definitions. To define a Cox model we use the function <code>mv_model_cox</code> and to define a logistic regression model we use the function <code>mv_model_logreg</code>. Each model have different requirements to be generated.</p>
 <div class="section level4">
 <h4 id="cox-model">Cox model<a class="anchor" aria-label="anchor" href="#cox-model"></a>
 </h4>
-<p>To define the cox model we need to be able to describe the following characteristics of the model.</p>
+<p>To define the Cox model we need to be able to describe the following characteristics of the model.</p>
 <ul>
 <li>
-<code>coefficients</code>: A <code>list</code> with the model coefficients</li>
+<code>formula</code>: Model formula to calculate the <span class="math inline">\(\beta \cdot X\)</span> values.</li>
 <li>
-<code>means</code>: A <code>list</code> with the mean value in the derivation cohort for each of the model variables</li>
-<li>
-<code>formula</code>: Model <code>formula</code>
-</li>
-<li>
-<span class="math inline">\(S_0(t)\)</span>: Value of the basal survival function at the time study <span class="math inline">\(t\)</span>
-</li>
+<span class="math inline">\(S_0(t)\)</span>: Value of the basal survival function at the time of study <span class="math inline">\(t\)</span> (must be the maximum time in the dataset)</li>
 </ul>
+<p>As an example we have defined a Cox model that is defined by the formula:</p>
+<p><span class="math display">\[
+0.98765^{exp(0.5 \cdot (x - 3) + 0.3 \cdot (z - 0.2))}
+\]</span></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cox_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/mv_model_cox.html">mv_model_cox</a></span><span class="op">(</span></span>
-<span> coefficients <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">0.5</span>, z <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span>,</span>
-<span> means <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">3</span>, z <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span>,</span>
-<span> formula <span class="op">=</span> <span class="va">event</span> <span class="op">~</span> <span class="va">x</span> <span class="op">+</span> <span class="va">z</span>,</span>
+<code class="sourceCode R"><span><span class="va">cox_model</span> <span class="op">&lt;-</span> <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="reference/mv_model_cox.html">mv_model_cox</a></span><span class="op">(</span></span>
+<span> formula <span class="op">=</span> <span class="va">event</span> <span class="op">~</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="op">(</span><span class="va">x</span> <span class="op">-</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="op">(</span><span class="va">z</span> <span class="op">-</span> <span class="fl">0.2</span><span class="op">)</span>,</span>
 <span> S0 <span class="op">=</span> <span class="fl">0.98765</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<blockquote>
+<p>The <code>formula</code> argument is the declaration of the code that calculates the <span class="math inline">\(\beta \cdot X\)</span> values. In this formula should be included the model coefficients and also the mean values, if there is a need of centering the results.</p>
+<p>The formula have two parts the left part and the right part, in the left part we must include the dependent variable (outcome of interest) and in the right part we must define the calculation formula for the <span class="math inline">\(\beta \cdot X\)</span>.</p>
+<p>The variables used in the formula must be part of the external validation dataset. The dependent variable must be a <code>Surv</code> object and the right part of the formula needs to be executable code to calculate the <span class="math inline">\(\beta \cdot X\)</span>.</p>
+<p>It will be executable code if it can be executed as the following code snippet.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span>  <span class="co"># this is not actual package code</span></span>
+<span>  <span class="va">data</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>risk_prediction <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">S0</span><span class="op">^</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/eval.html" class="external-link">eval</a></span><span class="op">(</span><span class="va">right_formula</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>The variables must be defined in the external validation dataset and they must be a type of variables that <code>eval(right_formula)</code> returns a value. It is important to take care of the <code>factor</code> and <code>character</code> variables that could throw errors or non-value results. It could be interesting to transform this variables to dummies.</p>
+</blockquote>
 </div>
 <div class="section level4">
 <h4 id="logistic-regression-model">Logistic regression model<a class="anchor" aria-label="anchor" href="#logistic-regression-model"></a>
@@ -113,85 +137,87 @@
 <p>Similarly to the Cox model we need to be able to describe the following characteristics of the model.</p>
 <ul>
 <li>
-<code>coefficients</code>: A <code>list</code> with the model coefficients</li>
-<li>
-<code>formula</code>: Model <code>formula</code>
-</li>
-<li>
-<code>intercept</code>: Value of the <code>intercept</code> or <span class="math inline">\(\beta_0\)</span>
-</li>
+<code>formula</code>: Model formula to calculate the linear predictors.</li>
 </ul>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">logreg_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/mv_model_logreg.html">mv_model_logreg</a></span><span class="op">(</span></span>
-<span> coefficients <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">0.5</span>, z <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span>,</span>
-<span> formula <span class="op">=</span> <span class="va">event</span> <span class="op">~</span> <span class="va">x</span> <span class="op">+</span> <span class="va">z</span>,</span>
-<span> intercept <span class="op">=</span> <span class="fl">1.2</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<p>As an example we have defined a model with <span class="math inline">\(\beta_0 = -1.2, \beta_x = 0.5, \beta_z = 0.3\)</span></p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">logreg_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/mv_model_logreg.html">mv_model_logreg</a></span><span class="op">(</span>formula <span class="op">=</span> <span class="va">event</span> <span class="op">~</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="va">x</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="va">z</span> <span class="op">-</span> <span class="fl">1.2</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
 <h3 id="calculate-the-results">Calculate the results<a class="anchor" aria-label="anchor" href="#calculate-the-results"></a>
 </h3>
-<p><img src="reference/figures/mermaid_diagram_2.svg"></p>
-<p>The external validation results are summarized into <code>calibration plots</code> and the <code>c-index foresplot</code>, but to generate this plots it is needed to previously calculate the model predictions in the external validation cohort. We can calculate the model predictions by using <code>calculate_predictions</code>, <code>calculate_predictions_recalibrated_type_1</code> and <code>calculate_predictions_recalibrated_type_2</code> functions.</p>
-<p>Suppose we want to calculate the model predictions in the external validation cohort, we use the function <code>calculate_predictions</code> as follows.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">model</span> <span class="op">%&gt;%</span> <span class="fu"><a href="reference/calculate_predictions.html">calculate_predictions</a></span><span class="op">(</span><span class="va">external_validation_data</span><span class="op">)</span></span></code></pre></div>
-<blockquote>
-<p>If you are working with the <a href="https://cran.r-project.org/web/packages/magrittr/index.html" class="external-link"><code>magrittr</code> package</a> it is possible to rewrite the code as follows</p>
+<p>Once we have defined our models the next step is to actually calculate their results. The <code>calculate_</code> functions allow us to recreate the highlighted part of the diagram. The statistical analysis must be performed in each of the imputed data sets separatelly and we aggregate the results afterwards.</p>
+<div class="float">
+<img src="reference/figures/mermaid_diagram_2.svg" alt="Flow diagram for the multiple imputation by chained equations methodology marking the results calculation part"><div class="figcaption">Flow diagram for the multiple imputation by chained equations methodology marking the results calculation part</div>
+</div>
+<p>In an external validation the analysis that we are normally performing are the calculation of the model predictions. This predictions will be summarized into indexes like C-Index or in plots like the calibration plots. The predictions could or could not be matching the reality. The calibration plots allow us to look for this accuracy.</p>
+<p>In the package we have define three types of predictions, the model original predictions calculated with the function <code>calculate_predictions</code>, a first approach to adjust the model prediction to the observed risk calculated with the function <code>calculate_predictions_recalibrated_type_1</code>, and a second approach to adjust the model prediction to the reality calculated with the function <code>calculate_predictions_recalibrated_type_2</code>.</p>
+<p>Therefore, the first step to be able to obtain the external validation results is to calculate the original model predictions. Suppose we want to calculate the model predictions in the external validation cohort, we use the function <code>calculate_predictions</code> as follows.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model</span> <span class="op">%&lt;&gt;%</span> <span class="fu"><a href="reference/calculate_predictions.html">calculate_predictions</a></span><span class="op">(</span><span class="va">external_validation_data</span><span class="op">)</span></span></code></pre></div>
-<p>The function <code>%&lt;&gt;%</code> pipes and assign the result to the value <code>model</code></p>
-</blockquote>
-<p>To calculate the recalibrated predictions it is needed to previously have calculated the model predictions. To know how far away the model is estimating from the observed risk we obviously need to know the model predictions. We can calculate the type 1 recalibrated predictions in <code>model</code>.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model</span> <span class="op">%&lt;&gt;%</span> <span class="fu"><a href="reference/calculate_predictions_recalibrated_type_1.html">calculate_predictions_recalibrated_type_1</a></span><span class="op">(</span><span class="va">external_validation_data</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">model</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/calculate_predictions.html">calculate_predictions</a></span><span class="op">(</span><span class="va">external_validation_data</span><span class="op">)</span></span></code></pre></div>
 <blockquote>
-<p>You can concatenate the prediction functions by using the pipe operator <code>%&gt;%</code> or <code>|&gt;</code></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model</span> <span class="op">%&lt;&gt;%</span></span>
-<span> <span class="fu"><a href="reference/calculate_predictions.html">calculate_predictions</a></span><span class="op">(</span><span class="va">external_validation_data</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
-<span> <span class="fu"><a href="reference/calculate_predictions_recalibrated_type_1.html">calculate_predictions_recalibrated_type_1</a></span><span class="op">(</span><span class="va">external_validation_data</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<p>You can concatenate the prediction functions by using the pipe operator <code>%&gt;%</code> or <code>|&gt;</code>. We recommend to use the R native pipe operator <code>|&gt;</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">model</span> <span class="op">|&gt;</span></span>
+<span> <span class="fu"><a href="reference/calculate_predictions.html">calculate_predictions</a></span><span class="op">(</span><span class="va">external_validation_data</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span> <span class="fu"><a href="reference/calculate_predictions_recalibrated_type_1.html">calculate_predictions_recalibrated_type_1</a></span><span class="op">(</span><span class="va">external_validation_data</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span> <span class="fu"><a href="reference/calculate_predictions_recalibrated_type_2.html">calculate_predictions_recalibrated_type_2</a></span><span class="op">(</span><span class="va">external_validation_data</span><span class="op">)</span> </span></code></pre></div>
 </blockquote>
-<p>The Harrell C-index calculation can be done by the function <code>calculate_c_index</code>. It also needs the model predictions without any recalibration to be calculated.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model</span> <span class="op">%&lt;&gt;%</span> <span class="fu"><a href="reference/calculate_c_index.html">calculate_c_index</a></span><span class="op">(</span><span class="va">external_validation_data</span><span class="op">)</span></span></code></pre></div>
+<p>The Harrell’s C-index calculation can be done using the function <code>calculate_c_index</code>. This function needs at least the model prediction calculated to be able to obtain the aggregated Harrell’s C-index.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">model</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="co"># only calculate the predictions if they are not already part of the model</span></span>
+<span>  <span class="fu"><a href="reference/calculate_predictions.html">calculate_predictions</a></span><span class="op">(</span><span class="va">external_validation_data</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/calculate_c_index.html">calculate_c_index</a></span><span class="op">(</span><span class="va">external_validation_data</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="visualizing-the-results">Visualizing the results<a class="anchor" aria-label="anchor" href="#visualizing-the-results"></a>
 </h3>
-<p>Once all the results are generated in the model we can start to generate the plots to visualize them. As shown in the next graph this is the last step of the package pipeline where we visualize the results. In the package there are two plots defined. The <code>calibration plots</code> that shows how the predictions matched the observed risk and the <code>c-index foresplot</code> that shows the discrimination abilities of different models.</p>
-<p><img src="reference/figures/mermaid_diagram_3.svg"></p>
+<p>With all the results already generated in the model, we are ready to visualize them. As shown in the next graph this is the last step of the package pipeline, results visualization. In the package there are two plots defined, the <code>calibration plots</code> that shows how the model predictions matched the observed risk, and the <code>c-index foresplot</code> that shows the discrimination abilities of different models.</p>
+<div class="float">
+<img src="reference/figures/mermaid_diagram_3.svg" alt="Flow diagram for the multiple imputation by chained equations methodology marking the visualization of the results part"><div class="figcaption">Flow diagram for the multiple imputation by chained equations methodology marking the visualization of the results part</div>
+</div>
 <div class="section level4">
 <h4 id="calibration-plots">Calibration plots<a class="anchor" aria-label="anchor" href="#calibration-plots"></a>
 </h4>
-<p>To obtain the calibration plots we need to use two functions <code>get_calibration_plot_data</code> that generates the needed data to actually generate the calibration plot and the <code>get_calibration_plot</code> whose only needed parameter is the outcome of <code>get_calibration_plot_data</code>. We can generate a calibration plot as shown in the next code snippet with the function <code>get_calibration_plot</code>. The function returns a <a href="https://cran.r-project.org/web/packages/ggplot2/index.html" class="external-link"><code>ggplot2</code> object</a> so it can be further styled than the default plot of the package.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model</span> <span class="op">%&gt;%</span></span>
+<p>To obtain the calibration plots we need to use two functions <code>get_calibration_plot_data</code> that generates the needed data to actually generate the calibration plot and the <code>get_calibration_plot</code> whose only needed parameter is the outcome of <code>get_calibration_plot_data</code>. We can generate a calibration plot as shown in the next code snippet with the function <code>get_calibration_plot</code>.</p>
+<blockquote>
+<p>The function returns a <a href="https://cran.r-project.org/web/packages/ggplot2/index.html" class="external-link"><code>ggplot2</code> object</a>. Therefore, it can be modified as any other <code>ggplot2</code> plot.</p>
+</blockquote>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">|&gt;</span></span>
+<span>  <span class="co"># only calculate the predictions if they are not already part of the model</span></span>
+<span>  <span class="fu"><a href="reference/calculate_predictions.html">calculate_predictions</a></span><span class="op">(</span><span class="va">external_validation_data</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/get_calibration_plot_data.html">get_calibration_plot_data</a></span><span class="op">(</span></span>
 <span>    data <span class="op">=</span> <span class="va">external_validation_data</span>, </span>
 <span>    n_groups <span class="op">=</span> <span class="fl">10</span>, </span>
 <span>    type <span class="op">=</span> <span class="st">"predictions_aggregated"</span></span>
-<span>  <span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="reference/get_calibration_plot.html">get_calibration_plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <blockquote>
 <p>The argument <code>type</code> can be used to generate calibration plots of the recalibrated predictions. The next code snippet will generate the calibration plot of the type 1 recalibrated predictions</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">model</span> <span class="op">%&gt;%</span></span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">|&gt;</span></span>
+<span> <span class="co"># only calculate the predictions if they are not already part of the model</span></span>
+<span> <span class="fu"><a href="reference/calculate_predictions.html">calculate_predictions</a></span><span class="op">(</span><span class="va">external_validation_data</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span> <span class="fu"><a href="reference/calculate_predictions_recalibrated_type_1.html">calculate_predictions_recalibrated_type_1</a></span><span class="op">(</span><span class="va">external_validation_data</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span> <span class="fu"><a href="reference/get_calibration_plot_data.html">get_calibration_plot_data</a></span><span class="op">(</span></span>
 <span>   data <span class="op">=</span> <span class="va">external_validation_data</span>, </span>
 <span>   n_groups <span class="op">=</span> <span class="fl">10</span>, </span>
 <span>   type <span class="op">=</span> <span class="st">"predictions_recal_type_1"</span></span>
-<span> <span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span> <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span> <span class="fu"><a href="reference/get_calibration_plot.html">get_calibration_plot</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </blockquote>
 </div>
 <div class="section level4">
 <h4 id="c-index-forestplot">C-index forestplot<a class="anchor" aria-label="anchor" href="#c-index-forestplot"></a>
 </h4>
+<blockquote>
+<p>This feature is currently under development.</p>
+</blockquote>
 <p>The external validations are normally formed by many models and we want to compare their results. Forestplots are a great way of visualizing the c-index values of multiple models in one graph. The package provides the function <code>get_c_index_forestplot</code>. You can provide an illimited number of models that have their <code>c_index</code> calculated and it returns a forestplot generated with the <a href="https://cran.r-project.org/web/packages/forestplot/index.html" class="external-link"><code>forestplot</code> package</a>.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/get_c_index_forestplot.html">get_c_index_forestplot</a></span><span class="op">(</span>Cox <span class="op">=</span> <span class="va">cox_model</span>, `Logistic Regression`<span class="op">=</span> <span class="va">logreg_model</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>

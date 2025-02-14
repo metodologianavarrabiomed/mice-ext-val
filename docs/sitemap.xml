@@ -1,5 +1,7 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>/404.html</loc></url>
+<url><loc>/articles/get-started-2.html</loc></url>
+<url><loc>/articles/get-started.html</loc></url>
 <url><loc>/articles/index.html</loc></url>
 <url><loc>/articles/test.html</loc></url>
 <url><loc>/authors.html</loc></url>
@@ -15,13 +17,17 @@
 <url><loc>/reference/calculate_predictions_recalibrated_type_2.cox.html</loc></url>
 <url><loc>/reference/calculate_predictions_recalibrated_type_2.html</loc></url>
 <url><loc>/reference/calculate_predictions_recalibrated_type_2.logreg.html</loc></url>
+<url><loc>/reference/framingham.html</loc></url>
 <url><loc>/reference/get_calibration_plot.html</loc></url>
 <url><loc>/reference/get_calibration_plot_data.html</loc></url>
 <url><loc>/reference/get_c_index_forestplot.html</loc></url>
+<url><loc>/reference/get_error_message_calculate.html</loc></url>
+<url><loc>/reference/get_error_message_calculate_recalibrated.html</loc></url>
 <url><loc>/reference/get_recalibrate_params_type_2_cox.html</loc></url>
 <url><loc>/reference/get_recalibrate_param_type_1_cox.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
 <url><loc>/reference/mv_model_cox.html</loc></url>
 <url><loc>/reference/mv_model_logreg.html</loc></url>
+<url><loc>/reference/print.MiceExtVal.html</loc></url>
 </urlset>
 
