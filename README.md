@@ -7,7 +7,7 @@
 
 The goal of `MiceExtVal` is to give the users tools to externally validate models using the multiple imputation methodology. There are plenty of packages, functions, and literature to externally validate models in complete datasets but there is a lack of tools when we are working with multiple imputed datasets.
 
-Nowadays it is recommended to use techniques like multiple imputation by chained equations ([MICE](https://stefvanbuuren.name/fimd/)) to impute the missing values when they are present, the MICE methodology requires to realize as many analysis as imputed datasets are, as shown in the following graph. This package is generated to assist the users along the external validation analysis of Cox and Logistic Regression models.
+Nowadays it is recommended to use techniques like multiple imputation by chained equations ([MICE](https://stefvanbuuren.name/fimd/)) to impute the missing values when they are present. The MICE methodology requires to realize as many analysis as imputed datasets are, as shown in the following graph.
 
 ```mermaid
 flowchart LR
@@ -24,6 +24,8 @@ total_results --> cal_plot(calibration plot)
 total_results --> c_index(c index forestplot)
 ```
 
+This package is generated to assist the users along the external validation analysis of Cox and Logistic Regression models.
+
 ## Installation
 
 You can install the development version of `MiceExtVal` from [GitHub](https://github.com/) with:
@@ -39,11 +41,13 @@ pak::pkg_install("metodologianavarrabiomed/mice-ext-val")
 
 ## Examples
 
-The package is created to perform the analysis over a MICE cohort. The package also asumed that the imputed cohort should be generated with the [`mice` package](https://cran.r-project.org/web/packages/mice/index.html) or at least have the same structure and variables. The dataset needs to be in `long` format.
+The package is created to perform the analysis over a MICE cohort. The package also asumed that the imputed cohort should be generated with the [`mice` package](https://cran.r-project.org/web/packages/mice/index.html) and also be in `long` format. If the imputed dataset is not generated with this package the impute dataset at least should have the same structure and variables.
+
+The external validation dataset must only contain the information about the imputed datasets and no information of the original dataset.
 
 > [!TIP]
 >
-> From the [`mice` package](https://cran.r-project.org/web/packages/mice/index.html) you can obtain the complete dataset in long format as
+> From the [`mice` package](https://cran.r-project.org/web/packages/mice/index.html) you can obtain the complete dataset in `long` format as
 >
 > ```r
 > complete <- mice::complete(imp, action = "long")
@@ -51,7 +55,7 @@ The package is created to perform the analysis over a MICE cohort. The package a
 >
 > This function introduces all the imputed datasets into a single table and adds two variables `.id` and `.imp`. The variable `.id` is a single id for each of the rows in the `long` format table and the `.imp` variable indicates to which imputation each row belongs.
 
-The external validation dataset must only contain the information about the imputed dataset and no information about the original dataset. The package functions are divided in three groups, the model definition functions starting with `mv_model`, the functions that calculate model results starting with `calculate_`, and the plot functions starting with `get_`. Through this example we have also assumed that the complete dataset is called `external_validation_data`.
+The package functions are divided in three groups, the model definition functions starting with `mv_model`, the functions that calculate model results starting with `calculate_`, and the plot functions starting with `get_`. Through this example we have also assumed that the complete dataset is called `external_validation_data`.
 
 Firstly, we import the package. In R you can also access the variables without importing the package by putting the package as prefix like `MiceExtVal::function`. It is a good practice to use this second declaration to know to which package each function belongs.
 
@@ -65,7 +69,7 @@ By using the `mv_model` functions we can generate the package model definitions.
 
 #### Cox model
 
-To define the cox model we need to be able to describe the following characteristics of the model.
+To define the Cox model we need to be able to describe the following characteristics of the model.
 
 * `formula`: Model formula to calculate the $\beta \cdot X$ values.
 * $S_0(t)$: Value of the basal survival function at the time of study $t$ (must be the maximum time in the dataset)
