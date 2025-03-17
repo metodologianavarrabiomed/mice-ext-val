@@ -2,10 +2,16 @@
 #'
 #' @param data dataset where the dependent variable is
 #' @param n_groups number of points that should be displayed
+#' @param type Type of the predictions that the calibration plot data should be generated from: `"predictions_aggregated"`, `"predictions_recal_type_1"` or `"predictions_recal_type_2"`
 #' @param ... models that should be plotted in the stratified calibration plot. If they are a named paramter the name is used as strat
 #'
 #' @returns the stratified calibration plot for the given models
 #' @export
+#'
+#' @importFrom purrr map_lgl map2_chr map_df
+#' @importFrom tibble add_column
+#' @importFrom ggplot2 ggplot scale_y_continuous scale_x_continuous expand_limits geom_abline geom_point aes geom_errorbar geom_smooth xlab ylab geom_vline geom_hline theme_minimal theme element_text margin element_rect guides guide_legend
+#' @importFrom methods is
 #'
 #' @examples
 #'
@@ -13,11 +19,11 @@
 #' get_stratified_calibration_plot(data, 10, model1, model2)
 #' get_stratified_calibration_plot(data, 10, strat1 = model1, strat2 = model2)
 #' }
-get_stratified_calibration_plot <- function(data, n_groups, ...) {
+get_stratified_calibration_plot <- function(data, n_groups, type = "predictions_aggregated",...) {
   models <- list(...)
   is_model_class <- purrr::map_lgl(models, \(x) methods::is(x, "MiceExtVal"))
 
-  model_names_call <- as.character(as.list(match.call())[-c(1, 2, 3)])
+  model_names_call <- as.character(as.list(match.call())[-c(1:4)])
   model_names_callname <- if (!is.null(names(models))) names(models) else rep(NA, length(model_names_call))
 
   model_names <- purrr::map2_chr(model_names_callname, model_names_call, ~ ifelse(is.na(.x) | .x == "", .y, .x))
@@ -26,8 +32,12 @@ get_stratified_calibration_plot <- function(data, n_groups, ...) {
     cli::cli_abort("The model{?s} {.arg {model_names[!is_model_class]}} must be {.cls MiceExtVal}")
   }
 
+  if (!any(type %in% c("predictions_aggregated", "predictions_recal_type_1", "predictions_recal_type_2"))) {
+    error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('predictions_aggregated', 'predictions_recal_type_1', 'predictions_recal_type_2')}}"))
+  }
+
   plot_data <- purrr::map_df(seq_along(model_names), ~ {
-    MiceExtVal::get_calibration_plot_data(model = models[[.x]], data = data, n_groups = n_groups) |>
+    MiceExtVal::get_calibration_plot_data(model = models[[.x]], data = data, n_groups = n_groups, type) |>
       tibble::add_column(strat = model_names[[.x]])
   }, data = data)
 
