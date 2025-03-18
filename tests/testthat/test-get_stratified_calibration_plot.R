@@ -11,7 +11,7 @@ test_that("generates an stratified calibration plot", {
 
 
   testthat::expect_s3_class(
-    get_stratified_calibration_plot(data, n_groups = 10, Cox = model_cox, LogReg = model_logreg),
+    get_stratified_calibration_plot(data, n_groups = 10, type = "predictions_aggregated", Cox = model_cox, LogReg = model_logreg),
     "ggplot"
   )
 })
