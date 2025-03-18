@@ -19,7 +19,7 @@
 #' get_stratified_calibration_plot(data, 10, model1, model2)
 #' get_stratified_calibration_plot(data, 10, strat1 = model1, strat2 = model2)
 #' }
-get_stratified_calibration_plot <- function(data, n_groups, type = "predictions_aggregated", ...) {
+get_stratified_calibration_plot <- function(data, n_groups, type, ...) {
   # get model names ---------------------------------------------------------
   models <- list(...)
   is_model_class <- purrr::map_lgl(models, \(x) methods::is(x, "MiceExtVal"))
