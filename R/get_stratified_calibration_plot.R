@@ -143,4 +143,3 @@ get_stratified_calibration_plot <- function(data, n_groups, type = "predictions_
 
   return(gg)
 }
-f
