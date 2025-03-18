@@ -27,7 +27,6 @@ the stratified calibration plot for the given models
 generates an stratified calibration plot
 }
 \examples{
-
 \dontrun{
 get_stratified_calibration_plot(data, 10, model1, model2)
 get_stratified_calibration_plot(data, 10, strat1 = model1, strat2 = model2)
