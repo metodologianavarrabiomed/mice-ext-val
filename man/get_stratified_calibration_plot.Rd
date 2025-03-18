@@ -4,19 +4,14 @@
 \alias{get_stratified_calibration_plot}
 \title{generates an stratified calibration plot}
 \usage{
-get_stratified_calibration_plot(
-  data,
-  n_groups,
-  type = "predictions_aggregated",
-  ...
-)
+get_stratified_calibration_plot(data, n_groups, type, ...)
 }
 \arguments{
-\item{data}{dataset where the dependent variable is}
+\item{data}{dataset where the dependent variable for all the models is}
 
 \item{n_groups}{number of points that should be displayed}
 
-\item{type}{Type of the predictions that the calibration plot data should be generated from: \code{"predictions_aggregated"}, \code{"predictions_recal_type_1"} or \code{"predictions_recal_type_2"}}
+\item{type}{Type of the predictions that the calibration plot data should be generated from: \code{"predictions_aggregated"}, \code{"predictions_recal_type_1"} or \code{"predictions_recal_type_2"}. The variable with the predictions need to be generated if it is not consider using the \code{\link[=calculate_predictions_recalibrated_type_1]{calculate_predictions_recalibrated_type_1()}} and \code{\link[=calculate_predictions_recalibrated_type_2]{calculate_predictions_recalibrated_type_2()}} functions.}
 
 \item{...}{models that should be plotted in the stratified calibration plot. If they are a named paramter the name is used as strat}
 }
@@ -27,7 +22,6 @@ the stratified calibration plot for the given models
 generates an stratified calibration plot
 }
 \examples{
-
 \dontrun{
 get_stratified_calibration_plot(data, 10, model1, model2)
 get_stratified_calibration_plot(data, 10, strat1 = model1, strat2 = model2)
