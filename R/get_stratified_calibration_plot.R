@@ -1,8 +1,8 @@
 #' @title generates an stratified calibration plot
 #'
-#' @param data dataset where the dependent variable is
+#' @param data dataset where the dependent variable for all the models is
 #' @param n_groups number of points that should be displayed
-#' @param type Type of the predictions that the calibration plot data should be generated from: `"predictions_aggregated"`, `"predictions_recal_type_1"` or `"predictions_recal_type_2"`
+#' @param type Type of the predictions that the calibration plot data should be generated from: `"predictions_aggregated"`, `"predictions_recal_type_1"` or `"predictions_recal_type_2"`. The variable with the predictions need to be generated if it is not consider using the [calculate_predictions_recalibrated_type_1()] and [calculate_predictions_recalibrated_type_2()] functions.
 #' @param ... models that should be plotted in the stratified calibration plot. If they are a named paramter the name is used as strat
 #'
 #' @returns the stratified calibration plot for the given models
@@ -12,14 +12,15 @@
 #' @importFrom tibble add_column
 #' @importFrom ggplot2 ggplot scale_y_continuous scale_x_continuous expand_limits geom_abline geom_point aes geom_errorbar geom_smooth xlab ylab geom_vline geom_hline theme_minimal theme element_text margin element_rect guides guide_legend
 #' @importFrom methods is
+#' @importFrom cli format_error cli_abort
 #'
 #' @examples
-#'
 #' \dontrun{
 #' get_stratified_calibration_plot(data, 10, model1, model2)
 #' get_stratified_calibration_plot(data, 10, strat1 = model1, strat2 = model2)
 #' }
-get_stratified_calibration_plot <- function(data, n_groups, type = "predictions_aggregated",...) {
+get_stratified_calibration_plot <- function(data, n_groups, type = "predictions_aggregated", ...) {
+  # get model names ---------------------------------------------------------
   models <- list(...)
   is_model_class <- purrr::map_lgl(models, \(x) methods::is(x, "MiceExtVal"))
 
@@ -28,14 +29,42 @@ get_stratified_calibration_plot <- function(data, n_groups, type = "predictions_
 
   model_names <- purrr::map2_chr(model_names_callname, model_names_call, ~ ifelse(is.na(.x) | .x == "", .y, .x))
 
+  # assert preconditions ----------------------------------------------------
+  error_message <- NULL
   if (!all(is_model_class)) {
-    cli::cli_abort("The model{?s} {.arg {model_names[!is_model_class]}} must be {.cls MiceExtVal}")
+    error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {model_names[!is_model_class]}} must be {.cls MiceExtVal}"))
   }
 
   if (!any(type %in% c("predictions_aggregated", "predictions_recal_type_1", "predictions_recal_type_2"))) {
     error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('predictions_aggregated', 'predictions_recal_type_1', 'predictions_recal_type_2')}}"))
   }
 
+  if (all(is_model_class) & type == "predictions_aggregated") {
+    no_calc_pred <- purrr::map_lgl(models, \(x) is.null(x[["predictions_aggregated"]]))
+    if (any(no_calc_pred)) {
+      error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {model_names[no_calc_pred]}} must contain {.var predictions_aggregated} consider using the function {.fn MiceExtVal::calculate_predictions}"))
+    }
+  }
+
+  if (all(is_model_class) & type == "predictions_recal_type_1") {
+    no_calc_pred <- purrr::map_lgl(models, \(x) is.null(x[["predictions_recal_type_1"]]))
+    if (any(no_calc_pred)) {
+      error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {model_names[no_calc_pred]}} must contain {.var predictions_recal_type_1} consider using the function {.fn MiceExtVal::calculate_predictions_recalibrated_type_1}"))
+    }
+  }
+
+  if (all(is_model_class) & type == "predictions_recal_type_2") {
+    no_calc_pred <- purrr::map_lgl(models, \(x) is.null(x[["predictions_recal_type_2"]]))
+    if (any(no_calc_pred)) {
+      error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {model_names[no_calc_pred]}} must contain {.var predictions_recal_type_2} consider using the function {.fn MiceExtVal::calculate_predictions_recalibrated_type_2}"))
+    }
+  }
+
+  if (!is.null(error_message)) {
+    cli::cli_abort(error_message)
+  }
+
+  # generate the stratified calibration plot --------------------------------
   plot_data <- purrr::map_df(seq_along(model_names), ~ {
     MiceExtVal::get_calibration_plot_data(model = models[[.x]], data = data, n_groups = n_groups, type) |>
       tibble::add_column(strat = model_names[[.x]])
@@ -114,3 +143,4 @@ get_stratified_calibration_plot <- function(data, n_groups, type = "predictions_
 
   return(gg)
 }
+f
