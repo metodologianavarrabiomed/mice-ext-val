@@ -11,6 +11,41 @@
 #' get_forestplot(data, 0.5)
 #' }
 get_forestplot <- function(data, center) {
+  # assert dataset ----------------------------------------------------------
+  error_message <- NULL
+  if (!methods::is(data, "data.frame")) {
+    error_message <- c(error_message, "*" = cli::format_error("The argument {.arg data} must be of class {.cls data.frame}"))
+  }
+
+  needed_variables <- c(
+    "estimate" = "numeric", "strat" = "character", "model" = "character", "lower" = "numeric", "upper" = "numeric"
+  )
+
+  is_variable <- names(needed_variables) %in% colnames(data)
+  if (any(is_variable)) {
+    variables_in_data <- needed_variables[is_variable]
+    correct_type <- purrr::map_lgl(names(variables_in_data), ~ methods::is(data[[.x]], needed_variables[.x]))
+    if (!all(correct_type)) {
+      error_message <- c(
+        error_message,
+        "*" = cli::format_error("The data variable{?s} {.var {names(variables_in_data)[!correct_type]}} ha{?s/ve} wrong typing"),
+        "i" = cli::format_error("th{?is/ese} variable{?s} must be of class {.cls {variables_in_data[!correct_type]}} {?respectively}")
+      )
+    }
+  }
+
+  if (any(!is_variable)) {
+    error_message <- c(
+      error_message,
+      "*" = cli::format_error("The data variable{?s} {.var {names(needed_variables)[!is_variable]}} must be present in {.arg data}"),
+      "i" = cli::format_error("th{?is/ese} variable{?s} must be of class {.cls {needed_variables[!is_variable]}} {?respectively}")
+    )
+  }
+
+  if (!is.null(error_message)) {
+    cli::cli_abort(error_message)
+  }
+
   data |>
     ggplot2::ggplot(ggplot2::aes(x = estimate, y = strat, color = strat)) +
     ggplot2::geom_pointrange(
