@@ -3,6 +3,7 @@
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![R-CMD-check](https://github.com/metodologianavarrabiomed/mice-ext-val/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/metodologianavarrabiomed/mice-ext-val/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of `MiceExtVal` is to give the users tools to externally validate models using the multiple imputation methodology. There are plenty of packages, functions, and literature to externally validate models in complete datasets but there is a lack of tools when we are working with multiple imputed datasets.
