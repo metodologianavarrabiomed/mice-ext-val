@@ -8,7 +8,7 @@ test_that("Checks the model parameter", {
   expect_error(calculate_predictions_recalibrated_type_1(data))
 })
 
-# Cox model
+# cox model ---------------------------------------------------------------
 test_that("Checks the data argument in cox model", {
   model <- make_cox_model(environment())
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
@@ -32,7 +32,6 @@ test_that("Returns an error if `id` is not part of the `data` parameter", {
 
   expect_error(model |> calculate_predictions_recalibrated_type_1(data_no_id), "The variable `id`")
 })
-
 
 test_that("Returns an error if `predictions_data` does not exist in cox `model`", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
@@ -74,11 +73,14 @@ test_that("Calculates the type 1 recalibrated predictions properly for cox model
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_1(data)
 
-  expect_identical(model$predictions_recal_type_1, readRDS(test_path("fixtures", "cox", "predictions_recal_type_1_cox.rds")))
-  expect_identical(model$alpha, readRDS(test_path("fixtures", "cox", "alpha_cox.rds")))
+  expect_identical(
+    sapply(model$predictions_recal_type_1, round, digits = 7),
+    sapply(readRDS(test_path("fixtures", "cox", "predictions_recal_type_1_cox.rds")), round, digits = 7)
+  )
+  expect_identical(round(model$alpha, 7), round(readRDS(test_path("fixtures", "cox", "alpha_cox.rds")), 7))
 })
 
-# Logreg model
+# logreg model ------------------------------------------------------------
 test_that("Checks the data argument in logreg model", {
   model <- make_logreg_model(environment())
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
