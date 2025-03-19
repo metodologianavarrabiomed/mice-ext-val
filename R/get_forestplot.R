@@ -47,9 +47,9 @@ get_forestplot <- function(data, center) {
   }
 
   data |>
-    ggplot2::ggplot(ggplot2::aes(x = estimate, y = strat, color = strat)) +
+    ggplot2::ggplot(ggplot2::aes(x = .data[["estimate"]], y = .data[["strat"]], color = .data[["strat"]])) +
     ggplot2::geom_pointrange(
-      ggplot2::aes(xmin = lower, xmax = upper),
+      ggplot2::aes(xmin = .data[["lower"]], xmax = .data[["upper"]]),
       size = 0.5
     ) +
     ggplot2::facet_grid(model ~ 1, switch = "y") +
