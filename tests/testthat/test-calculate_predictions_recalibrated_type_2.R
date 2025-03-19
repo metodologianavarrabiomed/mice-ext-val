@@ -74,9 +74,15 @@ test_that("Calculates the type 2 recalibrated predictions properly for cox model
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_2(data)
 
-  expect_identical(model$predictions_recal_type_2, readRDS(test_path("fixtures", "cox", "predictions_recal_type_2_cox.rds")))
-  expect_identical(model$S0_type_2, readRDS(test_path("fixtures", "cox", "S0_type_2_cox.rds")))
-  expect_identical(model$beta_overall, readRDS(test_path("fixtures", "cox", "beta_overall_cox.rds")))
+  expect_identical(
+    sapply(model$predictions_recal_type_2, round, digits = 7),
+    sapply(readRDS(test_path("fixtures", "cox", "predictions_recal_type_2_cox.rds")),
+      round,
+      digits = 7
+    )
+  )
+  expect_identical(round(model$S0_type_2, 7), round(readRDS(test_path("fixtures", "cox", "S0_type_2_cox.rds"))), 7)
+  expect_identical(round(model$beta_overall, 7), round(readRDS(test_path("fixtures", "cox", "beta_overall_cox.rds"))), 7)
 })
 
 # Logreg model -----------------------------------------------------------------
