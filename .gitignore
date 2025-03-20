@@ -1,7 +1,6 @@
 inst/doc
 .Rproj.user
 doc_no_git
-.Rbuildignore
 .Rdata
 .Rhistory
 .RDataTmp
