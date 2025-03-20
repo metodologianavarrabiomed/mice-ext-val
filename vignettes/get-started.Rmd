@@ -3,7 +3,6 @@ title: "MiceExtVal example of use"
 author: 
  - name: "Asier Ballesteros Domínguez"
    orcid: 0000-0002-2195-4669
-output: html_document
 toc: true
 bibliography: '`r system.file("references.bib", package="MiceExtVal")`' 
 csl: '`r system.file("apa.csl", package="MiceExtVal")`'
