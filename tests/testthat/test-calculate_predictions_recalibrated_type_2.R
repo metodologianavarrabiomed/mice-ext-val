@@ -1,5 +1,6 @@
 source(test_path("fixtures", "make-model-cox.R"))
 source(test_path("fixtures", "make-model-logreg.R"))
+source(test_path("fixtures", "round-to-precision.R"))
 
 # General tests ----------------------------------------------------------------
 test_that("Checks the model parameter", {
@@ -75,14 +76,11 @@ test_that("Calculates the type 2 recalibrated predictions properly for cox model
     calculate_predictions_recalibrated_type_2(data)
 
   expect_identical(
-    sapply(model$predictions_recal_type_2, round, digits = 7),
-    sapply(readRDS(test_path("fixtures", "cox", "predictions_recal_type_2_cox.rds")),
-      round,
-      digits = 7
-    )
+    round_to_precision(model$predictions_recal_type_2),
+    round_to_precision(readRDS(test_path("fixtures", "cox", "predictions_recal_type_2_cox.rds")))
   )
-  expect_identical(round(model$S0_type_2, 7), round(readRDS(test_path("fixtures", "cox", "S0_type_2_cox.rds")),7))
-  expect_identical(round(model$beta_overall, 7), round(readRDS(test_path("fixtures", "cox", "beta_overall_cox.rds")), 7))
+  expect_identical(round_to_precision(model$S0_type_2), round_to_precision(readRDS(test_path("fixtures", "cox", "S0_type_2_cox.rds"))))
+  expect_identical(round_to_precision(model$beta_overall), round_to_precision(readRDS(test_path("fixtures", "cox", "beta_overall_cox.rds"))))
 })
 
 # Logreg model -----------------------------------------------------------------
@@ -139,18 +137,14 @@ test_that("Calculates the type 2 recalibrated predictions properly for logreg mo
     calculate_predictions_recalibrated_type_2(data)
 
   expect_identical(
-    sapply(model$predictions_recal_type_2, round, digits = 7),
-    sapply(
-      readRDS(test_path("fixtures", "logreg", "predictions_recal_type_2_logreg.rds")),
-      round,
-      digits = 7
-    )
+    round_to_precision(model$predictions_recal_type_2),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "predictions_recal_type_2_logreg.rds")))
   )
   expect_identical(
-    round(model$alpha_type_2, 7),
-    round(readRDS(test_path("fixtures", "logreg", "alpha_type_2_logreg.rds")), 7)
+    round_to_precision(model$alpha_type_2),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "alpha_type_2_logreg.rds")))
   )
   expect_identical(
-    round(model$beta_overall, 7), round(readRDS(test_path("fixtures", "logreg", "beta_overall_logreg.rds")), 7)
+    round_to_precision(model$beta_overall), round_to_precision(readRDS(test_path("fixtures", "logreg", "beta_overall_logreg.rds")))
   )
 })

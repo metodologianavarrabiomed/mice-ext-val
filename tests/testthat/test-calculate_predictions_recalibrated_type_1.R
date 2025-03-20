@@ -1,5 +1,6 @@
 source(test_path("fixtures", "make-model-cox.R"))
 source(test_path("fixtures", "make-model-logreg.R"))
+source(test_path("fixtures", "round-to-precision.R"))
 
 test_that("Checks the model parameter", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
@@ -74,10 +75,10 @@ test_that("Calculates the type 1 recalibrated predictions properly for cox model
     calculate_predictions_recalibrated_type_1(data)
 
   expect_identical(
-    sapply(model$predictions_recal_type_1, round, digits = 7),
-    sapply(readRDS(test_path("fixtures", "cox", "predictions_recal_type_1_cox.rds")), round, digits = 7)
+    round_to_precision(model$predictions_recal_type_1),
+    round_to_precision(readRDS(test_path("fixtures", "cox", "predictions_recal_type_1_cox.rds")))
   )
-  expect_identical(round(model$alpha, 7), round(readRDS(test_path("fixtures", "cox", "alpha_cox.rds")), 7))
+  expect_identical(round_to_precision(model$alpha), round_to_precision(readRDS(test_path("fixtures", "cox", "alpha_cox.rds"))))
 })
 
 # logreg model ------------------------------------------------------------
@@ -134,15 +135,11 @@ test_that("Calculates the type 1 recalibrated predictions properly for logreg mo
     calculate_predictions_recalibrated_type_1(data)
 
   expect_identical(
-    sapply(model$predictions_recal_type_1, round, digits = 7),
-    sapply(
-      readRDS(test_path("fixtures", "logreg", "predictions_recal_type_1_logreg.rds")),
-      round,
-      digits = 7
+    round_to_precision(model$predictions_recal_type_1),
+      round_to_precision(readRDS(test_path("fixtures", "logreg", "predictions_recal_type_1_logreg.rds")))
     )
-  )
   expect_identical(
-    round(model$alpha_type_1, 7),
-    round(readRDS(test_path("fixtures", "logreg", "alpha_type_1_logreg.rds")), 7)
+    round_to_precision(model$alpha_type_1),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "alpha_type_1_logreg.rds")))
   )
 })

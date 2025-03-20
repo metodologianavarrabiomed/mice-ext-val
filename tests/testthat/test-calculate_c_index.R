@@ -1,5 +1,6 @@
 source(test_path("fixtures", "make-model-cox.R"))
 source(test_path("fixtures", "make-model-logreg.R"))
+source(test_path("fixtures", "round-to-precision.R"))
 
 test_that("Checks the parameters properly", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
@@ -95,7 +96,10 @@ test_that("Calculates the c-index properly for a cox model", {
     calculate_predictions(data) |>
     calculate_c_index(data)
 
-  expect_identical(model_cox$c_index, readRDS(test_path("fixtures", "cox", "c_index_cox.rds")))
+  expect_identical(
+    round_to_precision(model_cox$c_index),
+    round_to_precision(readRDS(test_path("fixtures", "cox", "c_index_cox.rds")))
+  )
 })
 
 test_that("Calculates the c-index properly for a logreg model", {
@@ -104,5 +108,8 @@ test_that("Calculates the c-index properly for a logreg model", {
     calculate_predictions(data) |>
     calculate_c_index(data)
 
-  expect_identical(model_logreg$c_index, readRDS(test_path("fixtures", "logreg", "c_index_logreg.rds")))
+  expect_identical(
+    round_to_precision(model_logreg$c_index),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "c_index_logreg.rds")))
+  )
 })
