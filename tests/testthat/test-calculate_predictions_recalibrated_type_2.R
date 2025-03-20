@@ -81,8 +81,8 @@ test_that("Calculates the type 2 recalibrated predictions properly for cox model
       digits = 7
     )
   )
-  expect_identical(round(model$S0_type_2, 7), round(readRDS(test_path("fixtures", "cox", "S0_type_2_cox.rds"))), 7)
-  expect_identical(round(model$beta_overall, 7), round(readRDS(test_path("fixtures", "cox", "beta_overall_cox.rds"))), 7)
+  expect_identical(round(model$S0_type_2, 7), round(readRDS(test_path("fixtures", "cox", "S0_type_2_cox.rds")),7))
+  expect_identical(round(model$beta_overall, 7), round(readRDS(test_path("fixtures", "cox", "beta_overall_cox.rds")), 7))
 })
 
 # Logreg model -----------------------------------------------------------------
