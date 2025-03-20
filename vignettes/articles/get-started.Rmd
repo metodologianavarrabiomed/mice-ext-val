@@ -3,10 +3,9 @@ title: "MiceExtVal example of use"
 author: 
  - name: "Asier Ballesteros Domínguez"
    orcid: 0000-0002-2195-4669
-output: html_document
 toc: true
-bibliography: references.bib
-csl: apa.csl
+bibliography: '`r system.file("references.bib", package="MiceExtVal")`' 
+csl: '`r system.file("apa.csl", package="MiceExtVal")`'
 vignette: >
   %\VignetteIndexEntry{Get Started}
   %\VignetteEngine{quarto::html}
@@ -69,7 +68,7 @@ MiceExtVal::framingham |>
 
 In the following table there are represented the percentage o missings in the variables that have at least one row with a missing value. 
 
-```{r, echo=FALSE}
+```{r}
 #| echo: false
 #| tbl-cap: Percentage of missings
 #| label: tbl-perc-miss
@@ -411,10 +410,11 @@ female_model <- female_model |>
 ### Calculating Calibration Plot
 
 #### Calibration Plot Males
-```{r, message=FALSE, warning=FALSE}
+```{r}
 #| fig.alt: >
 #|   Calibration plot for males
 #| warning: false
+#| message: false
 male_model |>
   MiceExtVal::get_calibration_plot_data(
     model = _,
@@ -426,10 +426,11 @@ male_model |>
 ```
 
 #### Calibration Plot Females
-```{r, message=FALSE, warning=FALSE}
+```{r}
 #| fig.alt: >
 #|   Calibration plot for females
 #| warning: false
+#| message: false
 female_model |>
   MiceExtVal::get_calibration_plot_data(
     model = _,
@@ -441,10 +442,11 @@ female_model |>
 ```
 
 ## Recalibration
-```{r, message=FALSE, warning=FALSE}
+```{r}
 #| fig.alt: >
 #|   Type 1 calibration plot for males
 #| warning: false
+#| message: false
 male_model <- male_model |>
   MiceExtVal::calculate_predictions_recalibrated_type_1(
     model = _, data = male_fram_long
@@ -463,9 +465,11 @@ male_model |>
   MiceExtVal::get_calibration_plot(data = _)
 ```
 
-```{r, message=FALSE, warning=FALSE}
+```{r}
 #| fig.alt: >
 #|   Type 2 calibration plot for males
+#| message: false
+#| warning: false
 male_model |>
   MiceExtVal::get_calibration_plot_data(
     model = _,
@@ -475,8 +479,10 @@ male_model |>
   ) |>
   MiceExtVal::get_calibration_plot(data = _)
 ```
-```{r, message=FALSE, warning=FALSE}
+
+```{r}
 #| warning: false
+#| message: false
 #| fig.alt: >
 #|   Type 1 calibration plot for females
 female_model <- female_model |>
@@ -497,9 +503,11 @@ female_model |>
   MiceExtVal::get_calibration_plot(data = _)
 ```
 
-```{r, message=FALSE, warning=FALSE}
+```{r}
 #| fig.alt: >
 #|   Type 2 calibration plot for females
+#| warning: false
+#| message: false
 female_model |>
   MiceExtVal::get_calibration_plot_data(
     model = _,
