@@ -5,8 +5,8 @@ author:
    orcid: 0000-0002-2195-4669
 output: html_document
 toc: true
-bibliography: references.bib
-csl: apa.csl
+bibliography: '`r system.file("references.bib", package="MiceExtVal")`' 
+csl: '`r system.file("apa.csl", package="MiceExtVal")`'
 vignette: >
   %\VignetteIndexEntry{Get Started}
   %\VignetteEngine{quarto::html}
