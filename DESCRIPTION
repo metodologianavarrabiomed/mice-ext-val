@@ -22,7 +22,6 @@ Imports:
     dplyr (>= 1.1.4),
     ggplot2 (>= 3.4.4),
     mathjaxr (>= 1.6-0),
-    progress (>= 1.2.3),
     purrr (>= 1.0.2),
     rms (>= 6.7-1),
     survival (>= 3.5-7),
@@ -31,7 +30,6 @@ Imports:
     methods (>= 4.2.3),
     cli (>= 3.6.2)
 Config/testthat/edition: 3
-VignetteBuilder: knitr
 Depends: 
     R (>= 4.4.0)
 LazyData: true
