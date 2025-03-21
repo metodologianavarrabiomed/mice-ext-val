@@ -28,9 +28,9 @@
 #' @importFrom dplyr %>% group_by_at group_map filter pull bind_rows
 #' @importFrom tibble tibble
 #' @importFrom rms lrm.fit
-#' @importFrom progress progress_bar
 #' @importFrom methods is
-#' @importFrom cli format_error cli_abort
+#' @importFrom cli format_error cli_abort cli_progress_step cli_progress_update cli_progress_done
+#' @importFrom rlang env
 #'
 #' @exportS3Method calculate_predictions_recalibrated_type_1 logreg
 #'
@@ -56,16 +56,8 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
 
   # Progress bar code
   if (.progress) {
-    n_iter <- max(data$.imp) + 1
-    pb <- progress::progress_bar$new(
-      format = "Type 1 recalibration \t[:bar] :percent [E.T.: :elapsedfull || R.T.: :eta]",
-      total = n_iter,
-      complete = "=",
-      incomplete = "-",
-      current = ">",
-      clear = FALSE,
-      width = 100
-    )
+    env <- rlang::env()
+    cli::cli_progress_step("calculating type 1 recalibration parameters", spinner = TRUE, .envir = env)
   }
 
   model$alpha_type_1 <- data %>%
@@ -73,9 +65,8 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
     dplyr::group_map(~ {
       # Progress bar code
       if (.progress) {
-        pb$tick()
+        cli::cli_progress_update(.envir = env)
       }
-
       # Obtains the data of the event variable
       survival_data <- .x[[all.vars(model$formula)[1]]]
       betax <- model$betax_data %>%
@@ -100,7 +91,7 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
   )
 
   if (.progress) {
-    pb$tick()
+    cli::cli_progress_done(.envir = env)
   }
 
   return(model)

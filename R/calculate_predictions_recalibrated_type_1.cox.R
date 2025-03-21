@@ -20,9 +20,9 @@
 #'
 #' @importFrom dplyr %>% group_by_at group_map filter pull vars
 #' @importFrom tibble tibble as_tibble
-#' @importFrom progress progress_bar
 #' @importFrom methods is
-#' @importFrom cli format_error cli_abort
+#' @importFrom cli format_error cli_abort cli_progress_update cli_progress_done cli_progress_step
+#' @importFrom rlang env
 #'
 #' @exportS3Method calculate_predictions_recalibrated_type_1 cox
 #'
@@ -51,16 +51,8 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
 
   # Progress bar code
   if (.progress) {
-    n_iter <- max(data$.imp) + 1
-    pb <- progress::progress_bar$new(
-      format = "Type 1 recalibration \t[:bar] :percent [E.T.: :elapsedfull || R.T.: :eta]",
-      total = n_iter,
-      complete = "=",
-      incomplete = "-",
-      current = ">",
-      clear = FALSE,
-      width = 100
-    )
+    env <- rlang::env()
+    cli::cli_progress_step("calculating type 1 recalibration parameters", spinner = TRUE, .envir = env)
   }
 
   # Obtain the `alpha` value
@@ -69,7 +61,7 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
     dplyr::group_map(~ {
       # Progress bar code
       if (.progress) {
-        pb$tick()
+        cli::cli_progress_update(.envir = env)
       }
 
       # Obtains the data of the event variable
@@ -89,11 +81,20 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
     dplyr::pull("alpha") %>%
     mean() # Aggregates the results, no rubin rules here
 
+  # Progress bar code
+  if (.progress) {
+    cli::cli_progress_done(.envir = env)
+    cli::cli_progress_step("recalibrating predictions with type 1 recalibration", spinner = TRUE, .envir = env)
+  }
+
   # Calculates the recalibrated type 1 predictions
   model$predictions_recal_type_1 <- model$predictions_aggregated %>%
     dplyr::group_by_at(dplyr::vars("id")) %>%
     dplyr::group_map(~ {
-      tibble(
+      if (.progress) {
+        cli::cli_progress_update(.envir = env)
+      }
+      tibble::tibble(
         id = .y$id,
         # Generation of the recalibrated predictions
         prediction_type_1 = 1 - exp(-exp(model$alpha + log(-log(1 - .x$prediction))))
@@ -101,10 +102,10 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
     }) %>%
     dplyr::bind_rows()
 
-  # Progress bar code
   if (.progress) {
-    pb$tick()
+    cli::cli_progress_done(.envir = env)
   }
+
 
   return(model)
 }
