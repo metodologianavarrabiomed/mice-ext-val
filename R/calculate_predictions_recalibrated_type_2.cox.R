@@ -27,9 +27,9 @@
 #'
 #' @importFrom dplyr %>% group_by_at group_map filter pull vars bind_rows
 #' @importFrom tibble tibble as_tibble
-#' @importFrom progress progress_bar
 #' @importFrom methods is
-#' @importFrom cli format_error cli_abort
+#' @importFrom cli format_error cli_abort cli_progress_update cli_progress_done cli_progress_step
+#' @importFrom rlang env
 #'
 #' @exportS3Method calculate_predictions_recalibrated_type_2 cox
 #'
@@ -59,16 +59,8 @@ calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress
 
   # Progress bar code
   if (.progress) {
-    n_iter <- max(data$.imp) + 1
-    pb <- progress::progress_bar$new(
-      format = "Type 2 recalibration \t[:bar] :percent [E.T.: :elapsedfull || R.T.: :eta]",
-      total = n_iter,
-      complete = "=",
-      incomplete = "-",
-      current = ">",
-      clear = FALSE,
-      width = 100
-    )
+    env <- rlang::env()
+    cli::cli_progress_step("Calculating type 2 recalibration parameters", spinner = TRUE, .envir = env)
   }
 
   # Obtains the calibration parameters
@@ -77,7 +69,7 @@ calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress
     dplyr::group_map(~ {
       # Progress bar code
       if (.progress) {
-        pb$tick()
+        cli::cli_progress_update(.envir = env)
       }
 
       # Obtains the data of the event variable
@@ -103,10 +95,20 @@ calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress
     dplyr::pull("beta_overall") %>%
     mean()
 
+  # Progress bar code
+  if (.progress) {
+    cli::cli_progress_done(.envir = env)
+    cli::cli_progress_step("recalibrating predictions with type 2 recalibration", spinner = TRUE, .envir = env)
+  }
+
   # Calculates the recalibrated type 2 predictions
   model$predictions_recal_type_2 <- model$betax %>%
     dplyr::group_by_at(dplyr::vars("id")) %>%
     dplyr::group_map(~ {
+      if (.progress) {
+        cli::cli_progress_update(.envir = env)
+      }
+
       tibble::tibble(
         id = .y$id,
         # Formula to calculate the new predictions
@@ -117,7 +119,7 @@ calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress
 
   # Progress bar code
   if (.progress) {
-    pb$tick()
+    cli::cli_progress_done(.envir = env)
   }
 
   return(model)

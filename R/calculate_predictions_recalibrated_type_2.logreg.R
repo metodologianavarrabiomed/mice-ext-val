@@ -29,9 +29,9 @@
 #' @importFrom dplyr %>% group_by_at group_map filter pull vars bind_rows
 #' @importFrom tibble tibble as_tibble
 #' @importFrom rms lrm
-#' @importFrom progress progress_bar
 #' @importFrom methods is
-#' @importFrom cli format_error cli_abort
+#' @importFrom cli format_error cli_abort cli_progress_update cli_progress_done
+#' @importFrom rlang env
 #'
 #' @exportS3Method calculate_predictions_recalibrated_type_2 logreg
 #'
@@ -58,16 +58,8 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
 
   # Progress bar code
   if (.progress) {
-    n_iter <- max(data$.imp) + 1
-    pb <- progress::progress_bar$new(
-      format = "Type 2 recalibration \t[:bar] :percent [E.T.: :elapsedfull || R.T.: :eta]",
-      total = n_iter,
-      complete = "=",
-      incomplete = "-",
-      current = ">",
-      clear = FALSE,
-      width = 100
-    )
+    env <- rlang::env()
+    cli::cli_progress_step("calculating type 2 recalibrating parameters", spinner = TRUE, .envir = env)
   }
 
   # Calculates the recalibrate parameters for the model
@@ -76,7 +68,7 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
     dplyr::group_map(~ {
       # Progress bar code
       if (.progress) {
-        pb$tick()
+        cli::cli_progress_update(.envir = env)
       }
       survival_data <- .x[[all.vars(model$formula)[1]]]
 
@@ -106,7 +98,7 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
   )
 
   if (.progress) {
-    pb$tick()
+    cli::cli_progress_done(.envir = env)
   }
 
   return(model)

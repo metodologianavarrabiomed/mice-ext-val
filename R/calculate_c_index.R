@@ -16,10 +16,10 @@
 #' @importFrom Hmisc rcorr.cens
 #' @importFrom dplyr %>% group_by_at group_map filter pull vars
 #' @importFrom tibble tibble as_tibble
-#' @importFrom progress progress_bar
 #' @importFrom methods is
-#' @importFrom cli format_error cli_abort
+#' @importFrom cli format_error cli_abort cli_progress_update cli_progress_done cli_progress_step
 #' @importFrom psfmi pool_RR
+#' @importFrom rlang env
 #'
 #' @export
 #'
@@ -29,8 +29,8 @@
 #' model <- mv_model_logreg(formula = event ~ 0.5 * x + 0.3 * z - 1.2)
 #'
 #' data <- data.frame(
-#'   .imp = c(1,1,1,2,2,2,3,3,3),
-#'   id = c(1,2,3,1,2,3,1,2,3),
+#'   .imp = c(1, 1, 1, 2, 2, 2, 3, 3, 3),
+#'   id = c(1, 2, 3, 1, 2, 3, 1, 2, 3),
 #'   x = rnorm(9, 1, 0.25),
 #'   z = rnorm(9, 2, 0.75),
 #'   event = survival::Surv(rpois(9, 5), rbinom(n = 9, size = 1, prob = 0.2))
@@ -61,7 +61,7 @@ calculate_c_index <- function(model, data, .progress = FALSE) {
     } else {
       dependent_variable <- all.vars(model$formula)[1]
       if (!dependent_variable %in% colnames(data)) {
-        error_message <-  c(error_message, "*" = cli::format_error("the dependent variable {.var {dependent_variable}} must be part of {.arg data}"))
+        error_message <- c(error_message, "*" = cli::format_error("the dependent variable {.var {dependent_variable}} must be part of {.arg data}"))
       }
       if (!methods::is(data[[dependent_variable]], "Surv")) {
         error_message <- c(error_message, "*" = cli::format_error("the dependent variable {.var {dependent_variable}} must be {.cls Surv}"))
@@ -73,45 +73,49 @@ calculate_c_index <- function(model, data, .progress = FALSE) {
 
   # Code for the progress bar
   if (.progress) {
-    n_iter <- max(data$.imp)
-    pb <- progress::progress_bar$new(
-      format = "Calculating C-Index \t[:bar] :percent [E.T.: :elapsedfull || R.T.: :eta]",
-      total = n_iter,
-      complete = "=",
-      incomplete = "-",
-      current = ">",
-      clear = FALSE,
-      width = 100
-    )
+    env <- rlang::env()
+    cli::cli_progress_step("calculating c-index", spinner = TRUE, .envir = env)
   }
 
   # Calculates the C-Index value in each of the imputations.
   c_index_data <- data %>%
     dplyr::group_by_at(dplyr::vars(".imp")) %>%
     dplyr::group_map(~ {
-      # Progress bar code
-      if (.progress) {
-        pb$tick()
-      }
-
       # Obtain the data of the event variable
       survival_data <- .x[[all.vars(model$formula)[1]]]
+
+      # Progress bar code
+      if (.progress) {
+        cli::cli_progress_update(.envir = env)
+      }
+
       Hmisc::rcorr.cens(
         # Get the predictions data for the imputation `.imp`.
-        x = 1 - (model$predictions_data %>% dplyr::filter({.imp == .y$.imp}) %>% dplyr::pull(var="prediction")),
+        x = 1 - (model$predictions_data %>% dplyr::filter({
+          .imp == .y$.imp
+        }) %>% dplyr::pull(var = "prediction")),
         # Generates the outcome variable from `survival_data`
         S = survival::Surv(time = survival_data[, "time"], event = survival_data[, "status"])
       )
     }) %>%
     dplyr::bind_rows()
 
+  if (.progress) {
+    cli::cli_progress_done(.envir = env)
+    cli::cli_progress_step("pooling c-index with rubin rules", spinner = TRUE, .envir = env)
+  }
+
   # Aggregates the results using rubin rules and populates the `c_index` parameter in the model
   model$c_index <- psfmi::pool_RR(
     est = c_index_data$`C Index`,
-    se = c_index_data$`S.D.`/2,
+    se = c_index_data$`S.D.` / 2,
     n = c_index_data$n[[1]],
     k = 1
   )
+
+  if (.progress) {
+    cli::cli_progress_done(.envir = env)
+  }
 
   return(model)
 }

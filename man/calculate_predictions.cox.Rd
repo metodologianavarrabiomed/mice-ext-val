@@ -4,12 +4,14 @@
 \alias{calculate_predictions.cox}
 \title{Calculates the predictions for a Cox model}
 \usage{
-\method{calculate_predictions}{cox}(model, data)
+\method{calculate_predictions}{cox}(model, data, .progress = FALSE)
 }
 \arguments{
 \item{model}{Model generated with \code{\link[=mv_model_cox]{mv_model_cox()}}}
 
 \item{data}{External validation data. Multiple imputation dataset in long format.}
+
+\item{.progress}{\code{TRUE} to render the progress bar \code{FALSE} otherwise.}
 }
 \value{
 The \code{model} with the parameters \code{predictions_aggregated}, \code{predictions_data}, \code{betax} and \code{betax_data} populated.
