@@ -21,7 +21,7 @@
 #'
 #'
 #' @import mathjaxr
-#' @importFrom dplyr %>% group_by_at group_map rename vars bind_rows
+#' @importFrom dplyr %>% group_by_at group_map bind_rows rename vars mutate all_of summarise
 #' @importFrom tibble tibble as_tibble add_column
 #' @importFrom methods is
 #' @importFrom cli format_error cli_abort cli_progress_update cli_progress_done cli_progress_step
@@ -54,35 +54,9 @@ calculate_predictions.cox <- function(model, data, .progress = FALSE) {
 
   if (.progress) {
     env <- rlang::env()
-    cli::cli_progress_step("calculating predictions", spinner = TRUE, .envir = env)
-  }
-
-  # Calculates the predictions evaluating the previous expression in each imputation
-  model$predictions_data <- data %>%
-    dplyr::group_by_at(dplyr::vars(".imp")) %>%
-    dplyr::group_map(~ {
-      if (.progress) {
-        cli::cli_progress_update(.envir = env)
-      }
-      # Calculates the predictions and generates the results as a `tibble`
-      with(.x, {
-        1 - model$S0^exp(eval(model$formula[[3]]))
-      }) %>%
-        tibble::as_tibble() %>%
-        tibble::add_column(.imp = .y$.imp) %>%
-        tibble::add_column(id = .x$id) %>%
-        # Changes the name to prediction instead of value (name of the `with` function results)
-        dplyr::rename("prediction" = value)
-    }) %>%
-    dplyr::bind_rows()
-
-  if (.progress) {
-    cli::cli_progress_done(.envir = env)
     cli::cli_progress_step("calculating betax predictions", spinner = TRUE, .envir = env)
   }
 
-  # Generates the `betax` results for each of the imputations as done with the predictions.
-  # TODO: Add this code logic into the predictions one to save all the iterations here.
   model$betax_data <- data %>%
     dplyr::group_by_at(dplyr::vars(".imp")) %>%
     dplyr::group_map(~ {
@@ -97,37 +71,35 @@ calculate_predictions.cox <- function(model, data, .progress = FALSE) {
         tibble::add_column(id = .x$id) %>%
         dplyr::rename("betax" = value)
     }) %>%
-    dplyr::bind_rows()
+   dplyr::bind_rows()
 
   if (.progress) {
     cli::cli_progress_done(.envir = env)
-    cli::cli_progress_step("aggregating predictions", spinner = TRUE, .envir = env)
+    cli::cli_progress_step("aggregating predictions", .envir = env)
+  }
+
+  model$predictions_data <- model$betax_data |>
+    dplyr::mutate(prediction = 1 - model$S0^exp(eval(.data[["betax"]]))) |>
+    dplyr::select(dplyr::all_of(c("prediction", ".imp", "id")))
+
+  if (.progress) {
+    cli::cli_progress_done(.envir = env)
+    cli::cli_progress_step("calculating predictions", .envir = env)
   }
 
   # Generates the aggregated `predictions` and stores them into the model
   model$predictions_aggregated <- model$predictions_data %>%
     dplyr::group_by_at(dplyr::vars("id")) %>%
-    dplyr::group_map(~ {
-      if (.progress) {
-        cli::cli_progress_update(.envir = env)
-      }
-      tibble::tibble(id = .y$id, prediction = mean(.x$prediction))
-    }) %>%
-    dplyr::bind_rows()
+    dplyr::summarise(prediction = mean(.data[["prediction"]]))
+
   if (.progress) {
     cli::cli_progress_done(.envir = env)
-    cli::cli_progress_step("aggregating betax", spinner = TRUE, .envir = env)
+    cli::cli_progress_step("aggregating betax", .envir = env)
   }
   # Generates the aggregated `betax` and stores them into the model
   model$betax <- model$betax_data %>%
     dplyr::group_by_at(dplyr::vars("id")) %>%
-    dplyr::group_map(~ {
-      if (.progress) {
-        cli::cli_progress_update(.envir = env)
-      }
-      tibble::tibble(id = .y$id, betax = mean(.x$betax))
-    }) %>%
-    dplyr::bind_rows()
+    dplyr::summarise(betax = mean(.data[["betax"]]))
 
   if (.progress) {
     cli::cli_progress_done(.envir = env)

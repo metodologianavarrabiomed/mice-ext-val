@@ -25,7 +25,7 @@
 #'    * `S0_type_2`: stores the \eqn{S_{0, \text{type 2}}(t)} type 2 recalibration parameter.
 #'    * `beta_overall`: stores the \eqn{\beta_{overall}} type 2 recalibration parameter.
 #'
-#' @importFrom dplyr %>% group_by_at group_map filter pull vars bind_rows
+#' @importFrom dplyr %>% group_by_at group_map filter pull vars bind_rows select mutate all_of
 #' @importFrom tibble tibble as_tibble
 #' @importFrom methods is
 #' @importFrom cli format_error cli_abort cli_progress_update cli_progress_done cli_progress_step
@@ -98,24 +98,15 @@ calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress
   # Progress bar code
   if (.progress) {
     cli::cli_progress_done(.envir = env)
-    cli::cli_progress_step("recalibrating predictions with type 2 recalibration", spinner = TRUE, .envir = env)
+    cli::cli_progress_step("recalibrating predictions with type 2 recalibration", .envir = env)
   }
 
   # Calculates the recalibrated type 2 predictions
   model$predictions_recal_type_2 <- model$betax %>%
-    dplyr::group_by_at(dplyr::vars("id")) %>%
-    dplyr::group_map(~ {
-      if (.progress) {
-        cli::cli_progress_update(.envir = env)
-      }
-
-      tibble::tibble(
-        id = .y$id,
-        # Formula to calculate the new predictions
-        prediction_type_2 = 1 - model$S0_type_2^exp(model$beta_overall * .x$betax)
-      )
-    }) %>%
-    dplyr::bind_rows()
+    dplyr::mutate(
+      prediction_type_2 = 1 - model$S0_type_2^exp(model$beta_overall * .data[["betax"]])
+      ) |>
+    dplyr::select(dplyr::all_of(c("id", "prediction_type_2")))
 
   # Progress bar code
   if (.progress) {
