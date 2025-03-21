@@ -54,7 +54,7 @@ where \(S_0(t)\) stands for the survival function in a time \(t\), \(\beta\) sta
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'cox'</span></span>
-<span><span class="fu"><a href="calculate_predictions.html">calculate_predictions</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">data</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="calculate_predictions.html">calculate_predictions</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">data</span>, .progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -67,6 +67,10 @@ where \(S_0(t)\) stands for the survival function in a time \(t\), \(\beta\) sta
 
 <dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>External validation data. Multiple imputation dataset in long format.</p></dd>
+
+
+<dt id="arg--progress">.progress<a class="anchor" aria-label="anchor" href="#arg--progress"></a></dt>
+<dd><p><code>TRUE</code> to render the progress bar <code>FALSE</code> otherwise.</p></dd>
 
 </dl></div>
     <div class="section level2">
