@@ -28,7 +28,8 @@ Imports:
     tibble (>= 3.2.1),
     psfmi (>= 1.4.0),
     methods (>= 4.2.3),
-    cli (>= 3.6.2)
+    cli (>= 3.6.2),
+    rlang (>= 1.1.4)
 Config/testthat/edition: 3
 Depends: 
     R (>= 4.4.0)
