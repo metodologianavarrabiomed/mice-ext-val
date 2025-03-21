@@ -79,7 +79,7 @@ calculate_predictions.cox <- function(model, data, .progress = FALSE) {
   }
 
   model$predictions_data <- model$betax_data |>
-    dplyr::mutate(prediction = 1 - model$S0^exp(eval(betax))) |>
+    dplyr::mutate(prediction = 1 - model$S0^exp(eval(.data[["betax"]]))) |>
     dplyr::select(dplyr::all_of(c("prediction", ".imp", "id")))
 
   if (.progress) {
@@ -90,7 +90,7 @@ calculate_predictions.cox <- function(model, data, .progress = FALSE) {
   # Generates the aggregated `predictions` and stores them into the model
   model$predictions_aggregated <- model$predictions_data %>%
     dplyr::group_by_at(dplyr::vars("id")) %>%
-    dplyr::summarise(prediction = mean(prediction))
+    dplyr::summarise(prediction = mean(.data[["prediction"]]))
 
   if (.progress) {
     cli::cli_progress_done(.envir = env)
@@ -99,7 +99,7 @@ calculate_predictions.cox <- function(model, data, .progress = FALSE) {
   # Generates the aggregated `betax` and stores them into the model
   model$betax <- model$betax_data %>%
     dplyr::group_by_at(dplyr::vars("id")) %>%
-    dplyr::summarise(betax = mean(betax))
+    dplyr::summarise(betax = mean(.data[["betax"]]))
 
   if (.progress) {
     cli::cli_progress_done(.envir = env)

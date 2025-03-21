@@ -90,7 +90,7 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
   # Calculates the recalibrated type 1 predictions
   model$predictions_recal_type_1 <- model$predictions_aggregated %>%
     dplyr::mutate(
-      prediction_type_1 = 1 - exp(-exp(model$alpha + log(-log(1 - prediction))))
+      prediction_type_1 = 1 - exp(-exp(model$alpha + log(-log(1 - .data[["prediction"]]))))
     ) |>
     dplyr::select(dplyr::all_of(c("id", "prediction_type_1")))
 

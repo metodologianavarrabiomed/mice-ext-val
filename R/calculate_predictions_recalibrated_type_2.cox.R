@@ -104,7 +104,7 @@ calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress
   # Calculates the recalibrated type 2 predictions
   model$predictions_recal_type_2 <- model$betax %>%
     dplyr::mutate(
-      prediction_type_2 = 1 - model$S0_type_2^exp(model$beta_overall * betax)
+      prediction_type_2 = 1 - model$S0_type_2^exp(model$beta_overall * .data[["betax"]])
       ) |>
     dplyr::select(dplyr::all_of(c("id", "prediction_type_2")))
 
