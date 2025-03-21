@@ -20,7 +20,7 @@
 #'   * `betax_data`, stores the \eqn{\beta \cdot X} values in each of the imputed datasets.
 #'
 #' @import mathjaxr
-#' @importFrom dplyr %>% group_by_at group_map rename vars bind_rows
+#' @importFrom dplyr %>% group_by_at group_map rename vars summarise all_of mutate
 #' @importFrom tibble tibble as_tibble add_column
 #' @importFrom methods is
 #' @importFrom cli format_error cli_abort cli_progress_step cli_progress_update cli_progress_done
