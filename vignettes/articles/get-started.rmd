@@ -23,34 +23,40 @@ The following code snippet lists all the libraries needed to run this report.
 #| warning: false
 #| code-fold: false
 library(MiceExtVal)
+
+# tidyverse packages
 library(dplyr)
 library(tidyr)
-library(mice)
-library(kableExtra)
-library(gtsummary)
-library(here)
 library(tidyr)
 library(tibble)
+library(ggplot2)
+
+# table formatting packages
+library(kableExtra)
+library(gtsummary)
+
+# analysis required packages
+library(mice)
 library(survival)
 ```
 
 As an example of the package `MiceExtVal` use we will externally validate the Framingham model, see @framingham. We will use a dataset obtained from [kaggle](https://www.kaggle.com). The example of use will be structured as follows.
 
-1. Read and explore the dataset
+1. Explore the dataset
 2. Impute the missing data
 3. Define the Framingham model
 4. Externally validate the model
 
-# Read and Explore the Dataset
+# Explore the Dataset
 
-To recreate an external validation of the Framingham model we need a dataset with the model variables. In the package we have included the Framingham dataset provided in [kaggle](https://www.kaggle.com) by [Shrey Jain](https://www.kaggle.com/datasets/shreyjain601/framingham-heart-study). The dataset contains the variables described in next table. We can observe that there exists some missing values in some variables. 
+To recreate an external validation of the Framingham model we need a dataset with the model variables. In the package we have included the Framingham dataset provided in [kaggle](https://www.kaggle.com) by [Shrey Jain](https://www.kaggle.com/datasets/shreyjain601/framingham-heart-study). In @tbl-summary-data there are represented the dataset variables.
 
-```{r, warning=FALSE, echo=FALSE}
+```{r}
+#| echo: false
 #| warning: false
 #| label: tbl-summary-data
 #| tbl-cap: Summary table of the Framingham dataset
 #| classes: plain .table-sm
-#| code-fold: true
 
 MiceExtVal::framingham |>
   dplyr::select(-randid, -period) |>
@@ -66,7 +72,7 @@ MiceExtVal::framingham |>
   )
 ```
 
-In the following table there are represented the percentage o missings in the variables that have at least one row with a missing value. 
+In this dataset there exist some missing values in cholesterol related variables as `Total Cholesterol`, `HDL Cholesterol`, and `LDL Cholesterol`. In @tbl-perc-miss there are represented the percentage o missings in the variables.
 
 ```{r}
 #| echo: false
@@ -116,7 +122,7 @@ fram_long <- mice::complete(mice_data, "long") |>
 
 # The Framingham Model
 
-With the data ready to be used we need to take some time to understand the model that we want to validate, the Framingham model. This model is a Cox model that predicts the risk to suffer a coronary heart disease in patients that are $30-79$ years old. The Framingham model coefficients are represented in the following table.
+With the data ready to be used we need to take some time to understand the model that we want to validate, the Framingham model, @framingham. The Framingham is a Cox model that predicts the risk to suffer a coronary heart disease in patients that are $30-79$ years old, coefficients are represented in @tbl-framingham-coefficients.
 
 ```{r}
 #| echo: false
@@ -158,7 +164,7 @@ tibble::tribble(
 
 ## Requirements to Define the Model
 
-The Framingham model had defined the variables that are used to calculate the model predictions. In the dataset we have the data needed to meet this requirements. Before defining the model we need to generate the variables that are not present in the dataset. In the previous table we can observe that some continous variables are converted into categorical. More precisely, the total cholesterol, HDL cholesterol and blood pressure are categorized.
+In the dataset we have the information needed to predict the patient's risk of event, but we need to define the variables exactly as they were defined in the Framingham derivation cohort. Therefore, before defining the model we need to generate the Framingham variables in our dataset. In the @tbl-framingham-coefficients we can observe that some continous variables are converted into categorical. More precisely, the total cholesterol, HDL cholesterol and blood pressure are categorized.
 
 ### Total Cholesterol
 
@@ -243,7 +249,7 @@ fram_long <- fram_long |>
     ),
     pressure = purrr::map2_int(
       as.numeric(sys_lvl), as.numeric(dys_lvl), ~ max(.x, .y)
-      ),
+    ),
     pressure = factor(
       pressure,
       labels = pressure_labels
@@ -265,10 +271,10 @@ fram_long <- fram_long |>
 
 ## Selecting the Needed Variables
 
-Once the Framingham variables are generated we need to create the model in the `MiceExtVal` package. The Framingham model is stratified by sex. Therefore, we need to generate two models, one for males and another for females. The `MiceExtVal` package allow us to define a Cox model using the `MiceExtVal::mv_model_cox` function where we need to introduce the model (`coefficients`), the mean value in the derivation cohort for each of the variables (`means`), the model formula to know the dependent variable (`formula`) and the survival basal function for the time of the study (`S0`).
+Once the Framingham variables are generated we need to create the model in the `MiceExtVal` package. The Framingham model is stratified by sex. Therefore, we need to generate two models, one for men and another for women The `MiceExtVal` package allow us to define a Cox model using the `mv_model_cox`.
 
 ### Generating Extra Needed Variables
-Some variables like `cursmoke` or `diabetes` are factors and to be used in the model we need to transform them to numeric variables where $1$ indicates `TRUE` and $0$ indicates `FALSE`. We will also generate the variable `age2` $age^2$ needed for the females model. Additionally, we generate the survival outcome. 
+Some variables like `cursmoke` or `diabetes` are factors and to be used in the model we need to transform them to numeric variables where $1$ indicates `TRUE` and $0$ indicates `FALSE`. We will also generate the variable `age2` $age^2$ needed for the women model. Additionally, we generate the survival outcome. 
 
 ```{r}
 fram_long <- fram_long |>
@@ -280,11 +286,11 @@ fram_long <- fram_long |>
   )
 ```
 
-Finally, we generate the males and females datasets.
+Finally, we generate the men and women datasets.
 
 ```{r}
-male_fram_long <- fram_long |> dplyr::filter(sex == 1)
-female_fram_long <- fram_long |> dplyr::filter(sex == 2)
+men_fram_long <- fram_long |> dplyr::filter(sex == 1)
+women_fram_long <- fram_long |> dplyr::filter(sex == 2)
 ```
 
 ### Generate the models
@@ -298,11 +304,11 @@ Each model needs different information in order to calculate the predictions in 
 
 As the Framingham model is stratified by sex, we need to generate two models to externally validate it.
 
-#### Males
-The next code snippet generates the males model formula following the original mean values and the coefficients described in the previous tables.
+#### Men
+The next code snippet generates the men model formula following the original mean values and the coefficients described in the previous tables.
 
 ```{r}
-males_formula <- anychd_surv ~ 0.0483 * (age - 48.3) +
+men_formula <- anychd_surv ~ 0.0483 * (age - 48.3) +
   0.4284 * (diabetes - 0.05) + 0.5234 * (cursmoke - 0.403) -
   0.6595 * (totchol_less_160 - 0.075) + 0.1769 * (totchol_200_239 - 0.39) +
   0.5054 * (totchol_240_279 - 0.165) + 0.6571 * (totchol_greater_280 - 0.057) +
@@ -316,17 +322,17 @@ males_formula <- anychd_surv ~ 0.0483 * (age - 48.3) +
 Once we have defined the needed parameters of the model we can create the model as follows.
 
 ```{r}
-male_model <- MiceExtVal::mv_model_cox(
-  formula = males_formula,
+men_model <- MiceExtVal::mv_model_cox(
+  formula = men_formula,
   S0 = 0.9002
 )
 ```
 
-#### Females
-For females we can reproduce what we have already done for males.
+#### Women
+For women we can reproduce what we have already done for men.
 
 ```{r}
-females_formula <- anychd_surv ~ 0.3377 * (age - 49.6) -
+women_formula <- anychd_surv ~ 0.3377 * (age - 49.6) -
   0.0027 * (age2 - 2604.5) + 0.5963 * (diabetes - 0.038) +
   0.2925 * (cursmoke - 0.378) + -0.2614 * (totchol_less_160 - 0.079) +
   0.2077 * (totchol_200_239 - 0.327) + 0.2439 * (totchol_240_279 - 0.2) +
@@ -337,11 +343,11 @@ females_formula <- anychd_surv ~ 0.3377 * (age - 49.6) -
   0.4657 * (bp_hypertension_ii_iv - 0.1)
 ```
 
-From the previous parameters we generate the `female_model` to externally validate the Framingham female model.
+From the previous parameters we generate the `women_model` to externally validate the Framingham women model.
 
 ```{r}
-female_model <- MiceExtVal::mv_model_cox(
-  formula = females_formula,
+women_model <- MiceExtVal::mv_model_cox(
+  formula = women_formula,
   S0 = 0.9625
 )
 ```
@@ -359,22 +365,21 @@ The external validation can be structured in three phases.
 ## Calculate the predictions
 
 ```{r}
-male_model <- male_model |>
-  MiceExtVal::calculate_predictions(model = _, data = male_fram_long)
+men_model <- men_model |>
+  MiceExtVal::calculate_predictions(model = _, data = men_fram_long)
 
-female_model <- female_model |>
-  MiceExtVal::calculate_predictions(model = _, data = female_fram_long)
+women_model <- women_model |>
+  MiceExtVal::calculate_predictions(model = _, data = women_fram_long)
 ```
 
 As a result inside the model there are generated two tables `predictions_data` and `predictions_aggregated`. In the next table there are shown the first rows of the `predictions_data` table, where there are all the predicted values for each of the imputations.
-
 
 ```{r}
 #| label: tbl-pred-data
 #| classes: plain .table-sm
 #| tbl-cap: Example of `predictions_data`
 #| echo: false
-head(male_model$predictions_data) |>
+head(men_model$predictions_data) |>
   kableExtra::kbl(digits = 3)
 ```
 
@@ -385,7 +390,7 @@ In this second table there are shown the first rows of `predictions_aggregated` 
 #| classes: plain .table-sm
 #| tbl-cap: Example of `predictions_aggregated`
 #| echo: false
-head(male_model$predictions_aggregated) |>
+head(men_model$predictions_aggregated) |>
   kableExtra::kbl(digits = 3)
 ```
 
@@ -394,86 +399,120 @@ The model performance can be separated in two. The ability of the model to discr
 
 ### Calculating C-Index
 
-#### C-Index in Males
+To calculate the Harrell C-Index the package provides the function `calculate_c_index`. This function requires that the model predictions are calculated.
 
 ```{r}
-male_model <- male_model |>
-  MiceExtVal::calculate_c_index(model = _, data = male_fram_long)
+#| eval: false
+model <- model |> MiceExtVal::calculate_c_index(model = _, data = data)
 ```
 
-#### C-Index in Females
+In our case we can calculate the C-Index as follows obtaining the results show in @tbl-c-index.
+
 ```{r}
-female_model <- female_model |>
-  MiceExtVal::calculate_c_index(model = _, data = female_fram_long)
+#| label: tbl-c-index
+#| classes: plain .table-sm
+#| tbl-cap: C-Index results
+men_model <- men_model |>
+  MiceExtVal::calculate_c_index(model = _, data = men_fram_long)
+
+women_model <- women_model |>
+  MiceExtVal::calculate_c_index(model = _, data = women_fram_long)
+
+dplyr::bind_rows(men_model[["c_index"]], women_model[["c_index"]]) |>
+  tibble::add_column(Model = c("Men", "Women"), .before = "Estimate") |>
+  kableExtra::kbl(digits = 3)
 ```
+
+In this article we also show how to recalibrate the model with the two techniques provided in the package. This recalibration of the predictions does not modify the value of the C-Index because all the predictions are modified using the same parameters of recalibration. As all the variable are modified equally the order of the predictions are not modified and therefore the C-Index remains unchanged.
 
 ### Calculating Calibration Plot
 
-#### Calibration Plot Males
+To calculate the calibration plots it is mandatory to have calculated before the model predictions or they recalibration if needed. The package provides the user with two functions that allow them to generate the calibration plots. The `get_calibration_plot_data` and the `get_calibration_plot` functions. The following code snippet shows how to calculate a calibration plot with the package.
+
 ```{r}
-#| fig.alt: >
-#|   Calibration plot for males
-#| warning: false
-#| message: false
-male_model |>
+#| eval: false
+model |>
+  # only if needed
+  MiceExtVal::calculate_predictions(data) |>
   MiceExtVal::get_calibration_plot_data(
     model = _,
-    data = male_fram_long,
+    data = data,
     n_groups = 10,
     type = "predictions_aggregated"
   ) |>
   MiceExtVal::get_calibration_plot(data = _)
 ```
 
-#### Calibration Plot Females
+By using these functions we are able to generate the calibration plots shown in @fig-framingham-cal-plot as described in the following code snippet.
+
 ```{r}
 #| fig.alt: >
-#|   Calibration plot for females
+#|   Calibration plot for original predictions in men and women
 #| warning: false
 #| message: false
-female_model |>
+#| layout-ncol: 2
+#| fig-cap: Framingham original predictions calibration plots
+#| fig-subcap:
+#|    - Men
+#|    - Women
+#| label: fig-framingham-cal-plot
+men_model |>
   MiceExtVal::get_calibration_plot_data(
     model = _,
-    data = female_fram_long,
+    data = men_fram_long,
+    n_groups = 10,
+    type = "predictions_aggregated"
+  ) |>
+  MiceExtVal::get_calibration_plot(data = _)
+
+women_model |>
+  MiceExtVal::get_calibration_plot_data(
+    model = _,
+    data = women_fram_long,
     n_groups = 10,
     type = "predictions_aggregated"
   ) |>
   MiceExtVal::get_calibration_plot(data = _)
 ```
+
+The calibration plots are a `ggplot` object and they can be modified as any other plot of the `ggplot2` package. Feel free to modify them to match your requirements.
 
 ## Recalibration
+
+When we are validating a model in an external cohort is common that the model predictions do not match the observed risks in the new cohort. To minimize this problem we have developed two functions that allow the users to recalibrate the model predictions (please refer to `calculate_predictions_recalibrated_type_1` and `calculate_predictions_recalibrated_type_2` documentation for more detailed information on how the recalibration works). 
+
 ```{r}
 #| fig.alt: >
-#|   Type 1 calibration plot for males
+#|   Type 1 and type 2 calibration plots for men
 #| warning: false
 #| message: false
-male_model <- male_model |>
+#| layout-ncol: 2
+#| fig-cap: Framingham recalibrated calibration plots in men
+#| fig-subcap:
+#|    - Type 1 recalibration
+#|    - Type 2 recalibration
+#| label: fig-framingham-cal-plot-recal-men
+men_model <- men_model |>
   MiceExtVal::calculate_predictions_recalibrated_type_1(
-    model = _, data = male_fram_long
+    model = _, data = men_fram_long
   ) |>
   MiceExtVal::calculate_predictions_recalibrated_type_2(
-    model = _, data = male_fram_long
+    model = _, data = men_fram_long
   )
 
-male_model |>
+men_model |>
   MiceExtVal::get_calibration_plot_data(
     model = _,
-    data = male_fram_long,
+    data = men_fram_long,
     n_groups = 10,
     type = "predictions_recal_type_1"
   ) |>
   MiceExtVal::get_calibration_plot(data = _)
-```
 
-```{r}
-#| fig.alt: >
-#|   Type 2 calibration plot for males
-#| message: false
-#| warning: false
-male_model |>
+men_model |>
   MiceExtVal::get_calibration_plot_data(
     model = _,
-    data = male_fram_long,
+    data = men_fram_long,
     n_groups = 10,
     type = "predictions_recal_type_2"
   ) |>
@@ -484,38 +523,127 @@ male_model |>
 #| warning: false
 #| message: false
 #| fig.alt: >
-#|   Type 1 calibration plot for females
-female_model <- female_model |>
+#|   Type 1 and type 2 calibration plots for women
+#| layout-ncol: 2
+#| fig-cap: Framingham recalibrated calibration plots in women
+#| fig-subcap:
+#|    - Type 1 recalibration
+#|    - Type 2 recalibration
+#| label: fig-framingham-cal-plot-recal-women
+women_model <- women_model |>
   MiceExtVal::calculate_predictions_recalibrated_type_1(
-    model = _, data = female_fram_long
+    model = _, data = women_fram_long
   ) |>
   MiceExtVal::calculate_predictions_recalibrated_type_2(
-    model = _, data = female_fram_long
+    model = _, data = women_fram_long
   )
 
-female_model |>
+women_model |>
   MiceExtVal::get_calibration_plot_data(
     model = _,
-    data = female_fram_long,
+    data = women_fram_long,
     n_groups = 10,
     type = "predictions_recal_type_1"
   ) |>
   MiceExtVal::get_calibration_plot(data = _)
-```
 
-```{r}
-#| fig.alt: >
-#|   Type 2 calibration plot for females
-#| warning: false
-#| message: false
-female_model |>
+women_model |>
   MiceExtVal::get_calibration_plot_data(
     model = _,
-    data = female_fram_long,
+    data = women_fram_long,
     n_groups = 10,
     type = "predictions_recal_type_2"
   ) |>
   MiceExtVal::get_calibration_plot(data = _)
+```
+
+Type 1 and type 2 recalibration are not consecutive, they are just two different approaches for the same problem. As show in [@fig-framingham-cal-plot-recal-men;@fig-framingham-cal-plot-recal-women] they obtain similar results.
+
+## Comparing results
+
+External validations are generally performed to obtain comparable results between different models. To accomplish this objective the model supplies two functions that allow to represent results of different models in the same plot, `get_stratified_calibration_plot` and `get_forestplot`
+
+### Stratified Calibration Plot
+
+In order to compare two models calibration plots we have developed the function `get_stratified_calibration_plot` that allow the user to plot stratified calibration plots. In our case it could be interesting to plot men and women calibrations in the same plot, as shown in @fig-stratified-cal-plot.
+
+```{r}
+#| fig.alt: >
+#|   Stratified calibration plot
+#| warning: false
+#| message: false
+#| label: fig-stratified-cal-plot
+#| layout-ncol: 2
+#| fig-cap: Framingham stratified by sex calibration plots
+#| fig-subcap:
+#|    - Original predictions
+#|    - Type 1 recalibration
+#|    - Type 2 recalibration
+MiceExtVal::get_stratified_calibration_plot(
+  data = fram_long,
+  n_groups = 10,
+  type = "predictions_aggregated",
+  Men = men_model,
+  Women = women_model
+)
+
+MiceExtVal::get_stratified_calibration_plot(
+  data = fram_long,
+  n_groups = 10,
+  type = "predictions_recal_type_1",
+  Men = men_model,
+  Women = women_model
+)
+
+MiceExtVal::get_stratified_calibration_plot(
+  data = fram_long,
+  n_groups = 10,
+  type = "predictions_recal_type_2",
+  Men = men_model,
+  Women = women_model
+)
+```
+
+### Forestplot
+
+The discrimination performance can be visualize as a foresplot. We have developed two functions that allow the users to generate foresplots where there can be visualized the model performance, see [@fig-forestplot-stratified;@fig-forestplot-non-stratified].
+
+To generate different strats we need to bind the outcomes of `get_forestplot_data` as many times as strats are needed in the forestplot. The names of the models must be the same in all the strats to be merged together. In this case we generate two strats with only one model in each of them but it is possible to add as many models as needed.
+
+```{r}
+#| fig.alt: >
+#|   C-Indexes forestplot stratified
+#| warning: false
+#| message: false
+#| fig-height: 2
+#| fig-cap: Forestplot stratified
+#| label: fig-forestplot-stratified
+dplyr::bind_rows(
+  MiceExtVal::get_forestplot_data(strat = "Men", Framingham = men_model),
+  MiceExtVal::get_forestplot_data(strat = "Women", Framingham = women_model)
+) |>
+  MiceExtVal::get_forestplot(center = 0.7) +
+  ggplot2::xlim(c(0.6, 0.75))
+```
+
+If we want to generate a forestplot with multiple models in one strat we can generate it as the following example. In this example men and women models are inserted in the `Overall` strat as individual models. We have deleted the legend as it is not informative. 
+
+```{r}
+#| fig.alt: >
+#|   C-Index forestplot with two models
+#| warning: false
+#| message: false
+#| fig-height: 2
+#| fig-cap: Forestplot non-stratified
+#| label: fig-forestplot-non-stratified
+MiceExtVal::get_forestplot_data(
+  strat = "Overall",
+  `Framingham Women` = women_model,
+  `Framingham Men` = men_model
+) |>
+  MiceExtVal::get_forestplot(center = 0.7) +
+  ggplot2::theme(legend.position = "none") +
+  ggplot2::xlim(c(0.6, 0.75))
 ```
 
 ## References
