@@ -68,7 +68,7 @@ Ballesteros Domínguez</h4>
                         
       
 
-      <div class="d-none name"><code>get-started.Rmd</code></div>
+      <div class="d-none name"><code>get-started.rmd</code></div>
     </div>
 
     
@@ -80,34 +80,40 @@ Ballesteros Domínguez</h4>
 report.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">MiceExtVal</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># tidyverse packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/amices/mice" class="external-link">mice</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://haozhu233.github.io/kableExtra/" class="external-link">kableExtra</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ddsjoberg/gtsummary" class="external-link">gtsummary</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://here.r-lib.org/" class="external-link">here</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tibble.tidyverse.org/" class="external-link">tibble</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># table formatting packages</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://haozhu233.github.io/kableExtra/" class="external-link">kableExtra</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ddsjoberg/gtsummary" class="external-link">gtsummary</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># analysis required packages</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/amices/mice" class="external-link">mice</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span></code></pre></div>
 <p>As an example of the package <code>MiceExtVal</code> use we will
 externally validate the Framingham model, see <span class="citation">Wilson et al. (1998)</span>. We will use a dataset
 obtained from <a href="https://www.kaggle.com" class="external-link">kaggle</a>. The example
 of use will be structured as follows.</p>
 <ol style="list-style-type: decimal">
-<li>Read and explore the dataset</li>
+<li>Explore the dataset</li>
 <li>Impute the missing data</li>
 <li>Define the Framingham model</li>
 <li>Externally validate the model</li>
 </ol>
 </div>
 <div class="section level2">
-<h2 id="read-and-explore-the-dataset">Read and Explore the Dataset<a class="anchor" aria-label="anchor" href="#read-and-explore-the-dataset"></a>
+<h2 id="explore-the-dataset">Explore the Dataset<a class="anchor" aria-label="anchor" href="#explore-the-dataset"></a>
 </h2>
 <p>To recreate an external validation of the Framingham model we need a
 dataset with the model variables. In the package we have included the
 Framingham dataset provided in <a href="https://www.kaggle.com" class="external-link">kaggle</a> by <a href="https://www.kaggle.com/datasets/shreyjain601/framingham-heart-study" class="external-link">Shrey
-Jain</a>. The dataset contains the variables described in next table. We
-can observe that there exists some missing values in some variables.</p>
+Jain</a>. In <span class="citation">(<strong>tbl-summary-data?</strong>)</span> there are
+represented the dataset variables.</p>
 <div id="mwlefoodfi" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>#mwlefoodfi table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -673,9 +679,10 @@ N = 3,158</span><span class="gt_footnote_marks" style="white-space:nowrap;font-s
     </tr></tfoot>
 </table>
 </div>
-<p>In the following table there are represented the percentage o
-missings in the variables that have at least one row with a missing
-value.</p>
+<p>In this dataset there exist some missing values in cholesterol
+related variables as <code>Total Cholesterol</code>,
+<code>HDL Cholesterol</code>, and <code>LDL Cholesterol</code>. In <span class="citation">(<strong>tbl-perc-miss?</strong>)</span> there are
+represented the percentage o missings in the variables.</p>
 <table class="table">
 <thead><tr>
 <th style="text-align:left;">
@@ -734,10 +741,11 @@ this data externally validate one or more models.</p>
 <h2 id="the-framingham-model">The Framingham Model<a class="anchor" aria-label="anchor" href="#the-framingham-model"></a>
 </h2>
 <p>With the data ready to be used we need to take some time to
-understand the model that we want to validate, the Framingham model.
-This model is a Cox model that predicts the risk to suffer a coronary
-heart disease in patients that are <span class="math inline">\(30-79\)</span> years old. The Framingham model
-coefficients are represented in the following table.</p>
+understand the model that we want to validate, the Framingham model,
+<span class="citation">Wilson et al. (1998)</span>. The Framingham is a
+Cox model that predicts the risk to suffer a coronary heart disease in
+patients that are <span class="math inline">\(30-79\)</span> years old,
+coefficients are represented in <span class="citation">(<strong>tbl-framingham-coefficients?</strong>)</span>.</p>
 <table class="table">
 <thead><tr>
 <th style="text-align:left;">
@@ -991,10 +999,11 @@ Baseline survival function at 10 years, S(t)
 <div class="section level3">
 <h3 id="requirements-to-define-the-model">Requirements to Define the Model<a class="anchor" aria-label="anchor" href="#requirements-to-define-the-model"></a>
 </h3>
-<p>The Framingham model had defined the variables that are used to
-calculate the model predictions. In the dataset we have the data needed
-to meet this requirements. Before defining the model we need to generate
-the variables that are not present in the dataset. In the previous table
+<p>In the dataset we have the information needed to predict the
+patient’s risk of event, but we need to define the variables exactly as
+they were defined in the Framingham derivation cohort. Therefore, before
+defining the model we need to generate the Framingham variables in our
+dataset. In the <span class="citation">(<strong>tbl-framingham-coefficients?</strong>)</span>
 we can observe that some continous variables are converted into
 categorical. More precisely, the total cholesterol, HDL cholesterol and
 blood pressure are categorized.</p>
@@ -1184,7 +1193,7 @@ categorize both pressures into one variable.</p>
 <span>    <span class="op">)</span>,</span>
 <span>    pressure <span class="op">=</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map2.html" class="external-link">map2_int</a></span><span class="op">(</span></span>
 <span>      <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">sys_lvl</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">dys_lvl</span><span class="op">)</span>, <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">.x</span>, <span class="va">.y</span><span class="op">)</span></span>
-<span>      <span class="op">)</span>,</span>
+<span>    <span class="op">)</span>,</span>
 <span>    pressure <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span></span>
 <span>      <span class="va">pressure</span>,</span>
 <span>      labels <span class="op">=</span> <span class="va">pressure_labels</span></span>
@@ -1208,13 +1217,8 @@ used in the model.</p>
 <p>Once the Framingham variables are generated we need to create the
 model in the <code>MiceExtVal</code> package. The Framingham model is
 stratified by sex. Therefore, we need to generate two models, one for
-males and another for females. The <code>MiceExtVal</code> package allow
-us to define a Cox model using the <code><a href="../reference/mv_model_cox.html">MiceExtVal::mv_model_cox</a></code>
-function where we need to introduce the model
-(<code>coefficients</code>), the mean value in the derivation cohort for
-each of the variables (<code>means</code>), the model formula to know
-the dependent variable (<code>formula</code>) and the survival basal
-function for the time of the study (<code>S0</code>).</p>
+men and another for women The <code>MiceExtVal</code> package allow us
+to define a Cox model using the <code>mv_model_cox</code>.</p>
 <div class="section level4">
 <h4 id="generating-extra-needed-variables">Generating Extra Needed Variables<a class="anchor" aria-label="anchor" href="#generating-extra-needed-variables"></a>
 </h4>
@@ -1223,7 +1227,7 @@ are factors and to be used in the model we need to transform them to
 numeric variables where <span class="math inline">\(1\)</span> indicates
 <code>TRUE</code> and <span class="math inline">\(0\)</span> indicates
 <code>FALSE</code>. We will also generate the variable <code>age2</code>
-<span class="math inline">\(age^2\)</span> needed for the females model.
+<span class="math inline">\(age^2\)</span> needed for the women model.
 Additionally, we generate the survival outcome.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fram_long</span> <span class="op">&lt;-</span> <span class="va">fram_long</span> <span class="op">|&gt;</span></span>
@@ -1233,10 +1237,10 @@ Additionally, we generate the survival outcome.</p>
 <span>    age2 <span class="op">=</span> <span class="va">age</span><span class="op">**</span><span class="fl">2</span>,</span>
 <span>    anychd_surv <span class="op">=</span> <span class="fu">survival</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">timechd</span>, <span class="va">anychd</span> <span class="op">==</span> <span class="st">"Yes"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
-<p>Finally, we generate the males and females datasets.</p>
+<p>Finally, we generate the men and women datasets.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">male_fram_long</span> <span class="op">&lt;-</span> <span class="va">fram_long</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">female_fram_long</span> <span class="op">&lt;-</span> <span class="va">fram_long</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">men_fram_long</span> <span class="op">&lt;-</span> <span class="va">fram_long</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">women_fram_long</span> <span class="op">&lt;-</span> <span class="va">fram_long</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="generate-the-models">Generate the models<a class="anchor" aria-label="anchor" href="#generate-the-models"></a>
@@ -1260,13 +1264,13 @@ this case, the means to center the variables in the <span class="math inline">\(
 <p>As the Framingham model is stratified by sex, we need to generate two
 models to externally validate it.</p>
 <div class="section level5">
-<h5 id="males">Males<a class="anchor" aria-label="anchor" href="#males"></a>
+<h5 id="men">Men<a class="anchor" aria-label="anchor" href="#men"></a>
 </h5>
-<p>The next code snippet generates the males model formula following the
+<p>The next code snippet generates the men model formula following the
 original mean values and the coefficients described in the previous
 tables.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">males_formula</span> <span class="op">&lt;-</span> <span class="va">anychd_surv</span> <span class="op">~</span> <span class="fl">0.0483</span> <span class="op">*</span> <span class="op">(</span><span class="va">age</span> <span class="op">-</span> <span class="fl">48.3</span><span class="op">)</span> <span class="op">+</span></span>
+<code class="sourceCode R"><span><span class="va">men_formula</span> <span class="op">&lt;-</span> <span class="va">anychd_surv</span> <span class="op">~</span> <span class="fl">0.0483</span> <span class="op">*</span> <span class="op">(</span><span class="va">age</span> <span class="op">-</span> <span class="fl">48.3</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fl">0.4284</span> <span class="op">*</span> <span class="op">(</span><span class="va">diabetes</span> <span class="op">-</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.5234</span> <span class="op">*</span> <span class="op">(</span><span class="va">cursmoke</span> <span class="op">-</span> <span class="fl">0.403</span><span class="op">)</span> <span class="op">-</span></span>
 <span>  <span class="fl">0.6595</span> <span class="op">*</span> <span class="op">(</span><span class="va">totchol_less_160</span> <span class="op">-</span> <span class="fl">0.075</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1769</span> <span class="op">*</span> <span class="op">(</span><span class="va">totchol_200_239</span> <span class="op">-</span> <span class="fl">0.39</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fl">0.5054</span> <span class="op">*</span> <span class="op">(</span><span class="va">totchol_240_279</span> <span class="op">-</span> <span class="fl">0.165</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.6571</span> <span class="op">*</span> <span class="op">(</span><span class="va">totchol_greater_280</span> <span class="op">-</span> <span class="fl">0.057</span><span class="op">)</span> <span class="op">+</span></span>
@@ -1278,17 +1282,17 @@ tables.</p>
 <p>Once we have defined the needed parameters of the model we can create
 the model as follows.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">male_model</span> <span class="op">&lt;-</span> <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/mv_model_cox.html">mv_model_cox</a></span><span class="op">(</span></span>
-<span>  formula <span class="op">=</span> <span class="va">males_formula</span>,</span>
+<code class="sourceCode R"><span><span class="va">men_model</span> <span class="op">&lt;-</span> <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/mv_model_cox.html">mv_model_cox</a></span><span class="op">(</span></span>
+<span>  formula <span class="op">=</span> <span class="va">men_formula</span>,</span>
 <span>  S0 <span class="op">=</span> <span class="fl">0.9002</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level5">
-<h5 id="females">Females<a class="anchor" aria-label="anchor" href="#females"></a>
+<h5 id="women">Women<a class="anchor" aria-label="anchor" href="#women"></a>
 </h5>
-<p>For females we can reproduce what we have already done for males.</p>
+<p>For women we can reproduce what we have already done for men.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">females_formula</span> <span class="op">&lt;-</span> <span class="va">anychd_surv</span> <span class="op">~</span> <span class="fl">0.3377</span> <span class="op">*</span> <span class="op">(</span><span class="va">age</span> <span class="op">-</span> <span class="fl">49.6</span><span class="op">)</span> <span class="op">-</span></span>
+<code class="sourceCode R"><span><span class="va">women_formula</span> <span class="op">&lt;-</span> <span class="va">anychd_surv</span> <span class="op">~</span> <span class="fl">0.3377</span> <span class="op">*</span> <span class="op">(</span><span class="va">age</span> <span class="op">-</span> <span class="fl">49.6</span><span class="op">)</span> <span class="op">-</span></span>
 <span>  <span class="fl">0.0027</span> <span class="op">*</span> <span class="op">(</span><span class="va">age2</span> <span class="op">-</span> <span class="fl">2604.5</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.5963</span> <span class="op">*</span> <span class="op">(</span><span class="va">diabetes</span> <span class="op">-</span> <span class="fl">0.038</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fl">0.2925</span> <span class="op">*</span> <span class="op">(</span><span class="va">cursmoke</span> <span class="op">-</span> <span class="fl">0.378</span><span class="op">)</span> <span class="op">+</span> <span class="op">-</span><span class="fl">0.2614</span> <span class="op">*</span> <span class="op">(</span><span class="va">totchol_less_160</span> <span class="op">-</span> <span class="fl">0.079</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fl">0.2077</span> <span class="op">*</span> <span class="op">(</span><span class="va">totchol_200_239</span> <span class="op">-</span> <span class="fl">0.327</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.2439</span> <span class="op">*</span> <span class="op">(</span><span class="va">totchol_240_279</span> <span class="op">-</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">+</span></span>
@@ -1297,12 +1301,11 @@ the model as follows.</p>
 <span>  <span class="fl">0.4295</span> <span class="op">*</span> <span class="op">(</span><span class="va">hdl_greater_60</span> <span class="op">-</span> <span class="fl">0.407</span><span class="op">)</span> <span class="op">-</span> <span class="fl">0.5336</span> <span class="op">*</span> <span class="op">(</span><span class="va">bp_optimal</span> <span class="op">-</span> <span class="fl">0.348</span><span class="op">)</span> <span class="op">-</span></span>
 <span>  <span class="fl">0.0677</span> <span class="op">*</span> <span class="op">(</span><span class="va">bp_high_normal</span> <span class="op">-</span> <span class="fl">0.15</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.2629</span> <span class="op">*</span> <span class="op">(</span><span class="va">bp_hypertension_i</span> <span class="op">-</span> <span class="fl">0.186</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fl">0.4657</span> <span class="op">*</span> <span class="op">(</span><span class="va">bp_hypertension_ii_iv</span> <span class="op">-</span> <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
-<p>From the previous parameters we generate the
-<code>female_model</code> to externally validate the Framingham female
-model.</p>
+<p>From the previous parameters we generate the <code>women_model</code>
+to externally validate the Framingham women model.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">female_model</span> <span class="op">&lt;-</span> <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/mv_model_cox.html">mv_model_cox</a></span><span class="op">(</span></span>
-<span>  formula <span class="op">=</span> <span class="va">females_formula</span>,</span>
+<code class="sourceCode R"><span><span class="va">women_model</span> <span class="op">&lt;-</span> <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/mv_model_cox.html">mv_model_cox</a></span><span class="op">(</span></span>
+<span>  formula <span class="op">=</span> <span class="va">women_formula</span>,</span>
 <span>  S0 <span class="op">=</span> <span class="fl">0.9625</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -1328,11 +1331,11 @@ validation results are started by <code>get_</code>.</p>
 <h3 id="calculate-the-predictions">Calculate the predictions<a class="anchor" aria-label="anchor" href="#calculate-the-predictions"></a>
 </h3>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">male_model</span> <span class="op">&lt;-</span> <span class="va">male_model</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/calculate_predictions.html">calculate_predictions</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">male_fram_long</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">men_model</span> <span class="op">&lt;-</span> <span class="va">men_model</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/calculate_predictions.html">calculate_predictions</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">men_fram_long</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">female_model</span> <span class="op">&lt;-</span> <span class="va">female_model</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/calculate_predictions.html">calculate_predictions</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">female_fram_long</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">women_model</span> <span class="op">&lt;-</span> <span class="va">women_model</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/calculate_predictions.html">calculate_predictions</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">women_fram_long</span><span class="op">)</span></span></code></pre></div>
 <p>As a result inside the model there are generated two tables
 <code>predictions_data</code> and <code>predictions_aggregated</code>.
 In the next table there are shown the first rows of the
@@ -1364,7 +1367,7 @@ id
 </tr>
 <tr>
 <td style="text-align:right;">
-0.202
+0.128
 </td>
 <td style="text-align:right;">
 1
@@ -1375,7 +1378,7 @@ id
 </tr>
 <tr>
 <td style="text-align:right;">
-0.097
+0.239
 </td>
 <td style="text-align:right;">
 1
@@ -1386,7 +1389,7 @@ id
 </tr>
 <tr>
 <td style="text-align:right;">
-0.085
+0.128
 </td>
 <td style="text-align:right;">
 1
@@ -1397,7 +1400,7 @@ id
 </tr>
 <tr>
 <td style="text-align:right;">
-0.140
+0.217
 </td>
 <td style="text-align:right;">
 1
@@ -1408,7 +1411,7 @@ id
 </tr>
 <tr>
 <td style="text-align:right;">
-0.123
+0.154
 </td>
 <td style="text-align:right;">
 1
@@ -1437,7 +1440,7 @@ prediction
 2448
 </td>
 <td style="text-align:right;">
-0.051
+0.044
 </td>
 </tr>
 <tr>
@@ -1445,7 +1448,7 @@ prediction
 9428
 </td>
 <td style="text-align:right;">
-0.138
+0.155
 </td>
 </tr>
 <tr>
@@ -1453,7 +1456,7 @@ prediction
 14367
 </td>
 <td style="text-align:right;">
-0.156
+0.192
 </td>
 </tr>
 <tr>
@@ -1461,7 +1464,7 @@ prediction
 16365
 </td>
 <td style="text-align:right;">
-0.130
+0.169
 </td>
 </tr>
 <tr>
@@ -1469,7 +1472,7 @@ prediction
 20375
 </td>
 <td style="text-align:right;">
-0.179
+0.207
 </td>
 </tr>
 <tr>
@@ -1477,7 +1480,7 @@ prediction
 33077
 </td>
 <td style="text-align:right;">
-0.127
+0.154
 </td>
 </tr>
 </tbody>
@@ -1494,118 +1497,315 @@ calibration ability by generating calibration plots.</p>
 <div class="section level4">
 <h4 id="calculating-c-index">Calculating C-Index<a class="anchor" aria-label="anchor" href="#calculating-c-index"></a>
 </h4>
-<div class="section level5">
-<h5 id="c-index-in-males">C-Index in Males<a class="anchor" aria-label="anchor" href="#c-index-in-males"></a>
-</h5>
+<p>To calculate the Harrell C-Index the package provides the function
+<code>calculate_c_index</code>. This function requires that the model
+predictions are calculated.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">male_model</span> <span class="op">&lt;-</span> <span class="va">male_model</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/calculate_c_index.html">calculate_c_index</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">male_fram_long</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level5">
-<h5 id="c-index-in-females">C-Index in Females<a class="anchor" aria-label="anchor" href="#c-index-in-females"></a>
-</h5>
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">model</span> <span class="op">|&gt;</span> <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/calculate_c_index.html">calculate_c_index</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">data</span><span class="op">)</span></span></code></pre></div>
+<p>In our case we can calculate the C-Index as follows obtaining the
+results show in <span class="citation">(<strong>tbl-c-index?</strong>)</span>.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">female_model</span> <span class="op">&lt;-</span> <span class="va">female_model</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/calculate_c_index.html">calculate_c_index</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">female_fram_long</span><span class="op">)</span></span></code></pre></div>
-</div>
+<code class="sourceCode R"><span><span class="va">men_model</span> <span class="op">&lt;-</span> <span class="va">men_model</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/calculate_c_index.html">calculate_c_index</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">men_fram_long</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">women_model</span> <span class="op">&lt;-</span> <span class="va">women_model</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/calculate_c_index.html">calculate_c_index</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">women_fram_long</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">men_model</span><span class="op">[[</span><span class="st">"c_index"</span><span class="op">]</span><span class="op">]</span>, <span class="va">women_model</span><span class="op">[[</span><span class="st">"c_index"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/add_column.html" class="external-link">add_column</a></span><span class="op">(</span>Model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Men"</span>, <span class="st">"Women"</span><span class="op">)</span>, .before <span class="op">=</span> <span class="st">"Estimate"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">kableExtra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kbl.html" class="external-link">kbl</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr>
+<th style="text-align:left;">
+Model
+</th>
+<th style="text-align:right;">
+Estimate
+</th>
+<th style="text-align:right;">
+95% CI L
+</th>
+<th style="text-align:right;">
+95% CI U
+</th>
+<th style="text-align:right;">
+P-val
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Men
+</td>
+<td style="text-align:right;">
+0.684
+</td>
+<td style="text-align:right;">
+0.651
+</td>
+<td style="text-align:right;">
+0.717
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Women
+</td>
+<td style="text-align:right;">
+0.713
+</td>
+<td style="text-align:right;">
+0.689
+</td>
+<td style="text-align:right;">
+0.737
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+</tbody>
+</table>
+<p>In this article we also show how to recalibrate the model with the
+two techniques provided in the package. This recalibration of the
+predictions does not modify the value of the C-Index because all the
+predictions are modified using the same parameters of recalibration. As
+all the variable are modified equally the order of the predictions are
+not modified and therefore the C-Index remains unchanged.</p>
 </div>
 <div class="section level4">
 <h4 id="calculating-calibration-plot">Calculating Calibration Plot<a class="anchor" aria-label="anchor" href="#calculating-calibration-plot"></a>
 </h4>
-<div class="section level5">
-<h5 id="calibration-plot-males">Calibration Plot Males<a class="anchor" aria-label="anchor" href="#calibration-plot-males"></a>
-</h5>
+<p>To calculate the calibration plots it is mandatory to have calculated
+before the model predictions or they recalibration if needed. The
+package provides the user with two functions that allow them to generate
+the calibration plots. The <code>get_calibration_plot_data</code> and
+the <code>get_calibration_plot</code> functions. The following code
+snippet shows how to calculate a calibration plot with the package.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">male_model</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">model</span> <span class="op">|&gt;</span></span>
+<span>  <span class="co"># only if needed</span></span>
+<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/calculate_predictions.html">calculate_predictions</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot_data.html">get_calibration_plot_data</a></span><span class="op">(</span></span>
 <span>    model <span class="op">=</span> <span class="va">_</span>,</span>
-<span>    data <span class="op">=</span> <span class="va">male_fram_long</span>,</span>
+<span>    data <span class="op">=</span> <span class="va">data</span>,</span>
 <span>    n_groups <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>    type <span class="op">=</span> <span class="st">"predictions_aggregated"</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot.html">get_calibration_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">_</span><span class="op">)</span></span></code></pre></div>
-<p><img src="get-started_files/figure-html/unnamed-chunk-17-1.png" alt="Calibration plot for males
-" width="700"></p>
-</div>
-<div class="section level5">
-<h5 id="calibration-plot-females">Calibration Plot Females<a class="anchor" aria-label="anchor" href="#calibration-plot-females"></a>
-</h5>
+<p>By using these functions we are able to generate the calibration
+plots shown in <span class="citation">(<strong>fig-framingham-cal-plot?</strong>)</span> as
+described in the following code snippet.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">female_model</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">men_model</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot_data.html">get_calibration_plot_data</a></span><span class="op">(</span></span>
 <span>    model <span class="op">=</span> <span class="va">_</span>,</span>
-<span>    data <span class="op">=</span> <span class="va">female_fram_long</span>,</span>
+<span>    data <span class="op">=</span> <span class="va">men_fram_long</span>,</span>
+<span>    n_groups <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>    type <span class="op">=</span> <span class="st">"predictions_aggregated"</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot.html">get_calibration_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">_</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">women_model</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot_data.html">get_calibration_plot_data</a></span><span class="op">(</span></span>
+<span>    model <span class="op">=</span> <span class="va">_</span>,</span>
+<span>    data <span class="op">=</span> <span class="va">women_fram_long</span>,</span>
 <span>    n_groups <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>    type <span class="op">=</span> <span class="st">"predictions_aggregated"</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot.html">get_calibration_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">_</span><span class="op">)</span></span></code></pre></div>
-<p><img src="get-started_files/figure-html/unnamed-chunk-18-1.png" alt="Calibration plot for females
-" width="700"></p>
+<div class="figure">
+<img src="get-started_files/figure-html/fig-framingham-cal-plot-1.png" alt="Calibration plot for original predictions in men and women
+" width="700"><img src="get-started_files/figure-html/fig-framingham-cal-plot-2.png" alt="Calibration plot for original predictions in men and women
+" width="700"><p class="caption">
+Framingham original predictions calibration plots
+</p>
 </div>
+<p>The calibration plots are a <code>ggplot</code> object and they can
+be modified as any other plot of the <code>ggplot2</code> package. Feel
+free to modify them to match your requirements.</p>
 </div>
 </div>
 <div class="section level3">
 <h3 id="recalibration">Recalibration<a class="anchor" aria-label="anchor" href="#recalibration"></a>
 </h3>
+<p>When we are validating a model in an external cohort is common that
+the model predictions do not match the observed risks in the new cohort.
+To minimize this problem we have developed two functions that allow the
+users to recalibrate the model predictions (please refer to
+<code>calculate_predictions_recalibrated_type_1</code> and
+<code>calculate_predictions_recalibrated_type_2</code> documentation for
+more detailed information on how the recalibration works).</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">male_model</span> <span class="op">&lt;-</span> <span class="va">male_model</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">men_model</span> <span class="op">&lt;-</span> <span class="va">men_model</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/calculate_predictions_recalibrated_type_1.html">calculate_predictions_recalibrated_type_1</a></span><span class="op">(</span></span>
-<span>    model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">male_fram_long</span></span>
+<span>    model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">men_fram_long</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/calculate_predictions_recalibrated_type_2.html">calculate_predictions_recalibrated_type_2</a></span><span class="op">(</span></span>
-<span>    model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">male_fram_long</span></span>
+<span>    model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">men_fram_long</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
-<span><span class="va">male_model</span> <span class="op">|&gt;</span></span>
+<span><span class="va">men_model</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot_data.html">get_calibration_plot_data</a></span><span class="op">(</span></span>
 <span>    model <span class="op">=</span> <span class="va">_</span>,</span>
-<span>    data <span class="op">=</span> <span class="va">male_fram_long</span>,</span>
+<span>    data <span class="op">=</span> <span class="va">men_fram_long</span>,</span>
 <span>    n_groups <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>    type <span class="op">=</span> <span class="st">"predictions_recal_type_1"</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot.html">get_calibration_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">_</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">men_model</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot_data.html">get_calibration_plot_data</a></span><span class="op">(</span></span>
+<span>    model <span class="op">=</span> <span class="va">_</span>,</span>
+<span>    data <span class="op">=</span> <span class="va">men_fram_long</span>,</span>
+<span>    n_groups <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>    type <span class="op">=</span> <span class="st">"predictions_recal_type_2"</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot.html">get_calibration_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">_</span><span class="op">)</span></span></code></pre></div>
-<p><img src="get-started_files/figure-html/unnamed-chunk-19-1.png" alt="Type 1 calibration plot for males
-" width="700"></p>
+<div class="figure">
+<img src="get-started_files/figure-html/fig-framingham-cal-plot-recal-men-1.png" alt="Type 1 and type 2 calibration plots for men
+" width="700"><img src="get-started_files/figure-html/fig-framingham-cal-plot-recal-men-2.png" alt="Type 1 and type 2 calibration plots for men
+" width="700"><p class="caption">
+Framingham recalibrated calibration plots in men
+</p>
+</div>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">male_model</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot_data.html">get_calibration_plot_data</a></span><span class="op">(</span></span>
-<span>    model <span class="op">=</span> <span class="va">_</span>,</span>
-<span>    data <span class="op">=</span> <span class="va">male_fram_long</span>,</span>
-<span>    n_groups <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>    type <span class="op">=</span> <span class="st">"predictions_recal_type_2"</span></span>
-<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot.html">get_calibration_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">_</span><span class="op">)</span></span></code></pre></div>
-<p><img src="get-started_files/figure-html/unnamed-chunk-20-1.png" alt="Type 2 calibration plot for males
-" width="700"></p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">female_model</span> <span class="op">&lt;-</span> <span class="va">female_model</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">women_model</span> <span class="op">&lt;-</span> <span class="va">women_model</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/calculate_predictions_recalibrated_type_1.html">calculate_predictions_recalibrated_type_1</a></span><span class="op">(</span></span>
-<span>    model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">female_fram_long</span></span>
+<span>    model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">women_fram_long</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/calculate_predictions_recalibrated_type_2.html">calculate_predictions_recalibrated_type_2</a></span><span class="op">(</span></span>
-<span>    model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">female_fram_long</span></span>
+<span>    model <span class="op">=</span> <span class="va">_</span>, data <span class="op">=</span> <span class="va">women_fram_long</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
-<span><span class="va">female_model</span> <span class="op">|&gt;</span></span>
+<span><span class="va">women_model</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot_data.html">get_calibration_plot_data</a></span><span class="op">(</span></span>
 <span>    model <span class="op">=</span> <span class="va">_</span>,</span>
-<span>    data <span class="op">=</span> <span class="va">female_fram_long</span>,</span>
+<span>    data <span class="op">=</span> <span class="va">women_fram_long</span>,</span>
 <span>    n_groups <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>    type <span class="op">=</span> <span class="st">"predictions_recal_type_1"</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot.html">get_calibration_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">_</span><span class="op">)</span></span></code></pre></div>
-<p><img src="get-started_files/figure-html/unnamed-chunk-21-1.png" alt="Type 1 calibration plot for females" width="700"></p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">female_model</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot.html">get_calibration_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">_</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">women_model</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot_data.html">get_calibration_plot_data</a></span><span class="op">(</span></span>
 <span>    model <span class="op">=</span> <span class="va">_</span>,</span>
-<span>    data <span class="op">=</span> <span class="va">female_fram_long</span>,</span>
+<span>    data <span class="op">=</span> <span class="va">women_fram_long</span>,</span>
 <span>    n_groups <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>    type <span class="op">=</span> <span class="st">"predictions_recal_type_2"</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_calibration_plot.html">get_calibration_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">_</span><span class="op">)</span></span></code></pre></div>
-<p><img src="get-started_files/figure-html/unnamed-chunk-22-1.png" alt="Type 2 calibration plot for females
-" width="700"></p>
+<div class="figure">
+<img src="get-started_files/figure-html/fig-framingham-cal-plot-recal-women-1.png" alt="Type 1 and type 2 calibration plots for women
+" width="700"><img src="get-started_files/figure-html/fig-framingham-cal-plot-recal-women-2.png" alt="Type 1 and type 2 calibration plots for women
+" width="700"><p class="caption">
+Framingham recalibrated calibration plots in women
+</p>
+</div>
+<p>Type 1 and type 2 recalibration are not consecutive, they are just
+two different approaches for the same problem. As show in <span class="citation">(<strong>fig-framingham-cal-plot-recal-men?</strong>;
+<strong>fig-framingham-cal-plot-recal-women?</strong>)</span> they
+obtain similar results.</p>
+</div>
+<div class="section level3">
+<h3 id="comparing-results">Comparing results<a class="anchor" aria-label="anchor" href="#comparing-results"></a>
+</h3>
+<p>External validations are generally performed to obtain comparable
+results between different models. To accomplish this objective the model
+supplies two functions that allow to represent results of different
+models in the same plot, <code>get_stratified_calibration_plot</code>
+and <code>get_forestplot</code></p>
+<div class="section level4">
+<h4 id="stratified-calibration-plot">Stratified Calibration Plot<a class="anchor" aria-label="anchor" href="#stratified-calibration-plot"></a>
+</h4>
+<p>In order to compare two models calibration plots we have developed
+the function <code>get_stratified_calibration_plot</code> that allow the
+user to plot stratified calibration plots. In our case it could be
+interesting to plot men and women calibrations in the same plot, as
+shown in <span class="citation">(<strong>fig-stratified-cal-plot?</strong>)</span>.</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_stratified_calibration_plot.html">get_stratified_calibration_plot</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">fram_long</span>,</span>
+<span>  n_groups <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"predictions_aggregated"</span>,</span>
+<span>  Men <span class="op">=</span> <span class="va">men_model</span>,</span>
+<span>  Women <span class="op">=</span> <span class="va">women_model</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_stratified_calibration_plot.html">get_stratified_calibration_plot</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">fram_long</span>,</span>
+<span>  n_groups <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"predictions_recal_type_1"</span>,</span>
+<span>  Men <span class="op">=</span> <span class="va">men_model</span>,</span>
+<span>  Women <span class="op">=</span> <span class="va">women_model</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_stratified_calibration_plot.html">get_stratified_calibration_plot</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">fram_long</span>,</span>
+<span>  n_groups <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"predictions_recal_type_2"</span>,</span>
+<span>  Men <span class="op">=</span> <span class="va">men_model</span>,</span>
+<span>  Women <span class="op">=</span> <span class="va">women_model</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="get-started_files/figure-html/fig-stratified-cal-plot-1.png" alt="Stratified calibration plot
+" width="700"><img src="get-started_files/figure-html/fig-stratified-cal-plot-2.png" alt="Stratified calibration plot
+" width="700"><img src="get-started_files/figure-html/fig-stratified-cal-plot-3.png" alt="Stratified calibration plot
+" width="700"><p class="caption">
+Framingham stratified by sex calibration plots
+</p>
+</div>
+</div>
+<div class="section level4">
+<h4 id="forestplot">Forestplot<a class="anchor" aria-label="anchor" href="#forestplot"></a>
+</h4>
+<p>The discrimination performance can be visualize as a foresplot. We
+have developed two functions that allow the users to generate foresplots
+where there can be visualized the model performance, see <span class="citation">(<strong>fig-forestplot-stratified?</strong>;
+<strong>fig-forestplot-non-stratified?</strong>)</span>.</p>
+<p>To generate different strats we need to bind the outcomes of
+<code>get_forestplot_data</code> as many times as strats are needed in
+the forestplot. The names of the models must be the same in all the
+strats to be merged together. In this case we generate two strats with
+only one model in each of them but it is possible to add as many models
+as needed.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
+<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_forestplot_data.html">get_forestplot_data</a></span><span class="op">(</span>strat <span class="op">=</span> <span class="st">"Men"</span>, Framingham <span class="op">=</span> <span class="va">men_model</span><span class="op">)</span>,</span>
+<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_forestplot_data.html">get_forestplot_data</a></span><span class="op">(</span>strat <span class="op">=</span> <span class="st">"Women"</span>, Framingham <span class="op">=</span> <span class="va">women_model</span><span class="op">)</span></span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_forestplot.html">get_forestplot</a></span><span class="op">(</span>center <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">xlim</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.6</span>, <span class="fl">0.75</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="get-started_files/figure-html/fig-forestplot-stratified-1.png" alt="C-Indexes forestplot stratified
+" width="700"><p class="caption">
+Forestplot stratified
+</p>
+</div>
+<p>If we want to generate a forestplot with multiple models in one strat
+we can generate it as the following example. In this example men and
+women models are inserted in the <code>Overall</code> strat as
+individual models. We have deleted the legend as it is not
+informative.</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_forestplot_data.html">get_forestplot_data</a></span><span class="op">(</span></span>
+<span>  strat <span class="op">=</span> <span class="st">"Overall"</span>,</span>
+<span>  `Framingham Women` <span class="op">=</span> <span class="va">women_model</span>,</span>
+<span>  `Framingham Men` <span class="op">=</span> <span class="va">men_model</span></span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">MiceExtVal</span><span class="fu">::</span><span class="fu"><a href="../reference/get_forestplot.html">get_forestplot</a></span><span class="op">(</span>center <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/lims.html" class="external-link">xlim</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.6</span>, <span class="fl">0.75</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="figure">
+<img src="get-started_files/figure-html/fig-forestplot-non-stratified-1.png" alt="C-Index forestplot with two models
+" width="700"><p class="caption">
+Forestplot non-stratified
+</p>
+</div>
+</div>
 </div>
 <div class="section level3">
 <h3 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
