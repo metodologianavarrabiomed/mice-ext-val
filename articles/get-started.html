@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">MiceExtVal</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/metodologianavarrabiomed/mice-ext-val/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
@@ -66,7 +67,7 @@
       <p class="author">Asier Ballesteros Domínguez</p>
 
 
-
+      <small class="dont-index">Source: <a href="https://github.com/metodologianavarrabiomed/mice-ext-val/blob/master/vignettes/get-started.qmd" class="external-link"><code>vignettes/get-started.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -80,7 +81,7 @@
 <p>The following code snippet lists all the libraries needed to run this report.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">MiceExtVal</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://metodologianavarrabiomed.github.io/mice-ext-val">MiceExtVal</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># tidyverse packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
@@ -112,23 +113,23 @@
 Table 1: Summary table of the Framingham dataset
 </figcaption><div aria-describedby="tbl-summary-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="yjicbgjeei" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#yjicbgjeei table {
+<div id="crhqexyfsx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#crhqexyfsx table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#yjicbgjeei thead, #yjicbgjeei tbody, #yjicbgjeei tfoot, #yjicbgjeei tr, #yjicbgjeei td, #yjicbgjeei th {
+#crhqexyfsx thead, #crhqexyfsx tbody, #crhqexyfsx tfoot, #crhqexyfsx tr, #crhqexyfsx td, #crhqexyfsx th {
   border-style: none;
 }
 
-#yjicbgjeei p {
+#crhqexyfsx p {
   margin: 0;
   padding: 0;
 }
 
-#yjicbgjeei .gt_table {
+#crhqexyfsx .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -154,12 +155,12 @@ Table 1: Summary table of the Framingham dataset
   border-left-color: #D3D3D3;
 }
 
-#yjicbgjeei .gt_caption {
+#crhqexyfsx .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#yjicbgjeei .gt_title {
+#crhqexyfsx .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -171,7 +172,7 @@ Table 1: Summary table of the Framingham dataset
   border-bottom-width: 0;
 }
 
-#yjicbgjeei .gt_subtitle {
+#crhqexyfsx .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -183,7 +184,7 @@ Table 1: Summary table of the Framingham dataset
   border-top-width: 0;
 }
 
-#yjicbgjeei .gt_heading {
+#crhqexyfsx .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -195,13 +196,13 @@ Table 1: Summary table of the Framingham dataset
   border-right-color: #D3D3D3;
 }
 
-#yjicbgjeei .gt_bottom_border {
+#crhqexyfsx .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#yjicbgjeei .gt_col_headings {
+#crhqexyfsx .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -216,7 +217,7 @@ Table 1: Summary table of the Framingham dataset
   border-right-color: #D3D3D3;
 }
 
-#yjicbgjeei .gt_col_heading {
+#crhqexyfsx .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -236,7 +237,7 @@ Table 1: Summary table of the Framingham dataset
   overflow-x: hidden;
 }
 
-#yjicbgjeei .gt_column_spanner_outer {
+#crhqexyfsx .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -248,15 +249,15 @@ Table 1: Summary table of the Framingham dataset
   padding-right: 4px;
 }
 
-#yjicbgjeei .gt_column_spanner_outer:first-child {
+#crhqexyfsx .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#yjicbgjeei .gt_column_spanner_outer:last-child {
+#crhqexyfsx .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#yjicbgjeei .gt_column_spanner {
+#crhqexyfsx .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -268,11 +269,11 @@ Table 1: Summary table of the Framingham dataset
   width: 100%;
 }
 
-#yjicbgjeei .gt_spanner_row {
+#crhqexyfsx .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#yjicbgjeei .gt_group_heading {
+#crhqexyfsx .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -298,7 +299,7 @@ Table 1: Summary table of the Framingham dataset
   text-align: left;
 }
 
-#yjicbgjeei .gt_empty_group_heading {
+#crhqexyfsx .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -313,15 +314,15 @@ Table 1: Summary table of the Framingham dataset
   vertical-align: middle;
 }
 
-#yjicbgjeei .gt_from_md > :first-child {
+#crhqexyfsx .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#yjicbgjeei .gt_from_md > :last-child {
+#crhqexyfsx .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#yjicbgjeei .gt_row {
+#crhqexyfsx .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -340,7 +341,7 @@ Table 1: Summary table of the Framingham dataset
   overflow-x: hidden;
 }
 
-#yjicbgjeei .gt_stub {
+#crhqexyfsx .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -353,7 +354,7 @@ Table 1: Summary table of the Framingham dataset
   padding-right: 5px;
 }
 
-#yjicbgjeei .gt_stub_row_group {
+#crhqexyfsx .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -367,15 +368,15 @@ Table 1: Summary table of the Framingham dataset
   vertical-align: top;
 }
 
-#yjicbgjeei .gt_row_group_first td {
+#crhqexyfsx .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#yjicbgjeei .gt_row_group_first th {
+#crhqexyfsx .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#yjicbgjeei .gt_summary_row {
+#crhqexyfsx .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -385,16 +386,16 @@ Table 1: Summary table of the Framingham dataset
   padding-right: 5px;
 }
 
-#yjicbgjeei .gt_first_summary_row {
+#crhqexyfsx .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#yjicbgjeei .gt_first_summary_row.thick {
+#crhqexyfsx .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#yjicbgjeei .gt_last_summary_row {
+#crhqexyfsx .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -404,7 +405,7 @@ Table 1: Summary table of the Framingham dataset
   border-bottom-color: #D3D3D3;
 }
 
-#yjicbgjeei .gt_grand_summary_row {
+#crhqexyfsx .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -414,7 +415,7 @@ Table 1: Summary table of the Framingham dataset
   padding-right: 5px;
 }
 
-#yjicbgjeei .gt_first_grand_summary_row {
+#crhqexyfsx .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -424,7 +425,7 @@ Table 1: Summary table of the Framingham dataset
   border-top-color: #D3D3D3;
 }
 
-#yjicbgjeei .gt_last_grand_summary_row_top {
+#crhqexyfsx .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -434,11 +435,11 @@ Table 1: Summary table of the Framingham dataset
   border-bottom-color: #D3D3D3;
 }
 
-#yjicbgjeei .gt_striped {
+#crhqexyfsx .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#yjicbgjeei .gt_table_body {
+#crhqexyfsx .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -447,7 +448,7 @@ Table 1: Summary table of the Framingham dataset
   border-bottom-color: #D3D3D3;
 }
 
-#yjicbgjeei .gt_footnotes {
+#crhqexyfsx .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -461,7 +462,7 @@ Table 1: Summary table of the Framingham dataset
   border-right-color: #D3D3D3;
 }
 
-#yjicbgjeei .gt_footnote {
+#crhqexyfsx .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -470,7 +471,7 @@ Table 1: Summary table of the Framingham dataset
   padding-right: 5px;
 }
 
-#yjicbgjeei .gt_sourcenotes {
+#crhqexyfsx .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -484,7 +485,7 @@ Table 1: Summary table of the Framingham dataset
   border-right-color: #D3D3D3;
 }
 
-#yjicbgjeei .gt_sourcenote {
+#crhqexyfsx .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -492,72 +493,72 @@ Table 1: Summary table of the Framingham dataset
   padding-right: 5px;
 }
 
-#yjicbgjeei .gt_left {
+#crhqexyfsx .gt_left {
   text-align: left;
 }
 
-#yjicbgjeei .gt_center {
+#crhqexyfsx .gt_center {
   text-align: center;
 }
 
-#yjicbgjeei .gt_right {
+#crhqexyfsx .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#yjicbgjeei .gt_font_normal {
+#crhqexyfsx .gt_font_normal {
   font-weight: normal;
 }
 
-#yjicbgjeei .gt_font_bold {
+#crhqexyfsx .gt_font_bold {
   font-weight: bold;
 }
 
-#yjicbgjeei .gt_font_italic {
+#crhqexyfsx .gt_font_italic {
   font-style: italic;
 }
 
-#yjicbgjeei .gt_super {
+#crhqexyfsx .gt_super {
   font-size: 65%;
 }
 
-#yjicbgjeei .gt_footnote_marks {
+#crhqexyfsx .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#yjicbgjeei .gt_asterisk {
+#crhqexyfsx .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#yjicbgjeei .gt_indent_1 {
+#crhqexyfsx .gt_indent_1 {
   text-indent: 5px;
 }
 
-#yjicbgjeei .gt_indent_2 {
+#crhqexyfsx .gt_indent_2 {
   text-indent: 10px;
 }
 
-#yjicbgjeei .gt_indent_3 {
+#crhqexyfsx .gt_indent_3 {
   text-indent: 15px;
 }
 
-#yjicbgjeei .gt_indent_4 {
+#crhqexyfsx .gt_indent_4 {
   text-indent: 20px;
 }
 
-#yjicbgjeei .gt_indent_5 {
+#crhqexyfsx .gt_indent_5 {
   text-indent: 25px;
 }
 
-#yjicbgjeei .katex-display {
+#crhqexyfsx .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#yjicbgjeei div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#crhqexyfsx div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1162,7 +1163,7 @@ Table 4: Example of <code>predictions_data</code>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;">0.030</td>
+<td style="text-align: right;">0.051</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">2448</td>
 </tr>
@@ -1172,7 +1173,7 @@ Table 4: Example of <code>predictions_data</code>
 <td style="text-align: left;">9428</td>
 </tr>
 <tr class="odd">
-<td style="text-align: right;">0.097</td>
+<td style="text-align: right;">0.153</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">14367</td>
 </tr>
@@ -1182,12 +1183,12 @@ Table 4: Example of <code>predictions_data</code>
 <td style="text-align: left;">16365</td>
 </tr>
 <tr class="odd">
-<td style="text-align: right;">0.140</td>
+<td style="text-align: right;">0.268</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">20375</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">0.194</td>
+<td style="text-align: right;">0.154</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">33077</td>
 </tr>
@@ -1213,27 +1214,27 @@ Table 5: Example of <code>predictions_aggregated</code>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">2448</td>
-<td style="text-align: right;">0.040</td>
+<td style="text-align: right;">0.046</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">9428</td>
-<td style="text-align: right;">0.170</td>
+<td style="text-align: right;">0.138</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">14367</td>
-<td style="text-align: right;">0.167</td>
+<td style="text-align: right;">0.156</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">16365</td>
-<td style="text-align: right;">0.154</td>
+<td style="text-align: right;">0.155</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">20375</td>
-<td style="text-align: right;">0.220</td>
+<td style="text-align: right;">0.229</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">33077</td>
-<td style="text-align: right;">0.133</td>
+<td style="text-align: right;">0.134</td>
 </tr>
 </tbody>
 </table>
@@ -1280,16 +1281,16 @@ Table 6: C-Index results
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Men</td>
-<td style="text-align: right;">0.685</td>
-<td style="text-align: right;">0.655</td>
-<td style="text-align: right;">0.714</td>
+<td style="text-align: right;">0.682</td>
+<td style="text-align: right;">0.654</td>
+<td style="text-align: right;">0.711</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Women</td>
 <td style="text-align: right;">0.709</td>
-<td style="text-align: right;">0.683</td>
-<td style="text-align: right;">0.734</td>
+<td style="text-align: right;">0.686</td>
+<td style="text-align: right;">0.732</td>
 <td style="text-align: right;">0</td>
 </tr>
 </tbody>

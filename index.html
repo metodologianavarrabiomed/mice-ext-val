@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><script src="deps/MathJax-3.2.2/tex-chtml.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tools for external validation in Multiple Imputation by Chained Equations methodology">
-<meta name="description" content="This pacakge allows the user to externally validate Cox and Logistic Regression models from the data that are usually reported in the articles. The package is formed by functions that allow the user to recalibrate the models and also obtain the discrimination and calibration performance while working with multiple imputed data.">
-<meta property="og:description" content="This pacakge allows the user to externally validate Cox and Logistic Regression models from the data that are usually reported in the articles. The package is formed by functions that allow the user to recalibrate the models and also obtain the discrimination and calibration performance while working with multiple imputed data.">
+<meta name="description" content="This package allows the user to externally validate Cox and Logistic Regression models from the data that are usually reported in the articles. The package is formed by functions that allow the user to recalibrate the models and also obtain the discrimination and calibration performance while working with multiple imputed data.">
+<meta property="og:description" content="This package allows the user to externally validate Cox and Logistic Regression models from the data that are usually reported in the articles. The package is formed by functions that allow the user to recalibrate the models and also obtain the discrimination and calibration performance while working with multiple imputed data.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">MiceExtVal</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/metodologianavarrabiomed/mice-ext-val/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
@@ -95,7 +96,7 @@
 <p>The package functions are divided in three groups, the model definition functions starting with <code>mv_model</code>, the functions that calculate model results starting with <code>calculate_</code>, and the plot functions starting with <code>get_</code>. Through this example we have also assumed that the complete dataset is called <code>external_validation_data</code>.</p>
 <p>Firstly, we import the package. In R you can also access the variables without importing the package by putting the package as prefix like <code>MiceExtVal::function</code>. It is a good practice to use this second declaration to know to which package each function belongs.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">MiceExtVal</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://metodologianavarrabiomed.github.io/mice-ext-val">MiceExtVal</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="defining-a-model">Defining a model<a class="anchor" aria-label="anchor" href="#defining-a-model"></a>
 </h3>
@@ -223,7 +224,15 @@
 </div>
 </div>
 </div>
-  </main><aside class="col-md-3"><div class="license">
+  </main><aside class="col-md-3"><div class="links">
+<h2 data-toc-skip>Links</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/metodologianavarrabiomed/mice-ext-val/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/metodologianavarrabiomed/mice-ext-val/issues" class="external-link">Report a bug</a></li>
+</ul>
+</div>
+
+<div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
