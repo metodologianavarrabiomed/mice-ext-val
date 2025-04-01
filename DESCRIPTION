@@ -1,10 +1,12 @@
 Package: MiceExtVal
 Title: Tools for external validation in Multiple Imputation by Chained Equations methodology
-Version: 0.0.1
+Version: 0.0.1.1
 Authors@R: 
     person("Asier", "Ballesteros Domínguez", , "asier.ballesteros.dominguez@navarra.es", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-2195-4669"))
-Description: This pacakge allows the user to externally validate Cox and Logistic Regression models from the data that are usually reported in the articles. The package is formed by functions that allow the user to recalibrate the models and also obtain the discrimination and calibration performance while working with multiple imputed data.
+Description: This package allows the user to externally validate Cox and Logistic Regression models from the data that are usually reported in the articles. The package is formed by functions that allow the user to recalibrate the models and also obtain the discrimination and calibration performance while working with multiple imputed data.
+URL: https://metodologianavarrabiomed.github.io/mice-ext-val
+BugReports: https://github.com/metodologianavarrabiomed/mice-ext-val/issues
 License: CC BY 4.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
