@@ -79,7 +79,6 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
         event <- dependent_variable
       }
 
-
       recal_data <- tibble::tibble(
         y = event,
         betax = model$betax_data %>%
