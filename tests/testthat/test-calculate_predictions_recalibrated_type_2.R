@@ -118,7 +118,7 @@ test_that("Returns an error if `predictions_data` does not exist in logreg `mode
   expect_error(calculate_predictions_recalibrated_type_2(model_logreg_no_predictions_data, data), "In `model` there should be the argument `predictions_data` <tibble> calculated")
 })
 
-test_that("Returns an error if the dependent variable in the logreg model formula does not exist in `data` or is not a survival class", {
+test_that("Returns an error if the dependent variable in the logreg model formula does not exist in `data` or is not a proper class", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data)
@@ -129,6 +129,11 @@ test_that("Returns an error if the dependent variable in the logreg model formul
   expect_error(calculate_predictions_recalibrated_type_2(model_logreg_bad_dependent_variable, data), "The dependent variable `event_char` must be <Surv/numeric>")
   model_logreg_bad_dependent_variable$formula <- no_exists ~ x + z
   expect_error(calculate_predictions_recalibrated_type_2(model_logreg_bad_dependent_variable, data), "The dependent variable `no_exists` must be part of `data`")
+
+  data$y[[1]] <- 2
+  model_logreg_non_dichotomous <- model_logreg
+  model_logreg_non_dichotomous$formula <- y ~ x + z
+  expect_error(calculate_predictions_recalibrated_type_2(model_logreg_non_dichotomous, data), "The dependent variable `y` must be `dichotomous`")
 })
 
 test_that("Calculates the type 2 recalibrated predictions properly for logreg model with survival outcome", {
