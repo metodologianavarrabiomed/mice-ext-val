@@ -70,10 +70,18 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
       if (.progress) {
         cli::cli_progress_update(.envir = env)
       }
-      survival_data <- .x[[all.vars(model$formula)[1]]]
+
+      dependent_variable <- .x[[all.vars(model$formula)[1]]]
+
+      if (methods::is(dependent_variable, "Surv")) {
+        event <- dependent_variable[, "status"]
+      } else {
+        event <- dependent_variable
+      }
+
 
       recal_data <- tibble::tibble(
-        y = survival_data[, "status"],
+        y = event,
         betax = model$betax_data %>%
           dplyr::filter(.imp == .y$.imp) %>%
           dplyr::pull(betax)

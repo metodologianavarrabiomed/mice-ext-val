@@ -121,9 +121,11 @@ test_that("Returns an error if the dependent variable in the logreg model formul
   model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data)
 
+
   model_logreg_bad_dependent_variable <- model_logreg
-  model_logreg_bad_dependent_variable$formula <- y ~ x + z
-  expect_error(calculate_predictions_recalibrated_type_1(model_logreg_bad_dependent_variable, data), "The dependent variable `y` must be <Surv>")
+  data$event_char <- rep("a", length(data$y))
+  model_logreg_bad_dependent_variable$formula <- event_char ~ x + z
+  expect_error(calculate_predictions_recalibrated_type_1(model_logreg_bad_dependent_variable, data), "The dependent variable `event_char` must be <Surv/numeric>")
   model_logreg_bad_dependent_variable$formula <- no_exists ~ x + z
   expect_error(calculate_predictions_recalibrated_type_1(model_logreg_bad_dependent_variable, data), "The dependent variable `no_exists` must be part of `data`")
 })

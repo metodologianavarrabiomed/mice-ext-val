@@ -26,8 +26,16 @@ get_error_message_calculate_recalibrated <- function(model, data) {
   if (!dependent_variable %in% colnames(data)) {
     error_message <- c(error_message, "*" = cli::format_error("The dependent variable {.var {dependent_variable}} must be part of {.arg data}"))
   }
-  if (!methods::is(data[[dependent_variable]], "Surv")) {
+  # the dependent variable must be checked differently in each model
+  if (methods::is(model, "cox") & !methods::is(data[[dependent_variable]], "Surv")) {
     error_message <- c(error_message, "*" = cli::format_error("The dependent variable {.var {dependent_variable}} must be {.cls Surv}"))
+  }
+
+  if (
+    methods::is(model, "logreg") &
+      (!methods::is(data[[dependent_variable]], "Surv") & !methods::is(data[[dependent_variable]], "numeric"))
+  ) {
+    error_message <- c(error_message, "*" = cli::format_error("The dependent variable {.var {dependent_variable}} must be {.cls {c('Surv', 'numeric')}}"))
   }
 
   if (methods::is(model, "cox")) {
