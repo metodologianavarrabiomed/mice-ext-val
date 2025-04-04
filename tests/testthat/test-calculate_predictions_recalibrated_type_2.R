@@ -131,11 +131,35 @@ test_that("Returns an error if the dependent variable in the logreg model formul
   expect_error(calculate_predictions_recalibrated_type_2(model_logreg_bad_dependent_variable, data), "The dependent variable `no_exists` must be part of `data`")
 })
 
-test_that("Calculates the type 2 recalibrated predictions properly for logreg model", {
+test_that("Calculates the type 2 recalibrated predictions properly for logreg model with survival outcome", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_2(data)
+
+  expect_identical(
+    round_to_precision(model$predictions_recal_type_2),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "predictions_recal_type_2_logreg.rds")))
+  )
+  expect_identical(
+    round_to_precision(model$alpha_type_2),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "alpha_type_2_logreg.rds")))
+  )
+  expect_identical(
+    round_to_precision(model$beta_overall), round_to_precision(readRDS(test_path("fixtures", "logreg", "beta_overall_logreg.rds")))
+  )
+})
+
+test_that("Calculates the type 2 recalibrated predictions properly for logreg model with numeric outcome", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model <- make_logreg_model(environment()) |>
+    calculate_predictions(data)
+
+  model$formula <- y ~ 0.1 * x + 0.3 * z + 0.8
+
+  model <- model |>
+    calculate_predictions_recalibrated_type_2(data)
+
 
   expect_identical(
     round_to_precision(model$predictions_recal_type_2),
