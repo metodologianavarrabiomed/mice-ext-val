@@ -5,11 +5,11 @@ test_that("the forestplot is properly generated", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model_cox <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
-    calculate_c_index(data)
+    calculate_harrell_c_index(data)
 
   model_logreg <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
-    calculate_c_index(data)
+    calculate_harrell_c_index(data)
 
   plot <- get_forestplot_data(strat = "overall", model_cox, model_logreg) |>
     get_forestplot(center = 0.3)
@@ -21,11 +21,11 @@ test_that("checks variables in `data` argument", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model_cox <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
-    calculate_c_index(data)
+    calculate_harrell_c_index(data)
 
   model_logreg <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
-    calculate_c_index(data)
+    calculate_harrell_c_index(data)
 
   forest_data <- get_forestplot_data(strat = "overall", model_cox, model_logreg)
 
@@ -40,11 +40,11 @@ test_that("checks properly the class of the variables in `data`", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model_cox <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
-    calculate_c_index(data)
+    calculate_harrell_c_index(data)
 
   model_logreg <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
-    calculate_c_index(data)
+    calculate_harrell_c_index(data)
 
   forest_data <- get_forestplot_data(strat = "overall", model_cox, model_logreg)
 
