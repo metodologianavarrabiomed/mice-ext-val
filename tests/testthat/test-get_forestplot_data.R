@@ -19,7 +19,7 @@ test_that("returns an error if some model does not have the `c_index` calculated
   model_logreg <- make_cox_model(environment()) |>
     calculate_predictions(data)
 
-  expect_error(get_forestplot_data(strat = "overall", model_cox, model_logreg), "must contain the `c_index`, consider using")
+  expect_error(get_forestplot_data(strat = "overall", type = "c_index", model_cox, model_logreg), "must contain the `c_index`, consider using")
 })
 
 test_that("generates properly the forestplot data", {
@@ -32,5 +32,5 @@ test_that("generates properly the forestplot data", {
     calculate_predictions(data) |>
     calculate_harrell_c_index(data)
 
-  expect_s3_class(get_forestplot_data(strat = "overall", model_cox, model_logreg), "tbl_df")
+  expect_s3_class(get_forestplot_data(strat = "overall", type = "c_index", model_cox, model_logreg), "tbl_df")
 })
