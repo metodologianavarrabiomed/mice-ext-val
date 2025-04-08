@@ -4,7 +4,7 @@
 \alias{get_forestplot_data}
 \title{Generates the forestplot data needed in \code{\link[=get_forestplot]{get_forestplot()}}}
 \usage{
-get_forestplot_data(strat, ...)
+get_forestplot_data(strat, type = c("c_index", "auc"), ...)
 }
 \arguments{
 \item{strat}{Name of the strat that the models are part of}
