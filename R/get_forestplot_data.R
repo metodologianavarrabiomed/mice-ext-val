@@ -17,7 +17,7 @@
 #' data <- get_forestplot_data(strat = "overall", cox_model, logreg_model)
 #' data <- get_forestplot_data(strat = "overall", Cox = cox_model, LogReg = logreg_model)
 #' }
-get_forestplot_data <- function(strat, ...) {
+get_forestplot_data <- function(strat, type = c("c_index", "auc"), ...) {
   # get model and model names -----------------------------------------------
   models <- list(...)
 
@@ -25,7 +25,6 @@ get_forestplot_data <- function(strat, ...) {
   model_names_callname <- if (!is.null(names(models))) names(models) else rep(NA, length(model_names_call))
 
   model_names <- purrr::map2_chr(model_names_callname, model_names_call, ~ ifelse(is.na(.x) | .x == "", .y, .x))
-
 
   # assertions --------------------------------------------------------------
   error_message <- NULL
@@ -37,7 +36,7 @@ get_forestplot_data <- function(strat, ...) {
 
   has_c_index <- purrr::map_lgl(models, ~ methods::is(.x, "MiceExtVal") && !is.null(.x[["c_index"]]))
   if (all(is_model_class) & !all(has_c_index)) {
-    error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {model_names[!has_c_index]}} must contain the {.arg c_index}, consider using {.fn MiceExtVal::calculate_c_index}"))
+    error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {model_names[!has_c_index]}} must contain the {.arg {type}}, consider using {.fn {c('MiceExtVal::calculate_harrell_c_index', 'MiceExtVal::calculate_auc')}}"))
   }
 
   if (!is.null(error_message)) {
@@ -49,9 +48,9 @@ get_forestplot_data <- function(strat, ...) {
     tibble::tibble(
       model = model_names[[.x]],
       strat = strat,
-      estimate = models[[.x]][["c_index"]]["Estimate"],
-      lower = models[[.x]][["c_index"]]["95% CI L"],
-      upper = models[[.x]][["c_index"]]["95% CI U"]
+      estimate = models[[.x]][[type]]["Estimate"],
+      lower = models[[.x]][[type]]["95% CI L"],
+      upper = models[[.x]][[type]]["95% CI U"]
     )
   })
 }
