@@ -21,7 +21,7 @@ get_forestplot_data <- function(strat, type = c("c_index", "auc"), ...) {
   # get model and model names -----------------------------------------------
   models <- list(...)
 
-  model_names_call <- as.character(as.list(match.call())[-c(1:2)])
+  model_names_call <- as.character(as.list(match.call())[-c(1:3)])
   model_names_callname <- if (!is.null(names(models))) names(models) else rep(NA, length(model_names_call))
 
   model_names <- purrr::map2_chr(model_names_callname, model_names_call, ~ ifelse(is.na(.x) | .x == "", .y, .x))
@@ -34,9 +34,9 @@ get_forestplot_data <- function(strat, type = c("c_index", "auc"), ...) {
     error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {model_names[!is_model_class]}} must be {.cls MiceExtVal}"))
   }
 
-  has_c_index <- purrr::map_lgl(models, ~ methods::is(.x, "MiceExtVal") && !is.null(.x[["c_index"]]))
+  has_c_index <- purrr::map_lgl(models, ~ methods::is(.x, "MiceExtVal") && !is.null(.x[[type]]))
   if (all(is_model_class) & !all(has_c_index)) {
-    error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {model_names[!has_c_index]}} must contain the {.arg {type}}, consider using {.fn {c('MiceExtVal::calculate_harrell_c_index', 'MiceExtVal::calculate_auc')}}"))
+    error_message <- c(error_message, "*" = cli::format_error("The {.arg {model_names[!has_c_index]}} model{?s} must have their {.arg {type}} calculated, consider using {.fn MiceExtVal::calculate_harrell_c_index} or {.fn MiceExtVal::calculate_auc}"))
   }
 
   if (!is.null(error_message)) {
