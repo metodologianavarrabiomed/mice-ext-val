@@ -18,6 +18,9 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
+#' calculate_auc(model, data)
+#' }
 calculate_auc <- function(model, data, .progress = FALSE) {
   is_dichotomous <- \(x) is.numeric(x) & length(unique(x)) == 2
   error_message <- get_error_message_calculate_recalibrated(model, data)
@@ -61,7 +64,7 @@ calculate_auc <- function(model, data, .progress = FALSE) {
       }
 
       predictions <- model$predictions_data |>
-        dplyr::filter({ .data[[".imp"]] == .y$.imp }) |>
+        dplyr::filter(.data[[".imp"]] == .y$.imp) |>
         dplyr::pull(var = "prediction")
 
       auc_val <- suppressMessages(pROC::auc(y, predictions))
@@ -75,7 +78,9 @@ calculate_auc <- function(model, data, .progress = FALSE) {
     dplyr::bind_rows()
 
   n <- data |>
-    dplyr::filter({.data[[".imp"]] == 1}) |>
+    dplyr::filter({
+      .data[[".imp"]] == 1
+    }) |>
     dplyr::pull("id") |>
     length()
 
