@@ -78,9 +78,7 @@ calculate_auc <- function(model, data, .progress = FALSE) {
     dplyr::bind_rows()
 
   n <- data |>
-    dplyr::filter({
-      .data[[".imp"]] == 1
-    }) |>
+    dplyr::filter(.data[[".imp"]] == 1) |>
     dplyr::pull("id") |>
     length()
 
