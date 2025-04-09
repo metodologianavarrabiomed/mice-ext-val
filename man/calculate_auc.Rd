@@ -19,3 +19,8 @@ The same \code{model} passed as a parameter with the Harrell C Index value store
 \description{
 This function calculates the Area Under the Curve value for the given model. It uses the \code{\link[pROC:auc]{pROC::auc()}} function from the \code{pROC} package.
 }
+\examples{
+\dontrun{
+calculate_auc(model, data)
+}
+}
