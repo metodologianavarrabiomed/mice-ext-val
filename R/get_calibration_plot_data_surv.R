@@ -27,18 +27,17 @@
 #' @examples
 #' \dontrun{
 #' model |>
-#'   get_calibration_plot_data(data = test_data, n_groups = 10, type = "predictions_aggregated")
+#'   get_calibration_plot_data_surv(data = test_data, n_groups = 10, type = "predictions_aggregated")
 #' }
-get_calibration_plot_data <- function(model, data, n_groups, type = "predictions_aggregated") {
+get_calibration_plot_data_surv <- function(model, data, n_groups, type = "predictions_aggregated") {
   error_message <- NULL
   if (!methods::is(model, "MiceExtVal")) {
     error_message <- c(error_message, "*" = cli::format_error("{.arg model} must be {.cls MiceExtVal}"))
   }
   if (!methods::is(data, "data.frame")) {
     error_message <- c(error_message, "*" = cli::format_error("{.arg data} must be {.cls data.frame}"))
-  } else {
-
   }
+
   if (!methods::is(n_groups, "numeric")) {
     error_message <- c(error_message, "*" = cli::format_error("{.arg n_groups} must be {.cls numeric}"))
   }
@@ -72,7 +71,7 @@ get_calibration_plot_data <- function(model, data, n_groups, type = "predictions
   # We assume that the observed variable is completed and therefore the same in
   # all the imputed datasets. If not we should generate the aggregated result
   # using Rubin Rules.
-  original_data <- data[data$.imp == 1, ] %>%
+  original_data <- data |> dplyr::filter(.data[[".imp"]] == 1) |>
     # We also assume that data is a `mice` imputed dataset in long format.
     # Thus, `.imp` exists and have at least 1 imputed dataset.
     dplyr::select(dplyr::all_of(c("id", dependent_variable)))
