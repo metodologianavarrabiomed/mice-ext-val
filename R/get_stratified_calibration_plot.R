@@ -66,7 +66,7 @@ get_stratified_calibration_plot <- function(data, n_groups, type, ...) {
 
   # generate the stratified calibration plot --------------------------------
   plot_data <- purrr::map_df(seq_along(model_names), ~ {
-    MiceExtVal::get_calibration_plot_data(model = models[[.x]], data = data, n_groups = n_groups, type) |>
+    get_calibration_plot_data_surv(model = models[[.x]], data = data, n_groups = n_groups, type) |>
       tibble::add_column(strat = model_names[[.x]])
   }, data = data)
 
