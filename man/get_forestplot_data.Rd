@@ -9,6 +9,8 @@ get_forestplot_data(strat, type = c("c_index", "auc"), ...)
 \arguments{
 \item{strat}{Name of the strat that the models are part of}
 
+\item{type}{Choosen statistic to plot. It must be already calculated}
+
 \item{...}{A list of models that should be plotted}
 }
 \value{

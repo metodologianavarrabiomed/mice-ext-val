@@ -1,6 +1,7 @@
 #' Generates the forestplot data needed in [get_forestplot()]
 #'
 #' @param strat Name of the strat that the models are part of
+#' @param type Choosen statistic to plot. It must be already calculated
 #' @param ... A list of models that should be plotted
 #'
 #' @returns A `tibble` with the information needed to generate the forestplot
