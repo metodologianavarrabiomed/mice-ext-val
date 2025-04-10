@@ -21,6 +21,7 @@
 #' @importFrom survival survfit Surv
 #' @importFrom methods is
 #' @importFrom cli format_error cli_abort
+#' @importFrom stats sd
 #'
 #' @export
 #'
@@ -68,9 +69,9 @@ get_calibration_plot_data_prop <- function(model, data, n_groups, type = "predic
   }
 
   if (methods::is(model, "logreg")) {
-    if (!methods::is(data[[dependent_variable]], "numeric")) {
+    if (!methods::is(data[[dependent_variable]], "numeric") && !methods::is(data[[dependent_variable]], "Surv")) {
       error_message <- c(error_message, "*" = cli::format_error("the dependent variable {.var {dependent_variable}} must be {.cls {c('Surv', 'numeric')}} and dichotomous"))
-    } else if (!is_dichotomous(data[[dependent_variable]])) {
+    } else if (!methods::is(data[[dependent_variable]], "Surv") && !is_dichotomous(data[[dependent_variable]])) {
       error_message <- c(error_message, "*" = cli::format_error("the dependent variable {.var {dependent_variable}} must be {.cls {c('Surv', 'numeric')}} and dichotomous"))
     }
   } else if (methods::is(model, "cox")) {
@@ -96,17 +97,18 @@ get_calibration_plot_data_prop <- function(model, data, n_groups, type = "predic
 
   # Select the variable that is used from the model
   pred_var <- as.name(names(model[[type]])[2])
+  dependent_variable <- as.name(dependent_variable)
+
   model[[type]] |>
     # Generates the groups by the prediction variable and group by the generated group
-    dplyr::mutate(group = dplyr::ntile(!!pred_var, n_groups)) |>
     dplyr::left_join(original_data, by = "id") |>
-    dplyr::group_by_at(dplyr::vars("group")) |>
+    dplyr::mutate(bin = dplyr::ntile(!!pred_var, n_groups)) |>
+    dplyr::group_by_at("bin") |>
     dplyr::summarise(
-      bin = group,
-      predicted = mean(pred_var),
+      predicted = mean(!!pred_var),
       observed = mean(!!dependent_variable),
       se_observed = sd(!!dependent_variable),
-      ll = observed - 1.96 * se_observed,
-      ul = observed + 1.96 * se_observed,
+      ll = !!as.name("observed") - 1.96 * !!as.name("se_observed"),
+      ul = !!as.name("observed") + 1.96 * !!as.name("se_observed"),
     )
 }
