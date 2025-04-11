@@ -16,10 +16,10 @@
 #'
 #' @examples
 #' \dontrun{
-#' get_stratified_calibration_plot(data, 10, model1, model2)
-#' get_stratified_calibration_plot(data, 10, strat1 = model1, strat2 = model2)
+#' get_stratified_calibration_plot_surv(data, 10, model1, model2)
+#' get_stratified_calibration_plot_surv(data, 10, strat1 = model1, strat2 = model2)
 #' }
-get_stratified_calibration_plot <- function(data, n_groups, type, ...) {
+get_stratified_calibration_plot_surv <- function(data, n_groups, type = c("predictions_aggregated", "predictions_recal_type_1", "predictions_recal_type_2"), ...) {
   # get model names ---------------------------------------------------------
   models <- list(...)
   is_model_class <- purrr::map_lgl(models, \(x) methods::is(x, "MiceExtVal"))
@@ -54,15 +54,24 @@ get_stratified_calibration_plot <- function(data, n_groups, type, ...) {
   }
 
   if (all(is_model_class) & type == "predictions_recal_type_2") {
-    no_calc_pred <- purrr::map_lgl(models, \(x) is.null(x[["predictions_recal_type_2"]]))
+    no_calc_pred <- purrr::map_lgl(models, ~ is.null(.x[["predictions_recal_type_2"]]))
     if (any(no_calc_pred)) {
       error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {model_names[no_calc_pred]}} must contain {.var predictions_recal_type_2} consider using the function {.fn MiceExtVal::calculate_predictions_recalibrated_type_2}"))
+    }
+  }
+
+  if (all(is_model_class)) {
+    is_dep_var_surv <- purrr::map_lgl(models, ~ methods::is(data[[all.vars(.x$formula)[[1]]]], "Surv"))
+
+    if (!all(is_dep_var_surv)) {
+      error_message <- c(error_message, "*" = cli::format_error(cli::format_error("The model{?s} {.arg {model_names[!is_dep_var_surv]}} must have a dependent variable of class {.cls Surv}")))
     }
   }
 
   if (!is.null(error_message)) {
     cli::cli_abort(error_message)
   }
+
 
   # generate the stratified calibration plot --------------------------------
   plot_data <- purrr::map_df(seq_along(model_names), ~ {
