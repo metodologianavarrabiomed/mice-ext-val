@@ -190,19 +190,29 @@ end
 
 #### Calibration plots
 
-To obtain the calibration plots we need to use two functions `get_calibration_plot_data` that generates the needed data to actually generate the calibration plot and the `get_calibration_plot` whose only needed parameter is the outcome of `get_calibration_plot_data`. We can generate a calibration plot as shown in the next code snippet with the function `get_calibration_plot`.
+The calibration plot generation is separated in two different steps. The first step is to calculate the data needed to generate the calibration plot. We have provided the users with two approaches to match the different requirementes of the models. The users are able to generate data using the Kaplan-Meier estimator for the observed risks and also they can use the proportion of events as the observed risk. To generate the first approach we use the `get_calibration_plot_data_surv` and `get_calibration_plot_data_prop` for the second approach. Once the data is generated the plot can be created by using the `get_calibration_plot` function. 
 
 > [!TIP]
 > The function returns a [`ggplot2` object](https://cran.r-project.org/web/packages/ggplot2/index.html). Therefore, it can be modified as any other `ggplot2` plot.
 
 ```r
+# survival calibration plot -------------------------------------------
 model |>
-  # only calculate the predictions if they are not already part of the model
   calculate_predictions(external_validation_data) |>
   get_calibration_plot_data(
     data = external_validation_data, 
     n_groups = 10, 
     type = "predictions_aggregated"
+  ) |>
+  get_calibration_plot()
+# proportion calibration plot -----------------------------------------
+model |>
+  calculate_predictions(external_validation_data) |>
+  calculate_predictions_recalibrated_type_1(external_validation_data) |>
+  get_calibration_plot_data_prop(
+    data = external_validation_data, 
+    n_groups = 10, 
+    type = "predictions_recal_type_1"
   ) |>
   get_calibration_plot()
 ```
@@ -212,10 +222,9 @@ model |>
 >
 > ```r
 > model |>
->  # only calculate the predictions if they are not already part of the model
 >  calculate_predictions(external_validation_data) |>
 >  calculate_predictions_recalibrated_type_1(external_validation_data) |>
->  get_calibration_plot_data(
+>  get_calibration_plot_data_surv(
 >    data = external_validation_data, 
 >    n_groups = 10, 
 >    type = "predictions_recal_type_1"
@@ -223,13 +232,40 @@ model |>
 >  get_calibration_plot()
 > ```
 
-#### C-index forestplot
+## Stratified calibration plots
+As part of the external validation sometimes we are in need to compare different models or even different strats of data with the same model definition. To those cases we have developed a function that allow to generate stratified calibration plots from different models or even different data. We hope that this function helps users to compare the model calibration among a large spectrum of cases.
 
-> [!WARNING]
-> This feature is currently under development.
+> [!NOTE]
+>The stratified calibration plots as the individual calibration plots are separated into two functions, one for survival outcomes and another for binary outcomes.
+>
+>```r
+> get_stratified_calibration_plot_surv(get_stratified_calibration_plot_surv(data, n_groups = 10, type = "predictions_aggregated", Cox = model_cox, LogReg = model_logreg))
+> get_stratified_calibration_plot_prop(get_stratified_calibration_plot_surv(data, n_groups = 10, type = "predictions_aggregated", Cox = model_cox, LogReg = model_logreg))
+>```
 
-The external validations are normally formed by many models and we want to compare their results. Forestplots are a great way of visualizing the c-index values of multiple models in one graph. The package provides the function `get_c_index_forestplot`. You can provide an illimited number of models that have their `c_index` calculated and it returns a forestplot generated with the [`forestplot` package](https://cran.r-project.org/web/packages/forestplot/index.html).
+#### Forestplot
+The package is thought to help the users while externally validating models among an imputed dataset. To help the comparation and visualization of the results we have created a function that allow the users to generate a forestplot comparing some statistics. We believe that forestplot is an efficient way of presenting results of different models. As a limitation from the package is that it does not allow to generate stratified models, if you need to generate stratified results you are in need to generate as many models as strats. Even though this limitation the package allow the users to generate stratified forestplots from different models.
+
+The forestplots can be generate with only one strat as:
 
 ```r
-get_c_index_forestplot(Cox = cox_model, `Logistic Regression`= logreg_model)
+MiceExtVal::get_forestplot_data(
+  strat = "Overall",
+  `Framingham Women` = women_model,
+  `Framingham Men` = men_model
+) |>
+  MiceExtVal::get_forestplot(center = 0.7) +
+  ggplot2::theme(legend.position = "none") +
+  ggplot2::xlim(c(0.6, 0.75))
+```
+
+Or with multiple as:
+
+```r
+dplyr::bind_rows(
+  MiceExtVal::get_forestplot_data(strat = "Men", Framingham = men_model),
+  MiceExtVal::get_forestplot_data(strat = "Women", Framingham = women_model)
+) |>
+  MiceExtVal::get_forestplot(center = 0.7) +
+  ggplot2::xlim(c(0.6, 0.75))
 ```
