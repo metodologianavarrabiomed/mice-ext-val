@@ -7,3 +7,5 @@ doc_no_git
 /doc/
 /Meta/
 docs
+**/.quarto/
+data_raw/
