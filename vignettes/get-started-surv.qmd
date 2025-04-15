@@ -1,5 +1,5 @@
 ---
-title: "MiceExtVal example of use"
+title: "Example Of Use With Survival Outcome"
 author: 
  - name: "Asier Ballesteros Domínguez"
    orcid: 0000-0002-2195-4669
@@ -14,7 +14,7 @@ vignette: >
   %\VignetteDepends{kableExtra}
 ---
 
-# Required libraries
+# Required Libraries
 
 The following code snippet lists all the libraries needed to run this report.
 
@@ -178,6 +178,7 @@ The total cholesterol variable is categorized into five categories, less than 16
 | 200-239              | 0.1769  | 0.2077  |
 | 240-279              | 0.5054  | 0.2439  |
 | >280                 | 0.6571  | 0.5351  |
+:{.plain .table-sm}
 
 ```{r}
 fram_long <- fram_long |>
