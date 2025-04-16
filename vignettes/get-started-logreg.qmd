@@ -1,0 +1,77 @@
+---
+title: "Example Of Use With Dichotomous Outcome"
+toc: true
+bibliography: '`r system.file("references.bib", package="MiceExtVal")`' 
+csl: '`r system.file("apa.csl", package="MiceExtVal")`'
+vignette: >
+  %\VignetteIndexEntry{Get Started Logistic Regression}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{gtsummary}
+  %\VignetteDepends{kableExtra}
+---
+
+# Required Libraries
+
+The following code snippet lists all the libraries needed to run this report.
+
+```{r}
+#| message: false
+#| warning: false
+#| code-fold: false
+library(MiceExtVal)
+library(gtsummary)
+library(dplyr)
+```
+
+As an example of the use for logistic regression external validation we will replicate the external validation done by @steyerberg in the 20th chapter of his book. We validate the TIMI-II model represented in @tbl-timi-ii, see @timi-ii, among the GUSTO-I W region database, this data is already exported in the package as `MiceExtVal::gusto`. The model TIMI-II is a prediction model for patients with acute myocardial infarction. The TIMI-II model predicts the risk of death in 42 days of follow up while in the GUSTO-I W region cohort there is only 30-day follow-up. 
+| Predictor                                             | Hazard Ratio |
+| :---------------------------------------------------- | -----------: |
+| Shock                                                 |         1.79 |
+| Age > 65                                              |         0.99 |
+| High risk                                             |         0.92 |
+| Diabetes                                              |         0.74 |
+| Hypotension                                           |         0.69 |
+| Tachycardia                                           |         0.59 |
+| Time to relief                                        |         0.53 |
+| Sex                                                   |         0.47 |
+| Intercept                                             |        -4.47 |
+| :TIMI-II coefficients {#tbl-timi-ii .plain .table-sm} |              |
+# Explore the dataset
+
+In the package we have included the GUSTO-I W region dataset that is used in @steyerberg book. To the book's original dataset we have introduced some missing data to be able to generate the external validation with a multiple imputed dataset.
+
+```{r}
+#| label: tbl-gusto-sum
+#| tbl-cap: GUSTO-I W region dataset
+#| classes: plain .table-sm
+gusto <- MiceExtVal::gusto |>
+  dplyr::mutate(
+    sex = dplyr::case_when(
+      sex == 0 ~ "Male", sex == 1 ~ "Female",
+      .default = as.character(sex)
+    )
+  )
+gtsummary::tbl_summary(
+  data = gusto,
+  by = "sex",
+  missing_text = "% of missings",
+  missing_stat = "{p_miss}%"
+)
+```
+
+# Impute Missing Data
+To impute the missing data in the GUSTO-I W region dataset we will use the `mice` package, see @mice-package. In the next code snippet we impute the missing values and store them in a `long` dataset to be passed as argument to the `MiceExtVal` package.
+
+```{r}
+#| include: false
+gusto_imp <- mice::mice(gusto) |> mice::complete("long")
+```
+
+```{r}
+#| eval: false
+gusto_imp <- mice::mice(gusto) |> mice::complete("long")
+```
+
+# External Validation
+With the dataset already imputed we are ready to externally validate the model.
