@@ -108,7 +108,7 @@ get_calibration_plot_data_prop <- function(model, data, n_groups, type = "predic
       predicted = mean(!!pred_var),
       observed = mean(!!dependent_variable),
       se_observed = sd(!!dependent_variable),
-      ll = !!as.name("observed") - 1.96 * !!as.name("se_observed"),
-      ul = !!as.name("observed") + 1.96 * !!as.name("se_observed"),
+      ll = binom.test(sum(!!dependent_variable), dplyr::n())[["conf.int"]][1],
+      ul = binom.test(sum(!!dependent_variable), dplyr::n())[["conf.int"]][2]
     )
 }
