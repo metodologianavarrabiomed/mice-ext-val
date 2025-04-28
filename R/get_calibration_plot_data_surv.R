@@ -96,8 +96,8 @@ get_calibration_plot_data_surv <- function(model, data, n_groups, type = "predic
           observed = 1 - km$surv[length(km$surv)],
           se_observed = km$std.err[length(km$std.err)],
           # It could be that these values go outside the range [0, 1], so we should clip them to this range. It should be also an option the generation of the CI.
-          ll = observed - 1.96 * se_observed,
-          ul = observed + 1.96 * se_observed
+          ll = max(0, observed - 1.96 * se_observed),
+          ul = min(1, observed + 1.96 * se_observed)
         )
       )
     }) %>%
