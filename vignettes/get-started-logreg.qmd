@@ -71,7 +71,7 @@ To impute the missing data in the GUSTO-I W region dataset we will use the `mice
 #| include: false
 pred_matrix <- mice::make.predictorMatrix(gusto)
 pred_matrix[, "id"] <- 0
-gusto_imp <- mice::mice(gusto, predictorMatrix = pred_matrix) |>
+gusto_imp <- mice::mice(gusto, predictorMatrix = pred_matrix, seed = 123) |>
   mice::complete("long")
 ```
 
@@ -84,58 +84,140 @@ gusto_imp <- mice::mice(gusto, predictorMatrix = pred_matrix) |>
 ```
 
 # External Validation
-With the dataset already imputed we are ready to externally validate the model.
+All the external validations are formed by several steps. First, we need to calculate the original model predictions. Secondly, obtain the model performance calculating its discrimination ability and its calibration to the external dataset. Finally, if needed recalibrate the model predictions to the new set.
+
+As we have already impute the missing values in our dataset we are set to externally validate the TIMI-II model. We can define the model using the function `MiceExtVal::mv_model_logreg` and defining the parameters defined in @tbl-timi-ii with the dependent variable `day30`.
 
 ```{r}
-timi2 <- MiceExtVal::mv_model_logreg(
+timi2_model <- MiceExtVal::mv_model_logreg(
   formula = day30 ~ 1.79 * sho + 0.99 * a65 + 0.92 * hig + 0.74 * dia +
     0.69 * hyp + 0.59 * hrt + 0.53 * ttr + 0.47 * sex - 4.47
 )
 ```
 
+Once the model is generated we can calculate the model predictions with the `MiceExtVal::calculate_predictions`. This function calculates the model predictions with the formula defined in the model definition and store the predictions and information from its calculation in the model.
+
 ```{r}
-timi2 <- timi2 |>
+timi2_model <- timi2_model |>
   MiceExtVal::calculate_predictions(gusto_imp)
 ```
 
 ```{r}
-timi2 <- timi2 |>
-  MiceExtVal::calculate_predictions_recalibrated_type_1(gusto_imp) |>
-  MiceExtVal::calculate_predictions_recalibrated_type_2(gusto_imp)
+#| layout-ncol: 2
+#| label: tbl-model-predictions-example
+#| tbl-cap: Model predictions
+#| tbl-subcap: 
+#|   - Aggregated predictions
+#|   - Model predictions in each imputation
+timi2_model$predictions_aggregated |>
+  head() |>
+  kableExtra::kbl()
+
+timi2_model$predictions_data |>
+  head() |>
+  kableExtra::kbl()
 ```
 
 ```{r}
-#| layout-ncol: 3
-timi2 |>
+#| layout-ncol: 2
+#| label: tbl-model-betax-example
+#| tbl-cap: Model Beta X
+#| tbl-subcap: 
+#|   - Aggregated Beta X
+#|   - Model Beta X in each imputation
+timi2_model$betax |>
+  head() |>
+  kableExtra::kbl()
+
+timi2_model$betax_data |>
+  head() |>
+  kableExtra::kbl()
+```
+
+
+After obtaining the model predictions we can obtain the model performance. The discrimination ability can be calculated using the `calculate_auc` function. And the calibration plot can be calculated using three different functions.
+
+```{r}
+timi2_model <- timi2_model |>
+  MiceExtVal::calculate_auc(gusto_imp)
+
+auc_res <- sprintf(
+  "%.3f (95%% CI %.3f, %.3f)",
+  timi2_model$auc["Estimate"],
+  timi2_model$auc["95% CI L"],
+  timi2_model$auc["95% CI U"]
+)
+```
+
+The model obtains an AUC of `r auc_res`. The calibration plot generation is divided in two steps, we first calculate the data needed to the calibration plot and after we generate the actual plot. The calibration plot data generation can be done with two functions `get_calibration_plot_data_prop` to calculate the observed risk with proportions and `get_calibration_plot_data_surv` to calculate the observed risks with a Kaplan-Meier estimator. In this case as we are externally validating a logistic regression we should use `get_calibration_plot_data_prop`. We have also generate a function to change the plot limits called `clip_axis_plot`.  
+
+```{r}
+clip_axis_plot <- function(plot, limit = 1) {
+  plot +
+    ggplot2::xlim(c(0, limit)) +
+    ggplot2::ylim(c(0, limit))
+}
+
+timi2_model |>
   MiceExtVal::get_calibration_plot_data_prop(
     model = _,
     data = gusto_imp,
     n_groups = 10,
     type = "predictions_aggregated"
   ) |>
-  MiceExtVal::get_calibration_plot(data = _)
+  MiceExtVal::get_calibration_plot(data = _) |>
+  clip_axis_plot(limit = 0.35)
+```
 
-timi2 |>
+
+
+```{r}
+timi2_model <- timi2_model |>
+  MiceExtVal::calculate_predictions_recalibrated_type_1(gusto_imp) |>
+  MiceExtVal::calculate_predictions_recalibrated_type_2(gusto_imp)
+```
+
+```{r}
+#| layout-ncol: 3
+#| message: false
+#| warning: false
+
+clip_axis_plot <- function(plot, limit = 1) {
+  plot +
+    ggplot2::xlim(c(0, limit)) +
+    ggplot2::ylim(c(0, limit))
+}
+
+timi2_model |>
+  MiceExtVal::get_calibration_plot_data_prop(
+    model = _,
+    data = gusto_imp,
+    n_groups = 10,
+    type = "predictions_aggregated"
+  ) |>
+  MiceExtVal::get_calibration_plot(data = _) |>
+  clip_axis_plot(limit = 0.35)
+
+timi2_model |>
   MiceExtVal::get_calibration_plot_data_prop(
     model = _,
     data = gusto_imp,
     n_groups = 10,
     type = "predictions_recal_type_1"
   ) |>
-  MiceExtVal::get_calibration_plot(data = _)
+  MiceExtVal::get_calibration_plot(data = _) |>
+  clip_axis_plot(limit = 0.35)
 
-timi2 |>
+timi2_model |>
   MiceExtVal::get_calibration_plot_data_prop(
     model = _,
     data = gusto_imp,
     n_groups = 10,
     type = "predictions_recal_type_2"
   ) |>
-  MiceExtVal::get_calibration_plot(data = _)
+  MiceExtVal::get_calibration_plot(data = _) |>
+  clip_axis_plot(limit = 0.35)
 ```
 
 
-```{r}
-timi2 <- timi2 |>
-  MiceExtVal::calculate_auc(gusto_imp)
-```
+
