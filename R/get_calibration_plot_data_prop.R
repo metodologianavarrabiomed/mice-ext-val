@@ -21,7 +21,7 @@
 #' @importFrom survival survfit Surv
 #' @importFrom methods is
 #' @importFrom cli format_error cli_abort
-#' @importFrom stats sd
+#' @importFrom stats sd binom.test
 #'
 #' @export
 #'
