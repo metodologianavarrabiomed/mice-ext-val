@@ -1,5 +1,8 @@
 ---
 title: "Example Of Use With Dichotomous Outcome"
+author: 
+ - name: "Asier Ballesteros Domínguez"
+   orcid: 0000-0002-2195-4669
 toc: true
 bibliography: '`r system.file("references.bib", package="MiceExtVal")`' 
 csl: '`r system.file("apa.csl", package="MiceExtVal")`'
@@ -22,6 +25,7 @@ The following code snippet lists all the libraries needed to run this report.
 library(MiceExtVal)
 library(gtsummary)
 library(dplyr)
+library(kableExtra)
 ```
 
 As an example of the use for logistic regression external validation we will replicate the external validation done by @steyerberg in the 20th chapter of his book. We validate the TIMI-II model represented in @tbl-timi-ii, see @timi-ii, among the GUSTO-I W region database, this data is already exported in the package as `MiceExtVal::gusto`. The model TIMI-II is a prediction model for patients with acute myocardial infarction. The TIMI-II model predicts the risk of death in 42 days of follow up while in the GUSTO-I W region cohort there is only 30-day follow-up. 
@@ -65,7 +69,7 @@ gusto |>
 ```
 
 # Impute Missing Data
-To impute the missing data in the GUSTO-I W region dataset we will use the `mice` package, see @mice-package. In the next code snippet we impute the missing values and store them in a `long` dataset to be passed as argument to the `MiceExtVal` package.
+To impute the missing data in the GUSTO-I W region dataset we will use the `mice` package, see @mice-package. The next code snippet performs the simplest imputation possible for this dataset. We are not interested in generating the optimal imputation but to show the use of the package. Therefore, the simplest imputation is the best way to work along this report. If you are in need of more information about how a multiple imputation should be performed please refer to `mice` package documentation, @vanBuuren2018.
 
 ```{r}
 #| include: false
@@ -79,14 +83,18 @@ gusto_imp <- mice::mice(gusto, predictorMatrix = pred_matrix, seed = 123) |>
 #| eval: false
 pred_matrix <- mice::make.predictorMatrix(gusto)
 pred_matrix[, "id"] <- 0
-gusto_imp <- mice::mice(gusto, predictorMatrix = pred_matrix) |>
+gusto_imp <- mice::mice(gusto, predictorMatrix = pred_matrix, seed = 123) |>
   mice::complete("long")
 ```
 
-# External Validation
-All the external validations are formed by several steps. First, we need to calculate the original model predictions. Secondly, obtain the model performance calculating its discrimination ability and its calibration to the external dataset. Finally, if needed recalibrate the model predictions to the new set.
+The variable `gusto_imp` contains all the imputed datasets in `long` format. This package requires that the imputed data is stored in this format when passed as argument to its functions.
 
-As we have already impute the missing values in our dataset we are set to externally validate the TIMI-II model. We can define the model using the function `MiceExtVal::mv_model_logreg` and defining the parameters defined in @tbl-timi-ii with the dependent variable `day30`.
+# External Validation
+Normally a external validation only gets results from a single dataset and are usually performed by several steps. First, calculation of the original model predictions. Secondly, obtaining the model performance calculating its discrimination ability and its calibration to the external dataset. Finally, if needed recalibrate the model predictions to the new set and recalculate the needed performance measures.
+
+In the previous section we have imputed the missing values resulting in multiple datasets and multiple possible substitutes for each of the missing values. If we are performing the external validation with a multiple imputed dataset we have no longer a single result but as many as imputed datasets are. To help users to obtain the external validation results we have created the `MiceExtVal` package that helps the users through this proccess.
+
+As we have already imputed the missing values in our dataset we are set to externally validate the TIMI-II model using the package. As the TIMI-II model is a logistic regression, we can define the model using the function `MiceExtVal::mv_model_logreg`. This function requires to be passed with a formula where the model coefficients and the possible intercept are defined. The variables defined in the formula must be present in the imputed dataset, if not, in following functions will be reported as an error.
 
 ```{r}
 timi2_model <- MiceExtVal::mv_model_logreg(
@@ -95,20 +103,23 @@ timi2_model <- MiceExtVal::mv_model_logreg(
 )
 ```
 
-Once the model is generated we can calculate the model predictions with the `MiceExtVal::calculate_predictions`. This function calculates the model predictions with the formula defined in the model definition and store the predictions and information from its calculation in the model.
+In `timi2_model` there is stored the formula information and also an skeleton of the model structure. Most of the functions in this packages take the model as an argument and return the same model with some modifications like adding the model predictions. The functions that modify the model object start with `calculate_`. As mentioned before the first step is to calculate the model original predictions. In this regard, the package provides the function `calculate_predictions` to calculate the original model predictions among other things. This function requires to also be passed the data as argument from which the model predictions will be caculated.
 
 ```{r}
 timi2_model <- timi2_model |>
   MiceExtVal::calculate_predictions(gusto_imp)
 ```
 
+After executing the previous code snippet the model has changed, some information has been added to it. The model predictions in each of the imputations, also the aggregated model predictions for each patient, see @tbl-model-predictions-example. Even more, the values of $\beta \cdot X$ aggregated and in each imputation are also added to the model, see @tbl-model-betax-example.
+
 ```{r}
 #| layout-ncol: 2
 #| label: tbl-model-predictions-example
 #| tbl-cap: Model predictions
-#| tbl-subcap: 
+#| tbl-subcap:
 #|   - Aggregated predictions
 #|   - Model predictions in each imputation
+#| classes: plain .table-sm
 timi2_model$predictions_aggregated |>
   head() |>
   kableExtra::kbl()
@@ -122,9 +133,10 @@ timi2_model$predictions_data |>
 #| layout-ncol: 2
 #| label: tbl-model-betax-example
 #| tbl-cap: Model Beta X
-#| tbl-subcap: 
+#| tbl-subcap:
 #|   - Aggregated Beta X
 #|   - Model Beta X in each imputation
+#| classes: plain .table-sm
 timi2_model$betax |>
   head() |>
   kableExtra::kbl()
@@ -134,8 +146,7 @@ timi2_model$betax_data |>
   kableExtra::kbl()
 ```
 
-
-After obtaining the model predictions we can obtain the model performance. The discrimination ability can be calculated using the `calculate_auc` function. And the calibration plot can be calculated using three different functions.
+Once the model predictions are calculated we are able to measure the model performance in the external cohort. Firstly, we will measure the model discrimination ability. In the package there exist two functions that allow the users to calculate the discrimination ability of the model `MiceExtVal::calculate_auc` and `MiceExtVal::calculate_harrell_c_index`. As we are not working with a survival outcome we should use the AUC as a measure of discrimination.
 
 ```{r}
 timi2_model <- timi2_model |>
@@ -149,9 +160,15 @@ auc_res <- sprintf(
 )
 ```
 
-The model obtains an AUC of `r auc_res`. The calibration plot generation is divided in two steps, we first calculate the data needed to the calibration plot and after we generate the actual plot. The calibration plot data generation can be done with two functions `get_calibration_plot_data_prop` to calculate the observed risk with proportions and `get_calibration_plot_data_surv` to calculate the observed risks with a Kaplan-Meier estimator. In this case as we are externally validating a logistic regression we should use `get_calibration_plot_data_prop`. We have also generate a function to change the plot limits called `clip_axis_plot`.  
+The model obtains an AUC of `r auc_res` which is pretty acceptable. As a second measure of good performance of the model we can measure the model calibration. The model calibration is usually represented with the calibration plot. The calibration plot generation is divided in two steps, we first calculate the data needed and afterwards we generate the actual plot. The calibration plot data generation can be done with two functions `get_calibration_plot_data_prop` to calculate the observed risk with proportions and `get_calibration_plot_data_surv` to calculate the observed risks with a Kaplan-Meier estimator. In this case as we are externally validating a logistic regression we should use `get_calibration_plot_data_prop`. 
+
+In the following code snippet is generate a calibration plot for the timi-ii model using the function `MiceExtVal::get_calibration_plot_data_prop` to generate the calibration plot data and the function `MiceExtVal::get_calibration_plot` to generate the plot. The calibration plot is generated using the `ggplot2` package and can be modified as any other plot of this package. On this case we have also generate a function that changes the limits of the plots called `clip_axis_plot`.  
 
 ```{r}
+#| message: false
+#| warning: false
+#| label: fig-timi2-calplot
+#| fig-cap: Calibration plot of TIMI-II predictions
 clip_axis_plot <- function(plot, limit = 1) {
   plot +
     ggplot2::xlim(c(0, limit)) +
@@ -169,7 +186,10 @@ timi2_model |>
   clip_axis_plot(limit = 0.35)
 ```
 
+In @fig-timi2-calplot we can observe a correct calibration plot where almost all the deciles match correctly the observed risk. In some cases this first calibration could be acceptable and it might not be needed any type of recalibration, as it could be the case. But, in order to present the package completely we will recalibrate the model predictions.
 
+## Model Recalibration
+The model predictions can be recalibrated with two functions `calculate_predictions_recalibrated_type_1` and `calculate_predictions_recalibrated_type_2`. This functions recalibrate the predictions in two different ways. Type 1 and type 2 recalibrations are not the consequence of one another, they are just different ways of recalibration. 
 
 ```{r}
 timi2_model <- timi2_model |>
@@ -177,27 +197,36 @@ timi2_model <- timi2_model |>
   MiceExtVal::calculate_predictions_recalibrated_type_2(gusto_imp)
 ```
 
+In the previous code snippet both recalibrated predictions are calculated at the same time being stored in the model, see @tbl-recal-example. The recalibrated predictions are stored as aggregated predictions where each patient have only one prediction. The recalibration parameters are also stored inside the model.
+
 ```{r}
-#| layout-ncol: 3
+#| layout-ncol: 2
+#| label: tbl-recal-example
+#| tbl-cap: Recalibrated predictions
+#| tbl-subcap:
+#|   - Type 1 recalibration
+#|   - Type 2 recalibration
+#| classes: plain .table-sm
+timi2_model$predictions_recal_type_1 |>
+  head() |>
+  kableExtra::kbl()
+
+timi2_model$predictions_recal_type_2 |>
+  head() |>
+  kableExtra::kbl()
+```
+
+The recalibration parameters for this recalibration are $\alpha_{type1} = `r round(timi2_model[["alpha_type_1"]], 3)`$ for the type 1 recalibration and $\alpha_{type2} = `r round(timi2_model[["alpha_type_2"]], 3)`, \beta_{overall} = `r round(timi2_model[["beta_overall"]], 3)`$ for the type 2 recalibration. If you need more information on how this recalibrated predictions are calculated, please refer to the function documentation. The discrimination of the model does not change because all the model predictions are modified the same way resulting in an unchanged discrimination. Contrary, the calibration of the model must change as we are modifying the model predictions to better match the observed risk in the external validation cohort. The calibration plots can be obtained using the previously mentioned functions defining the type of recalibrated prediction that we want to use, in the next code snippet there is represented the generation of the calibration plots for both recalibrated predictions.
+
+```{r}
+#| layout-ncol: 2
 #| message: false
 #| warning: false
-
-clip_axis_plot <- function(plot, limit = 1) {
-  plot +
-    ggplot2::xlim(c(0, limit)) +
-    ggplot2::ylim(c(0, limit))
-}
-
-timi2_model |>
-  MiceExtVal::get_calibration_plot_data_prop(
-    model = _,
-    data = gusto_imp,
-    n_groups = 10,
-    type = "predictions_aggregated"
-  ) |>
-  MiceExtVal::get_calibration_plot(data = _) |>
-  clip_axis_plot(limit = 0.35)
-
+#| label: fig-timi2-recal-calplot
+#| fig-cap: Calibration plot of recalibration predictions
+#| fig-subcap:
+#|    - Type 1 recalibration
+#|    - Type 2 recalibration
 timi2_model |>
   MiceExtVal::get_calibration_plot_data_prop(
     model = _,
@@ -219,5 +248,122 @@ timi2_model |>
   clip_axis_plot(limit = 0.35)
 ```
 
+# Comparing models
+The external validations are normally performed to compare the performance of different models in an external cohort. In the previous section we have presented how we should externally validate a single model, but this package can do much more and also allows the users to compare different models. In this section we will replicate the same external validation of the TIMI-II model but the external validation will be stratified by sex. Firstly, we need to generate two models one for men and other for women, both models have the same definition but we need to define them separatelly to store the results.
 
+```{r}
+timi2_model_men <- MiceExtVal::mv_model_logreg(
+  formula = day30 ~ 1.79 * sho + 0.99 * a65 + 0.92 * hig + 0.74 * dia +
+    0.69 * hyp + 0.59 * hrt + 0.53 * ttr + 0.47 * sex - 4.47
+)
+timi2_model_women <- MiceExtVal::mv_model_logreg(
+  formula = day30 ~ 1.79 * sho + 0.99 * a65 + 0.92 * hig + 0.74 * dia +
+    0.69 * hyp + 0.59 * hrt + 0.53 * ttr + 0.47 * sex - 4.47
+)
+```
 
+We also need to stratify the cohort by sex in order to use this subcohorts as parameters for the prediction calculations.
+
+```{r}
+gusto_imp_men <- gusto_imp |> dplyr::filter(sex == 0)
+gusto_imp_women <- gusto_imp |> dplyr::filter(sex == 1)
+```
+
+With the stratified cohorts and also the stratified models we can calculate the needed results as follows. Note that we are using the different subcohorts for each of the models and only this patients are being evaluated in each of the models. In `timi2_model_men` only the results from the `gusto_imp_men` subcohort are stored.
+
+```{r}
+timi2_model_men <- timi2_model_men |>
+  MiceExtVal::calculate_predictions(gusto_imp_men) |>
+  MiceExtVal::calculate_predictions_recalibrated_type_1(gusto_imp_men) |>
+  MiceExtVal::calculate_predictions_recalibrated_type_2(gusto_imp_men) |>
+  MiceExtVal::calculate_auc(gusto_imp_men)
+
+timi2_model_women <- timi2_model_women |>
+  MiceExtVal::calculate_predictions(gusto_imp_women) |>
+  MiceExtVal::calculate_predictions_recalibrated_type_1(gusto_imp_women) |>
+  MiceExtVal::calculate_predictions_recalibrated_type_2(gusto_imp_women) |>
+  MiceExtVal::calculate_auc(gusto_imp_women)
+```
+
+## Calibration Comparison: Stratified Calibration Plots
+
+Once the results are stored in both models we can start comparing the obtained results. In this case we will start from the calibration plots. As the individual calibration plots we have two different functions dependending on how we want to estimate the observed risks. In this case we only need to call a single function `MiceExtVal::get_stratified_calibration_plot_prop` or `MiceExtVal::get_stratified_calibration_plot_surv`. To this functions we need to pass as arguments the external validation data, the number of groups and the type of prediction we want to generate the calibration plot from. We can also pass as argument all the models we want to compare in the same calibration plot.
+
+```{r}
+#| message: false
+#| warning: false
+#| layout-ncol: 2
+#|
+MiceExtVal::get_stratified_calibration_plot_prop(
+  data = gusto_imp,
+  n_groups = 10,
+  type = "predictions_aggregated",
+  Men = timi2_model_men,
+  Women = timi2_model_women
+) |>
+  clip_axis_plot(limit = 0.45)
+MiceExtVal::get_stratified_calibration_plot_prop(
+  data = gusto_imp,
+  n_groups = 10,
+  type = "predictions_recal_type_1",
+  Men = timi2_model_men,
+  Women = timi2_model_women
+) |>
+  clip_axis_plot(limit = 0.45)
+MiceExtVal::get_stratified_calibration_plot_prop(
+  data = gusto_imp,
+  n_groups = 10,
+  type = "predictions_recal_type_2",
+  Men = timi2_model_men,
+  Women = timi2_model_women
+) |>
+  clip_axis_plot(limit = 0.45)
+```
+
+Note that we have passed as argument all the imputed dataset `gusto_imp` where both men and women are contained. We need to pass the complete dataset even though each model only stores the results of a subcohort. The function then uses the needed subcohort from the complete dataset and calculates the needed data for each model.
+
+## Discrimination Comparison: Forestplot
+
+The package also provides a way of generating a forestplot for comparing the discrimination ability of different models. In this case we will visualize the AUC but it also allows to compare Harrell C-Index in survival outcomes. The function is separated in two steps, first step generates the data to be used in the forestplot and second step generates the foresplot. 
+
+We can stratify results for different models by binding different strats together and passing them to the forestplot generator function. Models that are named equally in each strat are merged together in the forestplot. In the following example we generate two strats for the same model `TIMI-II` one for each sex.
+
+```{r}
+#| fig-height: 2
+dplyr::bind_rows(
+  MiceExtVal::get_forestplot_data(strat = "Men", type = "auc", `TIMI-II` = timi2_model_men),
+  MiceExtVal::get_forestplot_data(strat = "Women", type = "auc", `TIMI-II` = timi2_model_women)
+) |>
+  MiceExtVal::get_forestplot(center = 0.75)
+```
+
+In the following example we generate a single strat `Overall` that contains the info of two models, one for each sex. Note that we have deleted the legend as any other `ggplot2` plot because as we only have one strat we have considered it redundant. 
+
+```{r}
+#| fig-height: 2
+MiceExtVal::get_forestplot_data(
+  strat = "Overall", type = "auc",
+  `TIMI-II Men` = timi2_model_men, `TIMI-II Women` = timi2_model_women
+) |>
+  MiceExtVal::get_forestplot(center = 0.75) +
+  ggplot2::theme(legend.position = "none")
+```
+
+Both ideas can be merged into one and generate a forestplot with multiple models with multiple strats. The following example compares the general model with the stratified validation.
+
+```{r}
+#| fig-height: 2
+dplyr::bind_rows(
+  MiceExtVal::get_forestplot_data(
+    strat = "Overall", type = "auc",
+    `TIMI-II` = timi2_model
+  ),
+  MiceExtVal::get_forestplot_data(
+    strat = "Men", type = "auc", `TIMI-II strat` = timi2_model_men
+  ),
+  MiceExtVal::get_forestplot_data(
+    strat = "Women", type = "auc", `TIMI-II strat` = timi2_model_women
+  ),
+) |>
+  MiceExtVal::get_forestplot(center = 0.75)
+```
