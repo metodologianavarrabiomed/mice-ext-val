@@ -40,16 +40,21 @@ library(mice)
 library(survival)
 ```
 
-As an example of the package `MiceExtVal` use we will externally validate the Framingham model, see @framingham. We will use a dataset obtained from [kaggle](https://www.kaggle.com). The example of use will be structured as follows.
+In this vignette, we demonstrate how to use the `MiceExtVal` package to externally validate a prediction model with a survival outcome. Specifically, we will validate the Framingham model for cardiovascular risk prediction, see @framingham, using a publicly available dataset obtained from [Kaggle](https://www.kaggle.com).
 
-1. Explore the dataset
-2. Impute the missing data
-3. Define the Framingham model
-4. Externally validate the model
+The example is organized into the following steps:
+
+1. Exploring the dataset
+2. Imputing missing data
+3. Defining the Framingham model
+4. Performing external validation
+
+This structure is designed to guide users through a typical workflow, highlighting how `MiceExtVal` can support robust validation of survival models using multiply imputed data.
 
 # Explore the Dataset
+To perform an external validation of the Framingham model, we require a dataset that contains the relevant predictor variables used by the model. For this purpose, the `MiceExtVal` package includes a version of the Framingham dataset, originally shared on [Kaggle](https://www.kaggle.com) by [Shrey Jain](https://www.kaggle.com/datasets/shreyjain601/framingham-heart-study).
 
-To recreate an external validation of the Framingham model we need a dataset with the model variables. In the package we have included the Framingham dataset provided in [kaggle](https://www.kaggle.com) by [Shrey Jain](https://www.kaggle.com/datasets/shreyjain601/framingham-heart-study). In @tbl-summary-data there are represented the dataset variables.
+This dataset includes key clinical and demographic variables needed to replicate the Framingham risk prediction. A summary of the dataset's variables is provided in @tbl-summary-data, which serves as a starting point for exploring the structure and content of the data.
 
 ```{r}
 #| echo: false
@@ -72,7 +77,7 @@ MiceExtVal::framingham |>
   )
 ```
 
-In this dataset there exist some missing values in cholesterol related variables as `Total Cholesterol`, `HDL Cholesterol`, and `LDL Cholesterol`. In @tbl-perc-miss there are represented the percentage o missings in the variables.
+The dataset contains some missing values, particularly in cholesterol-related variables such as `Total Cholesterol`, `HDL Cholesterol`, and `LDL Cholesterol`. These missing values must be addressed before proceeding with model validation. Table @tbl-perc-miss shows the percentage of missing data for each variable, highlighting the extent of missingness across the dataset.
 
 ```{r}
 #| echo: false
@@ -95,8 +100,7 @@ MiceExtVal::framingham |>
 ```
 
 # Impute Missing Data
-
-To ammend these missing values we will impute their expected values using the mice package, see @mice-package. We will execute the default imputation as we are no interested in be so precise, we just want to reproduce an use case where we need to impute some missing data and from this data externally validate one or more models.
+To address the missing values, we will use the mice package to perform multiple imputation @mice-package. In this vignette, we apply the default imputation method provided by mice, as our primary goal is not to optimize the imputation itself but to demonstrate a realistic use case in which missing data must be handled prior to external validation. This step allows us to proceed with validating one or more prediction models using the imputed dataset.
 
 ```{r}
 #| eval: false
@@ -122,7 +126,7 @@ fram_long <- mice::complete(mice_data, "long") |>
 
 # The Framingham Model
 
-With the data ready to be used we need to take some time to understand the model that we want to validate, the Framingham model, @framingham. The Framingham is a Cox model that predicts the risk to suffer a coronary heart disease in patients that are $30-79$ years old, coefficients are represented in @tbl-framingham-coefficients.
+With the data prepared, the next step is to examine the prediction model we intend to validate: the Framingham risk model @framingham. This model is based on a Cox proportional hazards regression and is designed to estimate the risk of developing coronary heart disease in individuals aged 30 to 79 years. The model includes several clinical and demographic predictors, and its estimated coefficients are presented in @tbl-framingham-coefficients.
 
 ```{r}
 #| echo: false
@@ -163,8 +167,9 @@ tibble::tribble(
 ```
 
 ## Requirements to Define the Model
+Before we can define the Framingham model for validation, we must ensure that the predictor variables in our dataset are consistent with those used in the original derivation cohort. Although the dataset includes the necessary information to calculate each patient’s risk, several variables need to be transformed to match the model specifications.
 
-In the dataset we have the information needed to predict the patient's risk of event, but we need to define the variables exactly as they were defined in the Framingham derivation cohort. Therefore, before defining the model we need to generate the Framingham variables in our dataset. In the @tbl-framingham-coefficients we can observe that some continous variables are converted into categorical. More precisely, the total cholesterol, HDL cholesterol and blood pressure are categorized.
+As shown in @tbl-framingham-coefficients, some continuous variables—specifically `Total Cholesterol`,` HDL Cholesterol`, and `Blood Pressure`—were categorized in the original model. Therefore, we will recode these variables accordingly before applying the model to our data.
 
 ### Total Cholesterol
 
@@ -178,7 +183,7 @@ The total cholesterol variable is categorized into five categories, less than 16
 | 200-239              | 0.1769  | 0.2077  |
 | 240-279              | 0.5054  | 0.2439  |
 | >280                 | 0.6571  | 0.5351  |
-:{.plain .table-sm}
+: {.plain .table-sm}
 
 ```{r}
 fram_long <- fram_long |>
@@ -272,7 +277,9 @@ fram_long <- fram_long |>
 
 ## Selecting the Needed Variables
 
-Once the Framingham variables are generated we need to create the model in the `MiceExtVal` package. The Framingham model is stratified by sex. Therefore, we need to generate two models, one for men and another for women The `MiceExtVal` package allow us to define a Cox model using the `mv_model_cox`.
+After generating the required Framingham variables, we can proceed to define the model using the `MiceExtVal` package. The original Framingham model is stratified by sex, meaning separate sets of coefficients are used for men and women. To reflect this structure, we will define two separate Cox models—one for each sex.
+
+The MiceExtVal package provides the `MiceExtVal::mv_model_cox()` function to specify Cox proportional hazards models that can be used with multiply imputed data. In the following steps, we will use this function to define both sex-specific models for external validation.
 
 ### Generating Extra Needed Variables
 Some variables like `cursmoke` or `diabetes` are factors and to be used in the model we need to transform them to numeric variables where $1$ indicates `TRUE` and $0$ indicates `FALSE`. We will also generate the variable `age2` $age^2$ needed for the women model. Additionally, we generate the survival outcome. 
@@ -296,14 +303,14 @@ women_fram_long <- fram_long |> dplyr::filter(sex == 2)
 
 ### Generate the models
 
-The models in the package are created using the `MiceExtVal::mv_model_cox` function if we want to externally validate a Cox model or `MiceExtVal::mv_model_logreg` if we want to validate a logistic regression model. In this case we want to validate the Framingham model that is a Cox model.
+In the MiceExtVal package, models are defined using specialized constructors depending on the outcome type: use mv_model_cox() for Cox proportional hazards models and mv_model_logreg() for logistic regression models. Since the Framingham model is a survival model based on the Cox framework, we will use mv_model_cox() in this example.
 
-Each model needs different information in order to calculate the predictions in the Cox model we need to introduce the following parameters.
+To define a Cox model for external validation, the following key components must be provided:
 
-* `formula`: A formula that defines the model. In this formula we need to define the model coefficients and if needed, like in this case, the means to center the variables in the $\beta \cdot X$ calculation. 
-* `S0`: The value of $S_0(t)$ for the time of study $t$ in the model. In this case $t = 10 \text{ years}$.
+* formula: A formula specifying the structure of the model. This includes the predictor variables and their coefficients. If the original model was developed with centered variables, the formula should reflect that by subtracting the corresponding means to correctly compute the linear predictor ($\beta \cdot X$).
+* S0: The baseline survival probability $S_0(t)$ at a specific time point $t$. For the Framingham model, predictions are made at 10 years, so we will use $S_0(10 \text{ years})$ as provided in the original publication.
 
-As the Framingham model is stratified by sex, we need to generate two models to externally validate it.
+As the Framingham model is stratified by sex, we will define and validate two separate models—one for men and one for women—each with its corresponding formula and baseline survival value.
 
 #### Men
 The next code snippet generates the men model formula following the original mean values and the coefficients described in the previous tables.
@@ -355,13 +362,16 @@ women_model <- MiceExtVal::mv_model_cox(
 
 # External validation
 
-Once we have defined the Framingham model for the package we can now start to externally validate the model. The package functions are separated in two big groups, the functions that calculate predictions or results from the model definition are started by `calculate_`, and the functions that obtain external validation results are started by `get_`.
+Once we’ve defined the Framingham model using the MiceExtVal package, we can proceed to perform external validation. The functions in the package are organized into two main categories:
 
-The external validation can be structured in three phases.
+* Functions that calculate predictions or other results based on the model definition begin with `calculate_`.
+* Functions that obtain the external validation results begin with `get_`.
 
-1. Calculate the predictions.
-2. Calculate the recalibrations. 
-3. Obtain the external validation results.
+The external validation process can be divided into three main phases:
+
+1. Calculate Predictions: This step involves generating predicted risk scores for the individuals in the validation cohort.
+2. Calculate Recalibrations: If necessary, recalibration of the model is performed to adjust for any systematic differences between the derivation and validation cohorts.
+3. Obtain External Validation Results: This final step generates the validation metrics, such as discrimination and calibration, that assess the model’s performance in the external dataset.
 
 ## Calculate the predictions
 
@@ -404,7 +414,7 @@ To calculate the Harrell C-Index the package provides the function `calculate_c_
 
 ```{r}
 #| eval: false
-model <- model |> MiceExtVal::calculate_c_index(model = _, data = data)
+model <- model |> MiceExtVal::calculate_harrell_c_index(model = _, data = data)
 ```
 
 In our case we can calculate the C-Index as follows obtaining the results show in @tbl-c-index.
@@ -414,10 +424,10 @@ In our case we can calculate the C-Index as follows obtaining the results show i
 #| classes: plain .table-sm
 #| tbl-cap: C-Index results
 men_model <- men_model |>
-  MiceExtVal::calculate_c_index(model = _, data = men_fram_long)
+  MiceExtVal::calculate_harrell_c_index(model = _, data = men_fram_long)
 
 women_model <- women_model |>
-  MiceExtVal::calculate_c_index(model = _, data = women_fram_long)
+  MiceExtVal::calculate_harrell_c_index(model = _, data = women_fram_long)
 
 dplyr::bind_rows(men_model[["c_index"]], women_model[["c_index"]]) |>
   tibble::add_column(Model = c("Men", "Women"), .before = "Estimate") |>
@@ -435,7 +445,7 @@ To calculate the calibration plots it is mandatory to have calculated before the
 model |>
   # only if needed
   MiceExtVal::calculate_predictions(data) |>
-  MiceExtVal::get_calibration_plot_data(
+  MiceExtVal::get_calibration_plot_data_surv(
     model = _,
     data = data,
     n_groups = 10,
@@ -458,7 +468,7 @@ By using these functions we are able to generate the calibration plots shown in 
 #|    - Women
 #| label: fig-framingham-cal-plot
 men_model |>
-  MiceExtVal::get_calibration_plot_data(
+  MiceExtVal::get_calibration_plot_data_surv(
     model = _,
     data = men_fram_long,
     n_groups = 10,
@@ -467,7 +477,7 @@ men_model |>
   MiceExtVal::get_calibration_plot(data = _)
 
 women_model |>
-  MiceExtVal::get_calibration_plot_data(
+  MiceExtVal::get_calibration_plot_data_surv(
     model = _,
     data = women_fram_long,
     n_groups = 10,
@@ -502,7 +512,7 @@ men_model <- men_model |>
   )
 
 men_model |>
-  MiceExtVal::get_calibration_plot_data(
+  MiceExtVal::get_calibration_plot_data_surv(
     model = _,
     data = men_fram_long,
     n_groups = 10,
@@ -511,7 +521,7 @@ men_model |>
   MiceExtVal::get_calibration_plot(data = _)
 
 men_model |>
-  MiceExtVal::get_calibration_plot_data(
+  MiceExtVal::get_calibration_plot_data_surv(
     model = _,
     data = men_fram_long,
     n_groups = 10,
@@ -540,7 +550,7 @@ women_model <- women_model |>
   )
 
 women_model |>
-  MiceExtVal::get_calibration_plot_data(
+  MiceExtVal::get_calibration_plot_data_surv(
     model = _,
     data = women_fram_long,
     n_groups = 10,
@@ -549,7 +559,7 @@ women_model |>
   MiceExtVal::get_calibration_plot(data = _)
 
 women_model |>
-  MiceExtVal::get_calibration_plot_data(
+  MiceExtVal::get_calibration_plot_data_surv(
     model = _,
     data = women_fram_long,
     n_groups = 10,
@@ -580,7 +590,7 @@ In order to compare two models calibration plots we have developed the function 
 #|    - Original predictions
 #|    - Type 1 recalibration
 #|    - Type 2 recalibration
-MiceExtVal::get_stratified_calibration_plot(
+MiceExtVal::get_stratified_calibration_plot_surv(
   data = fram_long,
   n_groups = 10,
   type = "predictions_aggregated",
@@ -588,7 +598,7 @@ MiceExtVal::get_stratified_calibration_plot(
   Women = women_model
 )
 
-MiceExtVal::get_stratified_calibration_plot(
+MiceExtVal::get_stratified_calibration_plot_surv(
   data = fram_long,
   n_groups = 10,
   type = "predictions_recal_type_1",
@@ -596,7 +606,7 @@ MiceExtVal::get_stratified_calibration_plot(
   Women = women_model
 )
 
-MiceExtVal::get_stratified_calibration_plot(
+MiceExtVal::get_stratified_calibration_plot_surv(
   data = fram_long,
   n_groups = 10,
   type = "predictions_recal_type_2",
@@ -620,8 +630,8 @@ To generate different strats we need to bind the outcomes of `get_forestplot_dat
 #| fig-cap: Forestplot stratified
 #| label: fig-forestplot-stratified
 dplyr::bind_rows(
-  MiceExtVal::get_forestplot_data(strat = "Men", Framingham = men_model),
-  MiceExtVal::get_forestplot_data(strat = "Women", Framingham = women_model)
+  MiceExtVal::get_forestplot_data(strat = "Men", type = "c_index", Framingham = men_model),
+  MiceExtVal::get_forestplot_data(strat = "Women", type = "c_index", Framingham = women_model)
 ) |>
   MiceExtVal::get_forestplot(center = 0.7) +
   ggplot2::xlim(c(0.6, 0.75))
@@ -639,6 +649,7 @@ If we want to generate a forestplot with multiple models in one strat we can gen
 #| label: fig-forestplot-non-stratified
 MiceExtVal::get_forestplot_data(
   strat = "Overall",
+  type = "c_index",
   `Framingham Women` = women_model,
   `Framingham Men` = men_model
 ) |>
