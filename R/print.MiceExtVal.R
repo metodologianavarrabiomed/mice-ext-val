@@ -38,7 +38,7 @@ print.MiceExtVal <- function(x, ...) {
           cli::cli_text("{list_text}")
         } else {
           # c-index formatting
-          if (elem == "c_index") {
+          if (elem %in% c("c_index", "auc")) {
             cli::cli_text(
               "{.val {x[[elem]]['Estimate']}} (95% CI {.val {x[[elem]]['95% CI L']}}, {.val {x[[elem]]['95% CI U']}})"
             )

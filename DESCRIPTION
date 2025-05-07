@@ -1,6 +1,6 @@
 Package: MiceExtVal
 Title: Tools for external validation in Multiple Imputation by Chained Equations methodology
-Version: 0.0.1.1
+Version: 0.0.1.2
 Authors@R: 
     person("Asier", "Ballesteros Domínguez", , "asier.ballesteros.dominguez@navarra.es", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-2195-4669"))
@@ -12,9 +12,9 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Suggests: 
-    knitr (>= 1.45),
-    quarto (>= 1.4),
-    testthat (>= 3.0.0), 
+    knitr,
+    quarto,
+    testthat (>= 3.0.0),
     gtsummary (>= 2.0.4),
     kableExtra (>= 1.4.0),
     here (>= 1.0.1),
@@ -31,8 +31,10 @@ Imports:
     psfmi (>= 1.4.0),
     methods (>= 4.2.3),
     cli (>= 3.6.2),
-    rlang (>= 1.1.4)
+    rlang (>= 1.1.4),
+    pROC (>= 1.18)
 Config/testthat/edition: 3
 Depends: 
     R (>= 4.4.0)
 LazyData: true
+VignetteBuilder: quarto

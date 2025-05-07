@@ -55,7 +55,6 @@ get_forestplot <- function(data, center) {
     ggplot2::facet_grid(model ~ 1, switch = "y") +
     ggplot2::geom_vline(xintercept = center, linetype = "dashed") +
     ggplot2::guides(colour = ggplot2::guide_legend(title = "Strat")) +
-    ggplot2::xlab("Harrell C-Index") +
     ggplot2::theme_minimal() +
     ggplot2::theme(
       strip.text.x = ggplot2::element_blank(),

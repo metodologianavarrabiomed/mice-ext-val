@@ -2,9 +2,9 @@
 #' Generates the calibration plot
 #'
 #' @description
-#' Generates the calibration plot from the data needed to print it. This data is generated with the [get_calibration_plot_data()] function.
+#' Generates the calibration plot from the data needed to print it. This data is generated with the [get_calibration_plot_data_surv()] and [get_calibration_plot_data_prop()] functions.
 #'
-#' @param data Outcome of the [get_calibration_plot_data()] function.
+#' @param data Outcome of the [get_calibration_plot_data_surv()] or [get_calibration_plot_data_prop()] functions.
 #'
 #' @return ggplot2 object ready to be plotted
 #'
@@ -15,8 +15,12 @@
 #' @examples
 #' \dontrun{
 #' model |>
-#'    get_calibration_plot_data(data, 10, type = "predictions_aggregated") |>
-#'    get_calibration_plot()
+#'   get_calibration_plot_data_surv(data, 10, type = "predictions_aggregated") |>
+#'   get_calibration_plot()
+#'
+#' model |>
+#'   get_calibration_plot_data_prop(data, 10, type = "predictions_aggregated") |>
+#'   get_calibration_plot()
 #' }
 get_calibration_plot <- function(data) {
   my_theme <- function() {
@@ -47,20 +51,36 @@ get_calibration_plot <- function(data) {
     ggplot2::expand_limits(x = 0, y = 0) +
     ggplot2::geom_abline(linetype = "dashed") +
     ggplot2::geom_point(
-      ggplot2::aes(x = {.data[["predicted"]]}, y = {.data[["observed"]]}),
+      ggplot2::aes(x = {
+        .data[["predicted"]]
+      }, y = {
+        .data[["observed"]]
+      }),
       size = 2.5,
       color = "#00BFC4",
       stroke = 0.5,
       show.legend = FALSE
     ) +
     ggplot2::geom_errorbar(
-      ggplot2::aes(x = {.data[["predicted"]]}, y = {.data[["observed"]]}, ymin = {.data[["ll"]]}, ymax = {.data[["ul"]]}),
+      ggplot2::aes(x = {
+        .data[["predicted"]]
+      }, y = {
+        .data[["observed"]]
+      }, ymin = {
+        .data[["ll"]]
+      }, ymax = {
+        .data[["ul"]]
+      }),
       linewidth = 1,
       color = "#00BFC4",
       width = 0.01
     ) +
     ggplot2::geom_smooth(
-      ggplot2::aes(x = {.data[["predicted"]]}, y = {.data[["observed"]]}),
+      ggplot2::aes(x = {
+        .data[["predicted"]]
+      }, y = {
+        .data[["observed"]]
+      }),
       weight = 1,
       linewidth = 1,
       color = "#00BFC4",
