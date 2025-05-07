@@ -68,14 +68,20 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
         cli::cli_progress_update(.envir = env)
       }
       # Obtains the data of the event variable
-      survival_data <- .x[[all.vars(model$formula)[1]]]
+      dependent_variable <- .x[[all.vars(model$formula)[1]]]
       betax <- model$betax_data %>%
         dplyr::filter(.imp == .y$.imp) %>%
         dplyr::pull(betax)
 
+      if (methods::is(dependent_variable, "Surv")) {
+        event <- dependent_variable[, "status"]
+      } else {
+        event <- dependent_variable
+      }
+
       # Calculates the `alpha` parameter value
       model_recal <- rms::lrm.fit(
-        y = survival_data[, "status"],
+        y = event,
         offset = betax
       )
       tibble::tibble(alpha = model_recal$coefficients)

@@ -16,10 +16,10 @@
 #'
 #' @examples
 #' \dontrun{
-#' get_stratified_calibration_plot(data, 10, model1, model2)
-#' get_stratified_calibration_plot(data, 10, strat1 = model1, strat2 = model2)
+#' get_stratified_calibration_plot_prop(data, 10, model1, model2)
+#' get_stratified_calibration_plot_prop(data, 10, strat1 = model1, strat2 = model2)
 #' }
-get_stratified_calibration_plot <- function(data, n_groups, type, ...) {
+get_stratified_calibration_plot_prop <- function(data, n_groups, type = c("predictions_aggregated", "predictions_recal_type_1", "predictions_recal_type_2"), ...) {
   # get model names ---------------------------------------------------------
   models <- list(...)
   is_model_class <- purrr::map_lgl(models, \(x) methods::is(x, "MiceExtVal"))
@@ -60,13 +60,28 @@ get_stratified_calibration_plot <- function(data, n_groups, type, ...) {
     }
   }
 
+  if (all(is_model_class)) {
+    is_dichotomous <- \(x) length(unique(x)) == 2
+    is_dep_var_num <- purrr::map_lgl(
+      models,
+      ~ methods::is(data[[all.vars(.x$formula)[[1]]]], "Surv") ||
+        (methods::is(data[[all.vars(.x$formula)[[1]]]], "numeric") &&
+          is_dichotomous(data[[all.vars(.x$formula)[[1]]]]))
+    )
+
+    if (!all(is_dep_var_num)) {
+      error_message <- c(error_message, "*" = cli::format_error(cli::format_error("The {.arg {model_names[!is_dep_var_num]}} model{?s} must have a dependent variable of class {.cls {c('Surv', 'numeric')}} and be dichotomous")))
+    }
+  }
+
+
   if (!is.null(error_message)) {
     cli::cli_abort(error_message)
   }
 
   # generate the stratified calibration plot --------------------------------
   plot_data <- purrr::map_df(seq_along(model_names), ~ {
-    MiceExtVal::get_calibration_plot_data(model = models[[.x]], data = data, n_groups = n_groups, type) |>
+    get_calibration_plot_data_prop(model = models[[.x]], data = data, n_groups = n_groups, type) |>
       tibble::add_column(strat = model_names[[.x]])
   }, data = data)
 

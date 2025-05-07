@@ -7,18 +7,22 @@
 get_calibration_plot(data)
 }
 \arguments{
-\item{data}{Outcome of the \code{\link[=get_calibration_plot_data]{get_calibration_plot_data()}} function.}
+\item{data}{Outcome of the \code{\link[=get_calibration_plot_data_surv]{get_calibration_plot_data_surv()}} or \code{\link[=get_calibration_plot_data_prop]{get_calibration_plot_data_prop()}} functions.}
 }
 \value{
 ggplot2 object ready to be plotted
 }
 \description{
-Generates the calibration plot from the data needed to print it. This data is generated with the \code{\link[=get_calibration_plot_data]{get_calibration_plot_data()}} function.
+Generates the calibration plot from the data needed to print it. This data is generated with the \code{\link[=get_calibration_plot_data_surv]{get_calibration_plot_data_surv()}} and \code{\link[=get_calibration_plot_data_prop]{get_calibration_plot_data_prop()}} functions.
 }
 \examples{
 \dontrun{
 model |>
-   get_calibration_plot_data(data, 10, type = "predictions_aggregated") |>
-   get_calibration_plot()
+  get_calibration_plot_data_surv(data, 10, type = "predictions_aggregated") |>
+  get_calibration_plot()
+
+model |>
+  get_calibration_plot_data_prop(data, 10, type = "predictions_aggregated") |>
+  get_calibration_plot()
 }
 }

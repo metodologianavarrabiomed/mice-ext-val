@@ -38,8 +38,8 @@
 #'
 #' model <- model |>
 #'   calculate_predictions(data) |>
-#'   calculate_c_index(data)
-calculate_c_index <- function(model, data, .progress = FALSE) {
+#'   calculate_harrell_c_index(data)
+calculate_harrell_c_index <- function(model, data, .progress = FALSE) {
   error_message <- NULL
 
   if (!methods::is(model, "MiceExtVal")) {
