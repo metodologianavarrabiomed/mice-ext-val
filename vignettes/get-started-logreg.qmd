@@ -22,7 +22,7 @@ p {
 ```
 
 
-# Required Libraries
+#### Required Libraries
 
 The following code snippet lists all the libraries needed to run this report.
 
@@ -112,7 +112,7 @@ Traditional external validation is typically performed on a single, complete dat
 
 However, when working with datasets containing missing values—especially in clinical research—multiple imputation is often used to preserve data integrity and avoid bias. As a result, we no longer have a single dataset, but multiple imputed versions of the original data, each representing a plausible completion. This complicates traditional validation workflows, since each imputed dataset yields different results that must be pooled appropriately.
 
-The `MiceExtVal` package is designed to bridge this gap by streamlining the external validation process across multiple imputed datasets. It allows users to perform all key validation steps—including prediction, performance evaluation, and optional recalibration—while properly handling the variability introduced by imputation.
+The `MiceExtVal` package is designed to bridge this gap by streamlining the external validation process across multiple imputed datasets. It allows users to perform all validation steps—including prediction, performance evaluation, and optional recalibration while properly handling the variability introduced by imputation.
 
 Having completed the imputation in the previous section, we are now ready to externally validate the TIMI-II model using `MiceExtVal`. Since TIMI-II is a logistic regression model, we begin by defining it with the `MiceExtVal::mv_model_logreg()` function. This function requires a formula specifying the model's coefficients and intercept. It is essential that all variables included in the formula are present in the imputed dataset; otherwise, subsequent functions will raise an error.
 
@@ -132,9 +132,9 @@ timi2_model <- timi2_model |>
   MiceExtVal::calculate_predictions(gusto_imp)
 ```
 
-After executing `MiceExtVal::calculate_predictions()`, the model object is updated with additional information derived from the imputed dataset. Specifically, the predicted probabilities are computed for each imputation and stored within the model. In addition, the function calculates aggregated predictions for each patient by pooling results across imputations. An example of these values are shown in Table @tbl-model-predictions-example.
+After executing `MiceExtVal::calculate_predictions()`, the model object is updated with additional information derived from the imputed dataset. Specifically, the predicted probabilities are computed for each imputation and stored within the model. In addition, the function calculates aggregated predictions for each patient by pooling results across imputations. An example of these values are shown in @tbl-model-predictions-example.
 
-Beyond the predicted probabilities, the model object also includes the linear predictors ($\beta \cdot X$), both at the individual imputation level and as pooled estimates. These represent the raw score from the logistic regression model before applying the inverse logit transformation. Table @tbl-model-betax-example presents these values.
+Beyond the predicted probabilities, the model object also includes the linear predictors ($\beta \cdot X$), both at the individual imputation level and as pooled estimates. These represent the raw score from the logistic regression model before applying the inverse logit transformation. @tbl-model-betax-example presents these values.
 
 This structure—where all relevant prediction outputs are integrated into the model object—allows for a streamlined workflow in which subsequent steps like performance evaluation or recalibration can be carried out with minimal additional input.
 
@@ -359,7 +359,7 @@ For our case, since we are working with a binary outcome and stratifying by sex,
 To generate the stratified calibration plot, you’ll need to pass several arguments to the function:
 
 * The external validation data (e.g., `gusto_imp`)
-* The number of groups (in our case, two: men and women)
+* The number of groups
 * The type of prediction (either recalibrated or original predictions)
 * A list of models to compare (in this case, `timi2_model_men` and `timi2_model_women`).
 
