@@ -72,23 +72,14 @@
 <p>External model validation is a necessary step in the implementation of risk prediction models in real life situations. There is an overabundance of models that are not really tested in environments other than their development. To aknowledge that a model will perform properly in different environments we need to perform external validations in them.</p>
 <p>Simultanously, the majority of the availabe datasets for external validation will come from electronic health records (EHR) resulting in datasets with missing information. One of the most recommended techniques to reduce the BIAS produced by the missing values is the multiple imputation.</p>
 <p>The package <code>MiceExtVal</code> helps to create workflows to externally validate logistic regression and Cox models among a multiple imputed dataset. The package helps users to generate the multiple imputation workflow properly while maintaining a common syntax for both models.</p>
-<pre class="mermaid"><code>flowchart LR
-data[(fa:fa-database multiple imputed data)] --&gt; a1(fa:fa-chart-simple analysis dataset 1)
-data --&gt; adots(...)
-data --&gt; an(fa:fa-chart-simple analysis dataset n)
-a1 --&gt; res1(fa:fa-magnifying-glass results analysis 1)
-adots --&gt; res2(...)
-an --&gt; resn(fa:fa-magnifying-glass results analysis n)
-res1 --&gt; total_results(fa:fa-layer-group aggregated results)
-res2 --&gt; total_results
-resn --&gt; total_results
-total_results --&gt; cal_plot(calibration plot)
-total_results --&gt; c_index(c index forestplot)</code></pre>
+<div class="float">
+<img src="reference/figures/mermaid_diagram_1.svg" alt="Flow diagram for the multiple imputation by chained equations methodology"><div class="figcaption">Flow diagram for the multiple imputation by chained equations methodology</div>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>You can install the development version of <code>MiceExtVal</code> from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"metodologianavarrabiomed/mice-ext-val"</span><span class="op">)</span></span>
 <span></span>
