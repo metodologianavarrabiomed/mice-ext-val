@@ -6,20 +6,7 @@ Simultanously, the majority of the availabe datasets for external validation wil
 
 The package `MiceExtVal` helps to create workflows to externally validate logistic regression and Cox models among a multiple imputed dataset. The package helps users to generate the multiple imputation workflow properly while maintaining a common syntax for both models.
 
-```mermaid
-flowchart LR
-data[(fa:fa-database multiple imputed data)] --> a1(fa:fa-chart-simple analysis dataset 1)
-data --> adots(...)
-data --> an(fa:fa-chart-simple analysis dataset n)
-a1 --> res1(fa:fa-magnifying-glass results analysis 1)
-adots --> res2(...)
-an --> resn(fa:fa-magnifying-glass results analysis n)
-res1 --> total_results(fa:fa-layer-group aggregated results)
-res2 --> total_results
-resn --> total_results
-total_results --> cal_plot(calibration plot)
-total_results --> c_index(c index forestplot)
-```
+![Flow diagram for the multiple imputation by chained equations methodology](man/figures/mermaid_diagram_1.svg)
 
 ## Installation
 
