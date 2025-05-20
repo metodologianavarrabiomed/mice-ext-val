@@ -79,20 +79,35 @@ calculate_brier_score <- function(model, data, type = c("predictions_aggregated"
             dplyr::select(dplyr::all_of(c("id", dependent_variable))),
           by = "id"
         )
+
       if (methods::is(data[[dependent_variable]], "Surv")) {
         data[["out"]] <- data[[dependent_variable]][, "status"]
       } else {
         data[["out"]] <- data[[dependent_variable]]
       }
 
-      get_brier_score(data[["prediction"]], data[["out"]])
+      switch(type,
+        "predictions_aggregated" = get_brier_score(data[["prediction"]], data[["out"]]),
+        "predictions_recal_type_1" = get_brier_score(data[["prediction_type_1"]], data[["out"]]),
+        "predictions_recal_type_2" = get_brier_score(data[["prediction_type_2"]], data[["out"]])
+      )
     }
   )
 
-  model$brier_score <- c(
-    "Estimate" = mean(boot_bs_res),
-    "95% CI L" = quantile(boot_bs_res, 0.025),
-    "95% CI U" = quantile(boot_bs_res, 0.975)
+
+  # assign variable in the model --------------------------------------------
+  get_brier_score_attribute <- function(data) {
+    c(
+      "Estimate" = mean(data),
+      "95% CI L" = quantile(data, 0.025),
+      "95% CI U" = quantile(data, 0.975)
+    )
+  }
+
+  switch(type,
+    "predictions_aggregated" = model$brier_score <- get_brier_score_attribute(boot_bs_res),
+    "predictions_recal_type_1" = model$brier_score_type_1 <- get_brier_score_attribute(boot_bs_res),
+    "predictions_recal_type_2" = model$brier_score_type_2 <- get_brier_score_attribute(boot_bs_res)
   )
 
   return(model)
