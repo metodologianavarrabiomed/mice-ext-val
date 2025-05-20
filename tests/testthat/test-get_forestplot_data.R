@@ -18,7 +18,7 @@ test_that("returns an error if some model does not have the `c_index` calculated
     calculate_predictions(data) |>
     calculate_harrell_c_index(data)
 
-  model_logreg <- make_cox_model(environment()) |>
+  model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data)
 
   expect_error(get_forestplot_data(strat = "overall", type = "c_index", model_cox, model_logreg), "must have their `c_index` calculated, consider using")
@@ -30,7 +30,7 @@ test_that("returns an error if some model does not have the `auc` calculated", {
     calculate_predictions(data) |>
     calculate_auc(data)
 
-  model_logreg <- make_cox_model(environment()) |>
+  model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data)
 
   expect_error(get_forestplot_data(strat = "overall", type = "auc", model_cox, model_logreg), "must have their `auc` calculated, consider using")
@@ -55,7 +55,7 @@ test_that("returns an error if some model does not have the `brier_score_type_1`
     calculate_predictions_recalibrated_type_1(data) |>
     calculate_brier_score(data = data, type = "predictions_recal_type_1", n_boot = 10, seed = 123)
 
-  model_logreg <- make_cox_model(environment()) |>
+  model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data)
 
   expect_error(get_forestplot_data(strat = "overall", type = "brier_score_type_1", model_cox, model_logreg), "must have their `brier_score_type_1` calculated, consider using")
@@ -68,7 +68,7 @@ test_that("returns an error if some model does not have the `brier_score_type_2`
     calculate_predictions_recalibrated_type_2(data) |>
     calculate_brier_score(data = data, type = "predictions_recal_type_2", n_boot = 10, seed = 123)
 
-  model_logreg <- make_cox_model(environment()) |>
+  model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data)
 
   expect_error(get_forestplot_data(strat = "overall", type = "brier_score_type_2", model_cox, model_logreg), "must have their `brier_score_type_2` calculated, consider using")

@@ -98,7 +98,7 @@ test_that("checks variables in `data` argument while generating `c_index` forest
     calculate_predictions(data) |>
     calculate_harrell_c_index(data)
 
-  model_logreg <- make_cox_model(environment()) |>
+  model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data) |>
     calculate_harrell_c_index(data)
 
@@ -117,7 +117,7 @@ test_that("checks variables in `data` argument while generating `auc` forestplot
     calculate_predictions(data) |>
     calculate_auc(data)
 
-  model_logreg <- make_cox_model(environment()) |>
+  model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data) |>
     calculate_auc(data)
 
@@ -200,7 +200,7 @@ test_that("checks properly the class of the variables in `data` while generating
     calculate_predictions(data) |>
     calculate_harrell_c_index(data)
 
-  model_logreg <- make_cox_model(environment()) |>
+  model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data) |>
     calculate_harrell_c_index(data)
 
@@ -219,7 +219,7 @@ test_that("checks properly the class of the variables in `data` while generating
     calculate_predictions(data) |>
     calculate_auc(data)
 
-  model_logreg <- make_cox_model(environment()) |>
+  model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data) |>
     calculate_auc(data)
 
