@@ -34,7 +34,6 @@ calculate_brier_score <- function(model, data, type = c("predictions_aggregated"
       if (!any(type %in% c("predictions_aggregated", "predictions_recal_type_1", "predictions_recal_type_2"))) {
         error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('predictions_aggregated', 'predictions_recal_type_1', 'predictions_recal_type_2')}}"))
       } else {
-        # NOTE: if we want to change the aggregated predictions for all the predictions in `mice` methodology we probably need to update this assertion
         if (methods::is(model, "MiceExtVal") && is.null(model[[type]])) {
           error_message <- c(error_message, "*" = cli::format_error("It seems that {.arg type} is not yet calculated, calculate it using {.fn {c('MiceExtVal::calculate_predictions', 'MiceExtVal::calculate_predictions_recalibrated_type_1', 'MiceExtVal::calculate_predictions_recalibrated_type_2')}}"))
         }
