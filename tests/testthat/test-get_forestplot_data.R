@@ -10,6 +10,8 @@ test_that("returns an error if some model is not <MiceExtVal>", {
   expect_error(get_forestplot_data(strat = "overall", type = "c_index", model_cox, 5), "must be <MiceExtVal>")
 })
 
+# error in calculated parameters of the model -----------------------------
+
 test_that("returns an error if some model does not have the `c_index` calculated", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model_cox <- make_cox_model(environment()) |>
@@ -34,18 +36,72 @@ test_that("returns an error if some model does not have the `auc` calculated", {
   expect_error(get_forestplot_data(strat = "overall", type = "auc", model_cox, model_logreg), "must have their `auc` calculated, consider using")
 })
 
-test_that("generates properly the forestplot data", {
+test_that("returns an error if some model does not have the `brier_score` calculated", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model_cox <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
-    calculate_harrell_c_index(data) |>
-    calculate_auc(data)
+    calculate_brier_score(data = data, type = "predictions_aggregated", n_boot = 10, seed = 123)
+
+  model_logreg <- make_logreg_model(environment()) |>
+    calculate_predictions(data)
+
+  expect_error(get_forestplot_data(strat = "overall", type = "brier_score", model_cox, model_logreg), "must have their `brier_score` calculated, consider using")
+})
+
+test_that("returns an error if some model does not have the `brier_score_type_1` calculated", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_cox <- make_cox_model(environment()) |>
+    calculate_predictions(data) |>
+    calculate_predictions_recalibrated_type_1(data) |>
+    calculate_brier_score(data = data, type = "predictions_recal_type_1", n_boot = 10, seed = 123)
 
   model_logreg <- make_cox_model(environment()) |>
+    calculate_predictions(data)
+
+  expect_error(get_forestplot_data(strat = "overall", type = "brier_score_type_1", model_cox, model_logreg), "must have their `brier_score_type_1` calculated, consider using")
+})
+
+test_that("returns an error if some model does not have the `brier_score_type_2` calculated", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_cox <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
+    calculate_predictions_recalibrated_type_2(data) |>
+    calculate_brier_score(data = data, type = "predictions_recal_type_2", n_boot = 10, seed = 123)
+
+  model_logreg <- make_cox_model(environment()) |>
+    calculate_predictions(data)
+
+  expect_error(get_forestplot_data(strat = "overall", type = "brier_score_type_2", model_cox, model_logreg), "must have their `brier_score_type_2` calculated, consider using")
+})
+
+
+# proper result generation ------------------------------------------------
+
+test_that("generates properly the forestplot data for `c_index`", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_cox <- make_cox_model(environment()) |>
+    calculate_predictions(data) |>
+    calculate_predictions_recalibrated_type_1(data) |>
+    calculate_predictions_recalibrated_type_2(data) |>
     calculate_harrell_c_index(data) |>
-    calculate_auc(data)
+    calculate_auc(data) |>
+    calculate_brier_score(data = data, type = "predictions_aggregated", n_boot = 10, seed = 123) |>
+    calculate_brier_score(data = data, type = "predictions_recal_type_1", n_boot = 10, seed = 123) |>
+    calculate_brier_score(data = data, type = "predictions_recal_type_2", n_boot = 10, seed = 123)
+
+  model_logreg <- make_logreg_model(environment()) |>
+    calculate_predictions(data) |>
+    calculate_predictions_recalibrated_type_1(data) |>
+    calculate_predictions_recalibrated_type_2(data) |>
+    calculate_harrell_c_index(data) |>
+    calculate_auc(data) |>
+    calculate_brier_score(data = data, type = "predictions_aggregated", n_boot = 10, seed = 123) |>
+    calculate_brier_score(data = data, type = "predictions_recal_type_1", n_boot = 10, seed = 123) |>
+    calculate_brier_score(data = data, type = "predictions_recal_type_2", n_boot = 10, seed = 123)
 
   expect_s3_class(get_forestplot_data(strat = "overall", type = "c_index", model_cox, model_logreg), "tbl_df")
   expect_s3_class(get_forestplot_data(strat = "overall", type = "auc", model_cox, model_logreg), "tbl_df")
+  expect_s3_class(get_forestplot_data(strat = "overall", type = "brier_score", model_cox, model_logreg), "tbl_df")
+  expect_s3_class(get_forestplot_data(strat = "overall", type = "brier_score_type_1", model_cox, model_logreg), "tbl_df")
+  expect_s3_class(get_forestplot_data(strat = "overall", type = "brier_score_type_2", model_cox, model_logreg), "tbl_df")
 })
