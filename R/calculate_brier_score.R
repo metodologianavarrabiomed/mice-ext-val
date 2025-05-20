@@ -17,39 +17,50 @@
 #' @examples
 #' \dontrun{
 #' model |>
-#'   calculate_brier_score(data, type = "predictions_data")
+#'   calculate_brier_score(data, type = "predictions_aggregated")
 #' }
-calculate_brier_score <- function(model, data, type = c("predictions_data", "predictions_recal_type_1", "predictions_recal_type_2"), n_boot = 1000, seed = 123) {
-  set.seed(seed)
+calculate_brier_score <- function(model, data, type = c("predictions_aggregated", "predictions_recal_type_1", "predictions_recal_type_2"), n_boot = 1000, seed = NULL) {
+  is_dichotomous <- \(x) is.numeric(x) & length(unique(x)) == 2
+  if (!is.null(seed)) set.seed(seed)
 
   # assertions --------------------------------------------------------------
   error_message <- NULL
   if (!methods::is(model, "MiceExtVal")) {
     error_message <- c(error_message, "*" = cli::format_error("{.arg model} must be {.cls MiceExtVal}"))
-  }
-
-  if (!methods::is(data, "data.frame")) {
-    error_message <- c(error_message, "*" = cli::format_error("{.arg data} must be {.cls data.frame}"))
   } else {
-    if (!any(type %in% c("predictions_data", "predictions_recal_type_1", "predictions_recal_type_2"))) {
-      error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('predictions_data', 'predictions_recal_type_1', 'predictions_recal_type_2')}}"))
+    if (!methods::is(data, "data.frame")) {
+      error_message <- c(error_message, "*" = cli::format_error("{.arg data} must be {.cls data.frame}"))
     } else {
-      if (methods::is(model, "MiceExtVal") && is.null(model[[type]])) {
-        error_message <- c(error_message, "*" = cli::format_error("It seems that {.arg type} is not yet calculated, calculate it using {.fn {c('MiceExtVal::calculate_predictions', 'MiceExtVal::calculate_predictions_recalibrated_type_1', 'MiceExtVal::calculate_predictions_recalibrated_type_2')}}"))
+      if (!any(type %in% c("predictions_aggregated", "predictions_recal_type_1", "predictions_recal_type_2"))) {
+        error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('predictions_aggregated', 'predictions_recal_type_1', 'predictions_recal_type_2')}}"))
+      } else {
+        # NOTE: if we want to change the aggregated predictions for all the predictions in `mice` methodology we probably need to update this assertion
+        if (methods::is(model, "MiceExtVal") && is.null(model[[type]])) {
+          error_message <- c(error_message, "*" = cli::format_error("It seems that {.arg type} is not yet calculated, calculate it using {.fn {c('MiceExtVal::calculate_predictions', 'MiceExtVal::calculate_predictions_recalibrated_type_1', 'MiceExtVal::calculate_predictions_recalibrated_type_2')}}"))
+        }
       }
-    }
 
-    if (!".imp" %in% colnames(data)) {
-      error_message <- c(error_message, "*" = cli::format_error("{.arg data} variable must contain {.arg .imp}"))
-    }
+      if (!".imp" %in% colnames(data)) {
+        error_message <- c(error_message, "*" = cli::format_error("{.arg data} variable must contain {.arg .imp}"))
+      }
 
-    if (methods::is(model, "MiceExtVal")) {
       dependent_variable <- all.vars(model$formula)[1]
-      if (!dependent_variable %in% colnames(data)) {
-        error_message <- c(error_message, "*" = cli::format_error("the dependent variable {.var {dependent_variable}} must be part of {.arg data}"))
+      if (
+        methods::is(model, "logreg") &
+          (!methods::is(data[[dependent_variable]], "Surv") & !methods::is(data[[dependent_variable]], "numeric"))
+      ) {
+        error_message <- c(error_message, "*" = cli::format_error("The dependent variable {.var {dependent_variable}} must be {.cls {c('Surv', 'numeric')}}"))
+      } else {
+        if (methods::is(data[[dependent_variable]], "numeric") & !is_dichotomous(data[[dependent_variable]])) {
+          error_message <- c(error_message, "*" = cli::format_error("The dependent variable {.var {dependent_variable}} must be {.arg dichotomous}"))
+        }
       }
-      if (!methods::is(data[[dependent_variable]], "Surv")) {
-        error_message <- c(error_message, "*" = cli::format_error("the dependent variable {.var {dependent_variable}} must be {.cls Surv}"))
+
+      if (methods::is(model, "cox")) {
+        # Returns an error if `S0` does not exist or it is bad defined in the cox model
+        if (is.null(model$S0) | !is.numeric(model$S0)) {
+          error_message <- c(error_message, "*" = cli::format_error("{.arg S0} must be {.cls numeric}"))
+        }
       }
     }
   }
@@ -58,50 +69,30 @@ calculate_brier_score <- function(model, data, type = c("predictions_data", "pre
 
   # brier score calculation -------------------------------------------------
   get_brier_score <- \(x, y) mean(sum((x - y)**2))
-  brier_score_res <- data |>
-    dplyr::group_by_at(".imp") |>
-    dplyr::group_map(~ {
-      predictions_df <- model$predictions_data |>
-        dplyr::filter(.data[[".imp"]] == .y$.imp) |>
+  b_samp <- rsample::bootstraps(data = model[[type]], times = n_boot)
+  boot_bs_res <- purrr::map_dbl(
+    b_samp[["splits"]], ~ {
+      data <- rsample::analysis(.x) |>
         dplyr::left_join(
-          data |> dplyr::select(dplyr::all_of(c("id", dependent_variable))),
+          data |>
+            dplyr::filter(data[[".imp"]] == 1) |>
+            dplyr::select(dplyr::all_of(c("id", dependent_variable))),
           by = "id"
         )
-
-      if (methods::is(predictions_df[[dependent_variable]], "Surv")) {
-        predictions_df[["out"]] <- predictions_df[[dependent_variable]][, "status"]
+      if (methods::is(data[[dependent_variable]], "Surv")) {
+        data[["out"]] <- data[[dependent_variable]][, "status"]
       } else {
-        predictions_df[["out"]] <- predictions_df[[dependent_variable]]
+        data[["out"]] <- data[[dependent_variable]]
       }
 
-      b_samp <- rsample::bootstraps(data = predictions_df, times = n_boot)
+      get_brier_score(data[["prediction"]], data[["out"]])
+    }
+  )
 
-      boot_bs_res <- purrr::map_dbl(
-        b_samp[["splits"]], ~ {
-          data <- rsample::analysis(.x)
-          get_brier_score(data[["prediction"]], data[["out"]])
-        }
-      )
-
-      tibble::tibble(
-        .imp = .y$.imp,
-        brier_score = mean(boot_bs_res),
-        se = sd(boot_bs_res)
-      )
-    }) |>
-    dplyr::bind_rows()
-
-  n <- data |>
-    dplyr::filter(.data[[".imp"]] == 1) |>
-    dplyr::pull("id") |>
-    length()
-
-  model$brier_score <- psfmi::pool_RR(
-    est = brier_score_res[["brier_score"]],
-    se = brier_score_res[["se"]],
-    conf.level = 0.95,
-    n = n,
-    k = 1
+  model$brier_score <- c(
+    "Estimate" = mean(boot_bs_res),
+    "95% CI L" = quantile(boot_bs_res, 0.025),
+    "95% CI U" = quantile(boot_bs_res, 0.975)
   )
 
   return(model)
