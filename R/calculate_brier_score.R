@@ -5,13 +5,15 @@
 #'
 #' The function works accordingly to the `model` definition. If the model is defined as Cox, the survival variable is transformed to dichotomous as `1` if the event has appeared during the follow up and `0` othercase. In the case the model is a logistic regression the dependent variable can be already dichotomous or survival, in the case of the survival variable the dichotomous is defined as in the Cox model.
 #'
-#' @param model Model generated with [mv_model_cox()] or [mv_model_logreg()]. Needs the `predictions` parameter of the model, to generate it the function [calculate_predictions()] must be executed over the model. If we want to obtain also the recalibrated data the model must be initalize the recalibrated predictions with [calculate_predictions_recalibrated_type_1()] and [calculate_predictions_recalibrated_type_2()].
+#' The confidence interval is calculated by bootstrap resamples.
+#'
+#' @param model Model generated with [mv_model_cox()] or [mv_model_logreg()]. Needs the expected prediction parameter already calculated in the model. To generate the predictions you must use the function/s [calculate_predictions()], [calculate_predictions_recalibrated_type_1()] or [calculate_predictions_recalibrated_type_2()]
 #' @param data Data for what the observed predictions will be calculated.
 #' @param type Type of the predictions that the calibration plot data should be generated from: `"predictions_aggregated"`, `"predictions_recal_type_1"` or `"predictions_recal_type_2"`
-#' @param boot_samples number of bootstrap resamples to calculate the Brier Score standar error
+#' @param boot_samples number of bootstrap resamples to calculate the Brier Score standar error.
 #' @param seed random seed generator
 #'
-#' @returns Aggregated Brier Score
+#' @returns The model with the brier score calculated
 #' @export
 #'
 #' @examples
