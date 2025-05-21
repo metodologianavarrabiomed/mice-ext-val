@@ -10,11 +10,14 @@
 #' @param model Model generated with [mv_model_cox()] or [mv_model_logreg()]. Needs the expected prediction parameter already calculated in the model. To generate the predictions you must use the function/s [calculate_predictions()], [calculate_predictions_recalibrated_type_1()] or [calculate_predictions_recalibrated_type_2()]
 #' @param data Data for what the observed predictions will be calculated.
 #' @param type Type of the predictions that the calibration plot data should be generated from: `"predictions_aggregated"`, `"predictions_recal_type_1"` or `"predictions_recal_type_2"`
-#' @param boot_samples number of bootstrap resamples to calculate the Brier Score standar error.
+#' @param n_boot number of bootstrap resamples to calculate the Brier Score standar error.
 #' @param seed random seed generator
 #'
-#' @returns The model with the brier score calculated
-#' @export
+#' @importFrom dplyr left_join filter select all_of
+#' @importFrom rsample bootstraps analysis
+#' @importFrom methods is
+#' @importFrom cli format_error cli_abort
+#' @importFrom stats quantile
 #'
 #' @examples
 #' \dontrun{
@@ -100,8 +103,8 @@ calculate_brier_score <- function(model, data, type = c("predictions_aggregated"
   get_brier_score_attribute <- function(data) {
     c(
       "Estimate" = mean(data),
-      "95% CI L" = quantile(data, 0.025),
-      "95% CI U" = quantile(data, 0.975)
+      "95% CI L" = stats::quantile(data, 0.025),
+      "95% CI U" = stats::quantile(data, 0.975)
     )
   }
 
