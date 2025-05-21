@@ -499,6 +499,38 @@ women_model |>
 
 The calibration plots are a `ggplot` object and they can be modified as any other plot of the `ggplot2` package. Feel free to modify them to match your requirements.
 
+### Calculation Brier Score
+
+The Brier score is an statistic that measure the accuracy between the predicted riska and the observed outcome. In survival analysis we do no have an observed risk for each of the patients. Neverteless we can assume that the outcome is dichotomous and calculate the Brier score with this type of outcome. The statistic is calculated as:
+
+$$
+BS = \frac{1}{N}\sum^N_{t = 1}(f_t - o_t)^2
+$$
+
+where $N$ is the size of the population, $f_t$ is the model prediction for the patient $t$ and $o_t$ is the observed risk for the patient $t$ in this case $0$ if they suffer no event and $1$ otherwise.
+
+In the `MiceExtVal` package we have developed the function `MiceExtVal::calculate_brier_score` that help users to calculate the model brier score. 
+
+```{r}
+#| label: tbl-brier-score
+#| classes: plain .table-sm
+#| tbl-cap: Brier score results
+men_model <- men_model |>
+  MiceExtVal::calculate_brier_score(
+    data = men_fram_long, type = "predictions_aggregated", n_boot = 100
+  )
+
+women_model <- women_model |>
+  MiceExtVal::calculate_brier_score(
+    data = women_fram_long, type = "predictions_aggregated", n_boot = 100
+  )
+dplyr::bind_rows(men_model[["brier_score"]], women_model[["brier_score"]]) |>
+  tibble::add_column(Model = c("Men", "Women"), .before = "Estimate") |>
+  kableExtra::kbl(digits = 3)
+```
+
+In @tbl-brier-score there are represented the brier score results for both models. It is important to remark that they are not comparable between them as they are calculated over different subcohorts of the framingham complete cohort.
+
 ## Recalibration
 
 When we are validating a model in an external cohort is common that the model predictions do not match the observed risks in the new cohort. To minimize this problem we have developed two functions that allow the users to recalibrate the model predictions (please refer to `MiceExtVal::calculate_predictions_recalibrated_type_1()` and `MiceExtVal::calculate_predictions_recalibrated_type_2()` documentation for more detailed information on how the recalibration works). 
@@ -569,7 +601,41 @@ women_model |>
   MiceExtVal::get_calibration_plot()
 ```
 
-Type 1 and type 2 recalibration are not consecutive, they are just two different approaches for the same problem. As show in [@fig-framingham-cal-plot-recal-men;@fig-framingham-cal-plot-recal-women] they obtain similar results.
+Type 1 and type 2 recalibration are not consecutive, they are just two different approaches for the same problem. As show in [@fig-framingham-cal-plot-recal-men;@fig-framingham-cal-plot-recal-women] they obtain similar results. With the recalibration it also changes the Brier score results as shown in @tbl-brier-score-recal. 
+
+```{r}
+#| label: tbl-brier-score-recal
+#| layout-nrow: 2
+#| tbl-cap: Brier score results with recalibrated data
+#| tbl-subcap:
+#|    - Type 1 recalibration
+#|    - Type 2 recalibration
+#| classes: plain .table-sm
+men_model <- men_model |>
+  MiceExtVal::calculate_brier_score(
+    data = men_fram_long, type = "predictions_recal_type_1", n_boot = 100
+  ) |>
+  MiceExtVal::calculate_brier_score(
+    data = men_fram_long, type = "predictions_recal_type_2", n_boot = 100
+  )
+
+women_model <- women_model |>
+  MiceExtVal::calculate_brier_score(
+    data = women_fram_long, type = "predictions_recal_type_1", n_boot = 100
+  ) |>
+  MiceExtVal::calculate_brier_score(
+    data = women_fram_long, type = "predictions_recal_type_2", n_boot = 100
+  )
+
+dplyr::bind_rows(men_model[["brier_score_type_1"]], women_model[["brier_score_type_1"]]) |>
+  tibble::add_column(Model = c("Men", "Women"), .before = "Estimate") |>
+  kableExtra::kbl(digits = 3)
+
+dplyr::bind_rows(men_model[["brier_score_type_2"]], women_model[["brier_score_type_2"]]) |>
+  tibble::add_column(Model = c("Men", "Women"), .before = "Estimate") |>
+  kableExtra::kbl(digits = 3)
+```
+
 
 # Comparing results
 
@@ -677,5 +743,35 @@ MiceExtVal::get_forestplot_data(
   ggplot2::theme(legend.position = "none") +
   ggplot2::xlim(c(0.6, 0.75))
 ```
+
+### Brier Score Comparison: Forestplot
+The forestplot functions also allow us to generate the data from the Brier score results. The next code snippet generates a forestplot that compares the different Brier score in each model.
+
+```{r}
+#| warning: false
+#| message: false
+#| fig-height: 2
+#| label: fig-forestplot-brier-score
+#| fig-cap: Forestplot Brier score comparison
+data <- dplyr::bind_rows(
+  MiceExtVal::get_forestplot_data(
+    strat = "Original", type = "brier_score",
+    Men = men_model, Women = women_model
+  ),
+  MiceExtVal::get_forestplot_data(
+    strat = "Type 1 recalibration", type = "brier_score_type_1",
+    Men = men_model, Women = women_model
+  ),
+  MiceExtVal::get_forestplot_data(
+    strat = "Type 2 recalibration", type = "brier_score_type_2",
+    Men = men_model, Women = women_model
+  ),
+)
+
+data |>
+  MiceExtVal::get_forestplot(center = mean(data[["estimate"]]))
+```
+
+
 
 ## References

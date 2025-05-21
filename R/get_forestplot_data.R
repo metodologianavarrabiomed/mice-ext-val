@@ -18,7 +18,7 @@
 #' data <- get_forestplot_data(strat = "overall", cox_model, logreg_model)
 #' data <- get_forestplot_data(strat = "overall", Cox = cox_model, LogReg = logreg_model)
 #' }
-get_forestplot_data <- function(strat, type = c("c_index", "auc"), ...) {
+get_forestplot_data <- function(strat, type = c("c_index", "auc", "brier_score", "brier_score_type_1", "brier_score_type_2"), ...) {
   # get model and model names -----------------------------------------------
   models <- list(...)
 
@@ -35,9 +35,9 @@ get_forestplot_data <- function(strat, type = c("c_index", "auc"), ...) {
     error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {model_names[!is_model_class]}} must be {.cls MiceExtVal}"))
   }
 
-  has_c_index <- purrr::map_lgl(models, ~ methods::is(.x, "MiceExtVal") && !is.null(.x[[type]]))
-  if (all(is_model_class) & !all(has_c_index)) {
-    error_message <- c(error_message, "*" = cli::format_error("The {.arg {model_names[!has_c_index]}} model{?s} must have their {.arg {type}} calculated, consider using {.fn MiceExtVal::calculate_harrell_c_index} or {.fn MiceExtVal::calculate_auc}"))
+  has_stats <- purrr::map_lgl(models, ~ methods::is(.x, "MiceExtVal") && !is.null(.x[[type]]))
+  if (all(is_model_class) & !all(has_stats)) {
+    error_message <- c(error_message, "*" = cli::format_error("The {.arg {model_names[!has_stats]}} model{?s} must have their {.arg {type}} calculated, consider using {.fn MiceExtVal::calculate_harrell_c_index}, {.fn MiceExtVal::calculate_auc} or {.fn MiceExtVal::calculate_brier_score}"))
   }
 
   if (!is.null(error_message)) {

@@ -31,6 +31,7 @@ Imports:
     psfmi (>= 1.4.0),
     methods (>= 4.2.3),
     cli (>= 3.6.2),
+    rsample (>= 1.3),
     rlang (>= 1.1.4),
     pROC (>= 1.18)
 Config/testthat/edition: 3
