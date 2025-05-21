@@ -21,7 +21,7 @@
 #'
 #'
 #' @import mathjaxr
-#' @importFrom dplyr %>% group_by_at group_map bind_rows rename vars mutate all_of summarise
+#' @importFrom dplyr group_by_at group_map bind_rows rename vars mutate all_of summarise
 #' @importFrom tibble tibble as_tibble add_column
 #' @importFrom methods is
 #' @importFrom cli format_error cli_abort cli_progress_update cli_progress_done cli_progress_step
@@ -57,21 +57,21 @@ calculate_predictions.cox <- function(model, data, .progress = FALSE) {
     cli::cli_progress_step("calculating betax predictions", spinner = TRUE, .envir = env)
   }
 
-  model$betax_data <- data %>%
-    dplyr::group_by_at(dplyr::vars(".imp")) %>%
+  model$betax_data <- data |>
+    dplyr::group_by_at(dplyr::vars(".imp")) |>
     dplyr::group_map(~ {
       if (.progress) {
         cli::cli_progress_update(.envir = env)
       }
       with(.x, {
         eval(eval(model$formula[[3]]))
-      }) %>%
-        tibble::as_tibble() %>%
-        tibble::add_column(.imp = .y$.imp) %>%
-        tibble::add_column(id = .x$id) %>%
+      }) |>
+        tibble::as_tibble() |>
+        tibble::add_column(.imp = .y$.imp) |>
+        tibble::add_column(id = .x$id) |>
         dplyr::rename("betax" = value)
-    }) %>%
-   dplyr::bind_rows()
+    }) |>
+    dplyr::bind_rows()
 
   if (.progress) {
     cli::cli_progress_done(.envir = env)
@@ -88,8 +88,8 @@ calculate_predictions.cox <- function(model, data, .progress = FALSE) {
   }
 
   # Generates the aggregated `predictions` and stores them into the model
-  model$predictions_aggregated <- model$predictions_data %>%
-    dplyr::group_by_at(dplyr::vars("id")) %>%
+  model$predictions_aggregated <- model$predictions_data |>
+    dplyr::group_by_at(dplyr::vars("id")) |>
     dplyr::summarise(prediction = mean(.data[["prediction"]]))
 
   if (.progress) {
@@ -97,8 +97,8 @@ calculate_predictions.cox <- function(model, data, .progress = FALSE) {
     cli::cli_progress_step("aggregating betax", .envir = env)
   }
   # Generates the aggregated `betax` and stores them into the model
-  model$betax <- model$betax_data %>%
-    dplyr::group_by_at(dplyr::vars("id")) %>%
+  model$betax <- model$betax_data |>
+    dplyr::group_by_at(dplyr::vars("id")) |>
     dplyr::summarise(betax = mean(.data[["betax"]]))
 
   if (.progress) {

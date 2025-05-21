@@ -77,7 +77,7 @@ test_that("Calculates the predictions properly in Cox model", {
 test_that("Returns an error if `.imp` is not part of the `data` parameter", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment())
-  data_no_imp <- data %>% select(-.imp)
+  data_no_imp <- data |> select(-.imp)
 
   expect_error(model |> calculate_predictions(data_no_imp), "The variable `.imp`")
 })
@@ -85,7 +85,7 @@ test_that("Returns an error if `.imp` is not part of the `data` parameter", {
 test_that("Returns an error if `id` is not part of the `data` parameter", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment())
-  data_no_id <- data %>% select(-id)
+  data_no_id <- data |> select(-id)
 
   expect_error(model |> calculate_predictions(data_no_id), "The variable `id`")
 })

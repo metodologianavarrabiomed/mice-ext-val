@@ -78,11 +78,11 @@ get_calibration_plot_data_surv <- function(model, data, n_groups, type = "predic
 
   # Select the variable that is used from the model
   pred_var <- as.name(names(model[[type]])[2])
-  model[[type]] %>%
+  model[[type]] |>
     # Generates the groups by the prediction variable and group by the generated group
-    dplyr::mutate(group = dplyr::ntile(!!pred_var, n_groups)) %>%
-    dplyr::left_join(original_data, by = "id") %>%
-    dplyr::group_by_at(dplyr::vars("group")) %>%
+    dplyr::mutate(group = dplyr::ntile(!!pred_var, n_groups)) |>
+    dplyr::left_join(original_data, by = "id") |>
+    dplyr::group_by_at(dplyr::vars("group")) |>
     # Calculates the predicted and observed value for each of the predicted risk groups
     dplyr::group_map(~ {
       .x$survobj <- survival::Surv(time = .x[[dependent_variable]][, "time"], event = .x[[dependent_variable]][, "status"])
@@ -100,7 +100,6 @@ get_calibration_plot_data_surv <- function(model, data, n_groups, type = "predic
           ul = min(1, observed + 1.96 * se_observed)
         )
       )
-    }) %>%
-    dplyr::bind_rows() %>%
-    return()
+    }) |>
+    dplyr::bind_rows()
 }

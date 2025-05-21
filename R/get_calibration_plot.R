@@ -44,7 +44,7 @@ get_calibration_plot <- function(data) {
       )
   }
 
-  gg <- data %>%
+  gg <- data |>
     ggplot2::ggplot() +
     ggplot2::scale_y_continuous(limits = c(0, 1)) +
     ggplot2::scale_x_continuous(limits = c(0, 1)) +

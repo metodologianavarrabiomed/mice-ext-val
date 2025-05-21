@@ -33,7 +33,7 @@ test_that("Returns an error if `.imp` does not exist in `data`", {
   model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data)
 
-  data_no_imp <- data %>% select(-.imp)
+  data_no_imp <- data |> select(-.imp)
   expect_error(calculate_auc(model_cox, data_no_imp), "The variable `.imp`")
   expect_error(calculate_auc(model_logreg, data_no_imp), "The variable `.imp`")
 })
