@@ -228,7 +228,29 @@ timi2_model |>
 
 In Figure @fig-timi2-calplot, we observe a well-calibrated model: the predicted risks align closely with the observed outcomes across most deciles of risk. In practice, this level of agreement may be considered sufficient, and no further recalibration would be necessary.
 
-However, to fully demonstrate the functionality of the `MiceExtVal` package, we will proceed with recalibrating the model predictions. This allows us to show how recalibration can be implemented when needed and how it affects the model's performance.
+Another way of measuring the accuracy of the predictions of the model to the observed risk is the Brier score. This score is calculated following
+
+$$
+BS = \frac{1}{N}\sum^N_{t = 1}(f_t - o_t)^2
+$$
+
+where $N$ is the size of the population, $f_t$ is the model prediction for the patient $t$ and $o_t$ is the observed risk for the patient $t$ in this case $0$ if they suffer no event and $1$ otherwise. In the `MiceExtVal` package we have developed the function `MiceExtVal::calculate_brier_score` that help users to calculate the model brier score.
+
+```{r}
+timi2_model <- timi2_model |>
+  MiceExtVal::calculate_brier_score(
+    data = gusto_imp, type = "predictions_aggregated", n_boot = 100
+  )
+
+brier_score_res <- sprintf(
+  "%.3f (95%% CI %.3f, %.3f)",
+  timi2_model$brier_score["Estimate"],
+  timi2_model$brier_score["95% CI L"],
+  timi2_model$brier_score["95% CI U"]
+)
+```
+
+The model yields an AUC of `r brier_score_res` that demonstrait a fair accuracy between the model predictions and the observed risks. However, to fully demonstrate the functionality of the `MiceExtVal` package, we will proceed with recalibrating the model predictions. This allows us to show how recalibration can be implemented when needed and how it affects the model's performance.
 
 ## Model Recalibration
 The MiceExtVal package provides two distinct functions to perform recalibration of model predictions:
@@ -306,6 +328,34 @@ timi2_model |>
   clip_axis_plot(limit = 0.35)
 ```
 
+Even though the AUC does not change with the model recalibration the Brier score does change. The predictions should be more accurate to the observed risk after this recalibrations and therefore we should obtain better Brier scores.
+
+```{r}
+timi2_model <- timi2_model |>
+  MiceExtVal::calculate_brier_score(
+    data = gusto_imp, type = "predictions_recal_type_1", n_boot = 100
+  ) |>
+  MiceExtVal::calculate_brier_score(
+    data = gusto_imp, type = "predictions_recal_type_2", n_boot = 100
+  )
+
+brier_score_type_1_res <- sprintf(
+  "%.3f (95%% CI %.3f, %.3f)",
+  timi2_model$brier_score_type_1["Estimate"],
+  timi2_model$brier_score_type_1["95% CI L"],
+  timi2_model$brier_score_type_1["95% CI U"]
+)
+
+brier_score_type_2_res <- sprintf(
+  "%.3f (95%% CI %.3f, %.3f)",
+  timi2_model$brier_score_type_2["Estimate"],
+  timi2_model$brier_score_type_2["95% CI L"],
+  timi2_model$brier_score_type_2["95% CI U"]
+)
+```
+
+The model obtains a Brier score of `r brier_score_type_1_res` for the type 1 recalibration and `r brier_score_type_2_res` for the type 2 recalibration technique. The results are pretty similar to the original model predictions Brier score `r brier_score_res`. This results are aligned to the good calibration of the original model predictions.
+
 # Comparing models
 External validation is often performed not only to assess the performance of a single model, but also to compare multiple models within the same external cohort. This comparison can help determine which model performs best overall or within specific subgroups of interest.
 
@@ -338,13 +388,31 @@ timi2_model_men <- timi2_model_men |>
   MiceExtVal::calculate_predictions(gusto_imp_men) |>
   MiceExtVal::calculate_predictions_recalibrated_type_1(gusto_imp_men) |>
   MiceExtVal::calculate_predictions_recalibrated_type_2(gusto_imp_men) |>
-  MiceExtVal::calculate_auc(gusto_imp_men)
+  MiceExtVal::calculate_auc(gusto_imp_men) |>
+  MiceExtVal::calculate_brier_score(
+    data = gusto_imp_men, type = "predictions_aggregated", n_boot = 100
+  ) |>
+  MiceExtVal::calculate_brier_score(
+    data = gusto_imp_men, type = "predictions_recal_type_1", n_boot = 100
+  ) |>
+  MiceExtVal::calculate_brier_score(
+    data = gusto_imp_men, type = "predictions_recal_type_2", n_boot = 100
+  )
 
 timi2_model_women <- timi2_model_women |>
   MiceExtVal::calculate_predictions(gusto_imp_women) |>
   MiceExtVal::calculate_predictions_recalibrated_type_1(gusto_imp_women) |>
   MiceExtVal::calculate_predictions_recalibrated_type_2(gusto_imp_women) |>
-  MiceExtVal::calculate_auc(gusto_imp_women)
+  MiceExtVal::calculate_auc(gusto_imp_women) |>
+  MiceExtVal::calculate_brier_score(
+    data = gusto_imp_women, type = "predictions_aggregated", n_boot = 100
+  ) |>
+  MiceExtVal::calculate_brier_score(
+    data = gusto_imp_women, type = "predictions_recal_type_1", n_boot = 100
+  ) |>
+  MiceExtVal::calculate_brier_score(
+    data = gusto_imp_women, type = "predictions_recal_type_2", n_boot = 100
+  )
 ```
 
 ## Calibration Comparison: Stratified Calibration Plots
@@ -453,6 +521,34 @@ dplyr::bind_rows(
   ),
 ) |>
   MiceExtVal::get_forestplot(center = 0.75)
+```
+
+### Brier Score Comparison: Forestplot
+The forestplot functions also allow us to generate the data from the Brier score results. The next code snippet generates a forestplot that compares the different Brier score in each model.
+
+```{r}
+#| warning: false
+#| message: false
+#| fig-height: 2
+#| label: fig-forestplot-brier-score
+#| fig-cap: Forestplot Brier score comparison
+data <- dplyr::bind_rows(
+  MiceExtVal::get_forestplot_data(
+    strat = "Original", type = "brier_score",
+    Men = timi2_model_men, Women = timi2_model_women
+  ),
+  MiceExtVal::get_forestplot_data(
+    strat = "Type 1 recalibration", type = "brier_score_type_1",
+    Men = timi2_model_men, Women = timi2_model_women
+  ),
+  MiceExtVal::get_forestplot_data(
+    strat = "Type 2 recalibration", type = "brier_score_type_2",
+    Men = timi2_model_men, Women = timi2_model_women
+  ),
+)
+
+data |>
+  MiceExtVal::get_forestplot(center = mean(data[["estimate"]]))
 ```
 
 ## References
