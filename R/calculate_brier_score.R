@@ -19,6 +19,8 @@
 #' @importFrom cli format_error cli_abort
 #' @importFrom stats quantile
 #'
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #' model |>
@@ -72,7 +74,7 @@ calculate_brier_score <- function(model, data, type = c("predictions_aggregated"
   if (!is.null(error_message)) cli::cli_abort(error_message)
 
   # brier score calculation -------------------------------------------------
-  get_brier_score <- \(x, y) mean(sum((x - y)**2))
+  get_brier_score <- \(x, y) sum((x - y)**2) / length(y)
   b_samp <- rsample::bootstraps(data = model[[type]], times = n_boot)
   boot_bs_res <- purrr::map_dbl(
     b_samp[["splits"]], ~ {
@@ -103,8 +105,8 @@ calculate_brier_score <- function(model, data, type = c("predictions_aggregated"
   get_brier_score_attribute <- function(data) {
     c(
       "Estimate" = mean(data),
-      "95% CI L" = stats::quantile(data, 0.025),
-      "95% CI U" = stats::quantile(data, 0.975)
+      "95% CI L" = stats::quantile(data, 0.025) |> unname(),
+      "95% CI U" = stats::quantile(data, 0.975) |> unname()
     )
   }
 
