@@ -18,7 +18,7 @@
 #'        | n | 0.16 |
 #'    * `alpha`: stores the \eqn{\alpha} recalibration parameter.
 #'
-#' @importFrom dplyr %>% group_by_at group_map filter pull vars select all_of mutate
+#' @importFrom dplyr group_by_at group_map filter pull vars select all_of mutate
 #' @importFrom tibble tibble as_tibble
 #' @importFrom methods is
 #' @importFrom cli format_error cli_abort cli_progress_update cli_progress_done cli_progress_step
@@ -56,8 +56,8 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
   }
 
   # Obtain the `alpha` value
-  model$alpha <- data %>%
-    dplyr::group_by_at(dplyr::vars(".imp")) %>%
+  model$alpha <- data |>
+    dplyr::group_by_at(dplyr::vars(".imp")) |>
     dplyr::group_map(~ {
       # Progress bar code
       if (.progress) {
@@ -66,8 +66,8 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
 
       # Obtains the data of the event variable
       survival_data <- .x[[all.vars(model$formula)[1]]]
-      survival_predictions <- 1 - model$predictions_data %>%
-        dplyr::filter(.imp == .y$.imp) %>%
+      survival_predictions <- 1 - model$predictions_data |>
+        dplyr::filter(.imp == .y$.imp) |>
         dplyr::pull(prediction)
 
       # Calculates the `alpha` parameter value
@@ -76,9 +76,9 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
         event = survival_data[, "status"],
         survival_predictions = survival_predictions
       )
-    }) %>%
-    dplyr::bind_rows() %>%
-    dplyr::pull("alpha") %>%
+    }) |>
+    dplyr::bind_rows() |>
+    dplyr::pull("alpha") |>
     mean() # Aggregates the results, no rubin rules here
 
   # Progress bar code
@@ -88,7 +88,7 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
   }
 
   # Calculates the recalibrated type 1 predictions
-  model$predictions_recal_type_1 <- model$predictions_aggregated %>%
+  model$predictions_recal_type_1 <- model$predictions_aggregated |>
     dplyr::mutate(
       prediction_type_1 = 1 - exp(-exp(model$alpha + log(-log(1 - .data[["prediction"]]))))
     ) |>

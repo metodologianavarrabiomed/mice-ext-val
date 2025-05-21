@@ -25,7 +25,7 @@
 #'    * `alpha_type_1`: stores the \eqn{\alpha} recalibration parameter.
 #'
 #' @import mathjaxr
-#' @importFrom dplyr %>% group_by_at group_map filter pull bind_rows
+#' @importFrom dplyr group_by_at group_map filter pull bind_rows
 #' @importFrom tibble tibble
 #' @importFrom rms lrm.fit
 #' @importFrom methods is
@@ -60,8 +60,8 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
     cli::cli_progress_step("calculating type 1 recalibration parameters", spinner = TRUE, .envir = env)
   }
 
-  model$alpha_type_1 <- data %>%
-    dplyr::group_by_at(dplyr::vars(".imp")) %>%
+  model$alpha_type_1 <- data |>
+    dplyr::group_by_at(dplyr::vars(".imp")) |>
     dplyr::group_map(~ {
       # Progress bar code
       if (.progress) {
@@ -69,8 +69,8 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
       }
       # Obtains the data of the event variable
       dependent_variable <- .x[[all.vars(model$formula)[1]]]
-      betax <- model$betax_data %>%
-        dplyr::filter(.imp == .y$.imp) %>%
+      betax <- model$betax_data |>
+        dplyr::filter(.imp == .y$.imp) |>
         dplyr::pull(betax)
 
       if (methods::is(dependent_variable, "Surv")) {
@@ -85,9 +85,9 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
         offset = betax
       )
       tibble::tibble(alpha = model_recal$coefficients)
-    }) %>%
-    dplyr::bind_rows() %>%
-    dplyr::pull("alpha") %>%
+    }) |>
+    dplyr::bind_rows() |>
+    dplyr::pull("alpha") |>
     mean()
 
   # Calculates the type 1 recalibration

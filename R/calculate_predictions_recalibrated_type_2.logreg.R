@@ -26,7 +26,7 @@
 #'    * `beta_overall`: stores the \eqn{\beta_{overall}} type 2 recalibration parameter.
 #'
 #' @import mathjaxr
-#' @importFrom dplyr %>% group_by_at group_map filter pull vars bind_rows
+#' @importFrom dplyr group_by_at group_map filter pull vars bind_rows
 #' @importFrom tibble tibble as_tibble
 #' @importFrom rms lrm
 #' @importFrom methods is
@@ -63,8 +63,8 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
   }
 
   # Calculates the recalibrate parameters for the model
-  recal_parameters <- data %>%
-    dplyr::group_by_at(dplyr::vars(".imp")) %>%
+  recal_parameters <- data |>
+    dplyr::group_by_at(dplyr::vars(".imp")) |>
     dplyr::group_map(~ {
       # Progress bar code
       if (.progress) {
@@ -81,8 +81,8 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
 
       recal_data <- tibble::tibble(
         y = event,
-        betax = model$betax_data %>%
-          dplyr::filter(.imp == .y$.imp) %>%
+        betax = model$betax_data |>
+          dplyr::filter(.imp == .y$.imp) |>
           dplyr::pull(betax)
       )
 
@@ -92,7 +92,7 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
         alpha_type_2 = model_recal$coefficients[1],
         beta_overall = model_recal$coefficients[2]
       )
-    }) %>%
+    }) |>
     dplyr::bind_rows()
 
   model$alpha_type_2 <- mean(recal_parameters$alpha_type_2)

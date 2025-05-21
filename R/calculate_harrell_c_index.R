@@ -14,7 +14,7 @@
 #' @return The same `model` passed as a parameter with the Harrell C Index value stored in `$c_index`
 #'
 #' @importFrom Hmisc rcorr.cens
-#' @importFrom dplyr %>% group_by_at group_map filter pull vars
+#' @importFrom dplyr group_by_at group_map filter pull vars
 #' @importFrom tibble tibble as_tibble
 #' @importFrom methods is
 #' @importFrom cli format_error cli_abort cli_progress_update cli_progress_done cli_progress_step
@@ -78,8 +78,8 @@ calculate_harrell_c_index <- function(model, data, .progress = FALSE) {
   }
 
   # Calculates the C-Index value in each of the imputations.
-  c_index_data <- data %>%
-    dplyr::group_by_at(dplyr::vars(".imp")) %>%
+  c_index_data <- data |>
+    dplyr::group_by_at(dplyr::vars(".imp")) |>
     dplyr::group_map(~ {
       # Obtain the data of the event variable
       survival_data <- .x[[all.vars(model$formula)[1]]]
@@ -91,13 +91,13 @@ calculate_harrell_c_index <- function(model, data, .progress = FALSE) {
 
       Hmisc::rcorr.cens(
         # Get the predictions data for the imputation `.imp`.
-        x = 1 - (model$predictions_data %>% dplyr::filter({
+        x = 1 - (model$predictions_data |> dplyr::filter({
           .imp == .y$.imp
-        }) %>% dplyr::pull(var = "prediction")),
+        }) |> dplyr::pull(var = "prediction")),
         # Generates the outcome variable from `survival_data`
         S = survival::Surv(time = survival_data[, "time"], event = survival_data[, "status"])
       )
-    }) %>%
+    }) |>
     dplyr::bind_rows()
 
   if (.progress) {
