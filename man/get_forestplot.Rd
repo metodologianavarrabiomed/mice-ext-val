@@ -4,12 +4,16 @@
 \alias{get_forestplot}
 \title{Function that generates a C-Index forestplot for the given data}
 \usage{
-get_forestplot(data, center)
+get_forestplot(data, center, digits = 3, table = FALSE)
 }
 \arguments{
 \item{data}{Dataset where all the data to plot is stored. It is recommended to be generated using \code{\link[=get_forestplot_data]{get_forestplot_data()}}}
 
 \item{center}{x intercept to display a stripped vertical line}
+
+\item{digits}{decimal digits for the table generation, default \code{3}}
+
+\item{table}{if the table is displayed while generating the forestplot, default \code{FALSE}}
 }
 \value{
 a C-Index forestplot
