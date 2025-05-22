@@ -482,7 +482,7 @@ To compare different models, we can stratify the results by binding data from di
 In the following example, we generate two separate strata for the same model, `TIMI-II`, one for men and one for women, and then we pass these strata to the forest plot function.
 
 ```{r}
-#| fig-height: 2
+#| fig-height: 1.5
 dplyr::bind_rows(
   MiceExtVal::get_forestplot_data(strat = "Men", type = "auc", `TIMI-II` = timi2_model_men),
   MiceExtVal::get_forestplot_data(strat = "Women", type = "auc", `TIMI-II` = timi2_model_women)
@@ -496,18 +496,24 @@ Note that we have removed the legend from the plot, as we only have one strat. S
 
 ```{r}
 #| fig-height: 2
-MiceExtVal::get_forestplot_data(
+#| fig-width: 8
+fp <- MiceExtVal::get_forestplot_data(
   strat = "Overall", type = "auc",
   `TIMI-II Men` = timi2_model_men, `TIMI-II Women` = timi2_model_women
 ) |>
-  MiceExtVal::get_forestplot(center = 0.75) +
+  MiceExtVal::get_forestplot(center = 0.75, digits = 2, table = TRUE)
+
+fp[[2]] <- fp[[2]] +
   ggplot2::theme(legend.position = "none")
+
+plot(fp)
 ```
 
 Finally, both concepts can be combined to generate a forest plot that compares multiple models across multiple strata. The following example demonstrates how to compare the general model with its stratified validation, allowing a side-by-side comparison of model performance across different subgroups and the overall cohort.
 
 ```{r}
 #| fig-height: 2
+#| fig-width: 10
 dplyr::bind_rows(
   MiceExtVal::get_forestplot_data(
     strat = "Overall", type = "auc",
@@ -520,7 +526,7 @@ dplyr::bind_rows(
     strat = "Women", type = "auc", `TIMI-II strat` = timi2_model_women
   ),
 ) |>
-  MiceExtVal::get_forestplot(center = 0.75)
+  MiceExtVal::get_forestplot(center = 0.75, digits = 2, table = TRUE)
 ```
 
 ### Brier Score Comparison: Forestplot
@@ -530,6 +536,7 @@ The forestplot functions also allow us to generate the data from the Brier score
 #| warning: false
 #| message: false
 #| fig-height: 2
+#| fig-width: 12
 #| label: fig-forestplot-brier-score
 #| fig-cap: Forestplot Brier score comparison
 data <- dplyr::bind_rows(
@@ -548,7 +555,7 @@ data <- dplyr::bind_rows(
 )
 
 data |>
-  MiceExtVal::get_forestplot(center = mean(data[["estimate"]]))
+  MiceExtVal::get_forestplot(center = mean(data[["estimate"]]), digit = 2, table = TRUE)
 ```
 
 ## References

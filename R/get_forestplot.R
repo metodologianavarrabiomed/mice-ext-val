@@ -2,6 +2,16 @@
 #'
 #' @param data Dataset where all the data to plot is stored. It is recommended to be generated using [get_forestplot_data()]
 #' @param center x intercept to display a stripped vertical line
+#' @param digits decimal digits for the table generation, default `3`
+#' @param table if the table is displayed while generating the forestplot, default `FALSE`
+#'
+#' @importFrom methods is
+#' @importFrom cli format_error cli_abort
+#' @importFrom dplyr mutate_if mutate rename
+#' @importFrom tidyr pivot_wider
+#' @importFrom purrr map_lgl
+#' @importFrom ggplot2 ggplot aes geom_pointrange facet_grid geom_vline guides guide_legend theme_minimal theme element_blank element_line element_text element_rect unit
+#' @importFrom patchwork wrap_table
 #'
 #' @returns a C-Index forestplot
 #' @export
@@ -10,7 +20,7 @@
 #' \dontrun{
 #' get_forestplot(data, 0.5)
 #' }
-get_forestplot <- function(data, center) {
+get_forestplot <- function(data, center, digits = 3, table = FALSE) {
   # assert dataset ----------------------------------------------------------
   error_message <- NULL
   if (!methods::is(data, "data.frame")) {
@@ -46,7 +56,15 @@ get_forestplot <- function(data, center) {
     cli::cli_abort(error_message)
   }
 
-  data |>
+  if (table) {
+    table_data <- data |>
+      dplyr::mutate_if(is.numeric, round, digits = digits) |>
+      dplyr::mutate(estimate_str = paste0(.data[["estimate"]], " (", .data[["lower"]], ", ", .data[["upper"]], ")")) |>
+      tidyr::pivot_wider(id_cols = .data[["model"]], names_from = .data[["strat"]], values_from = .data[["estimate_str"]], names_glue = "{strat} (95% CI)") |>
+      dplyr::rename(Model = .data[["model"]])
+  }
+
+  plot <- data |>
     ggplot2::ggplot(ggplot2::aes(x = .data[["estimate"]], y = .data[["strat"]], color = .data[["strat"]])) +
     ggplot2::geom_pointrange(
       ggplot2::aes(xmin = .data[["lower"]], xmax = .data[["upper"]]),
@@ -71,4 +89,11 @@ get_forestplot <- function(data, center) {
       panel.background = ggplot2::element_rect(fill = "gray97", color = NA),
       panel.spacing = ggplot2::unit(0.25, "lines")
     )
+
+  if (table) {
+    plot <- patchwork::wrap_table(table_data, panel = "full", space = "fixed") +
+      plot
+  }
+
+  return(plot)
 }
