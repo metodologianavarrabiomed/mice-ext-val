@@ -5,6 +5,14 @@
 #' @param digits decimal digits for the table generation, default `3`
 #' @param table if the table is displayed while generating the forestplot, default `FALSE`
 #'
+#' @importFrom methods is
+#' @importFrom cli format_error cli_abort
+#' @importFrom dplyr mutate_if mutate rename
+#' @importFrom tidyr pivot_wider
+#' @importFrom purrr map_lgl
+#' @importFrom ggplot2 ggplot aes geom_pointrange facet_grid geom_vline guides guide_legend theme_minimal theme element_blank element_line element_text element_rect unit
+#' @importFrom patchwork wrap_table
+#'
 #' @returns a C-Index forestplot
 #' @export
 #'
@@ -83,7 +91,6 @@ get_forestplot <- function(data, center, digits = 3, table = FALSE) {
     )
 
   if (table) {
-    gridExtra::tableGrob(table_data)
     plot <- patchwork::wrap_table(table_data, panel = "full", space = "fixed") +
       plot
   }
