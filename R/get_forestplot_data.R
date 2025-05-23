@@ -6,11 +6,6 @@
 #'
 #' @returns A `tibble` with the information needed to generate the forestplot
 #'
-#' @importFrom purrr map2_chr map_lgl map_df
-#' @importFrom methods is
-#' @importFrom tibble tibble
-#' @importFrom cli format_error cli_abort
-#'
 #' @export
 #'
 #' @examples

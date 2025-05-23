@@ -18,12 +18,6 @@
 #'        | n | 0.16 |
 #'    * `alpha`: stores the \eqn{\alpha} recalibration parameter.
 #'
-#' @importFrom dplyr group_by_at group_map filter pull vars select all_of mutate
-#' @importFrom tibble tibble as_tibble
-#' @importFrom methods is
-#' @importFrom cli format_error cli_abort cli_progress_update cli_progress_done cli_progress_step
-#' @importFrom rlang env
-#'
 #' @exportS3Method calculate_predictions_recalibrated_type_1 cox
 #'
 #' @examples

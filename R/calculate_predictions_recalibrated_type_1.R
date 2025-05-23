@@ -10,9 +10,6 @@
 #'
 #' @return A model with the parameter `predictions_recal_type_1` and also the recalibration parameters are populated.
 #'
-#' @importFrom methods is
-#' @importFrom cli format_error cli_abort
-#'
 #' @export
 #'
 #' @examples
@@ -31,7 +28,7 @@
 #' model |>
 #'   calculate_predictions(data) |>
 #'   calculate_predictions_recalibrated_type_1(data)
-calculate_predictions_recalibrated_type_1 <- function(model, data, .progress = FALSE){
+calculate_predictions_recalibrated_type_1 <- function(model, data, .progress = FALSE) {
   error_message <- NULL
 
   if (!methods::is(model, "MiceExtVal")) {

@@ -8,12 +8,6 @@
 #' @returns the stratified calibration plot for the given models
 #' @export
 #'
-#' @importFrom purrr map_lgl map2_chr map_df
-#' @importFrom tibble add_column
-#' @importFrom ggplot2 ggplot scale_y_continuous scale_x_continuous expand_limits geom_abline geom_point aes geom_errorbar geom_smooth xlab ylab geom_vline geom_hline theme_minimal theme element_text margin element_rect guides guide_legend
-#' @importFrom methods is
-#' @importFrom cli format_error cli_abort
-#'
 #' @examples
 #' \dontrun{
 #' get_stratified_calibration_plot_surv(data, 10, model1, model2)

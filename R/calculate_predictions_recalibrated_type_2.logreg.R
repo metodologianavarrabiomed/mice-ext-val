@@ -26,12 +26,6 @@
 #'    * `beta_overall`: stores the \eqn{\beta_{overall}} type 2 recalibration parameter.
 #'
 #' @import mathjaxr
-#' @importFrom dplyr group_by_at group_map filter pull vars bind_rows
-#' @importFrom tibble tibble as_tibble
-#' @importFrom rms lrm
-#' @importFrom methods is
-#' @importFrom cli format_error cli_abort cli_progress_update cli_progress_done
-#' @importFrom rlang env
 #'
 #' @exportS3Method calculate_predictions_recalibrated_type_2 logreg
 #'
