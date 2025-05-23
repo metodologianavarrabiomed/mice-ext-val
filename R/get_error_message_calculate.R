@@ -6,6 +6,8 @@
 #'
 #' @return `NULL` if no errors were found or the actual error if some errors
 #' were found.
+#'
+#' @noRd
 get_error_message_calculate <- function(model, data) {
   error_message <- NULL
 
