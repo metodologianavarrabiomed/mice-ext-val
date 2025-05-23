@@ -412,11 +412,11 @@ After executing `MiceExtVal::calculate_predictions()`, the model object is updat
 #|  - Model predictions in each imputation
 #| classes: plain .table-sm
 men_model$predictions_aggregated |>
-  head() |>
+  utils::head() |>
   kableExtra::kbl(digits = 3)
 
 men_model$predictions_data |>
-  head() |>
+  utils::head() |>
   kableExtra::kbl(digits = 3)
 ```
 
@@ -432,11 +432,11 @@ Beyond the predicted probabilities, the model object also includes the prognosti
 #|   - Model Beta X in each imputation
 #| classes: plain .table-sm
 men_model$betax |>
-  head() |>
+  utils::head() |>
   kableExtra::kbl(digits = 3)
 
 men_model$betax_data |>
-  head() |>
+  utils::head() |>
   kableExtra::kbl(digits = 3)
 ```
 
