@@ -27,7 +27,7 @@ test_that("Checks the data argument in logreg model", {
 test_that("Returns an error if `.imp` is not part of the `data` parameter", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_cox_model(environment())
-  data_no_imp <- data |> select(-.imp)
+  data_no_imp <- data |> dplyr::select(-.imp)
 
   expect_error(model |> calculate_predictions(data_no_imp), "The variable `.imp`")
 })
@@ -35,7 +35,7 @@ test_that("Returns an error if `.imp` is not part of the `data` parameter", {
 test_that("Returns an error if `id` is not part of the `data` parameter", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_cox_model(environment())
-  data_no_id <- data |> select(-id)
+  data_no_id <- data |> dplyr::select(-id)
 
   expect_error(model |> calculate_predictions(data_no_id), "The variable `id`")
 })
@@ -62,7 +62,7 @@ test_that("Calculates the predictions properly in Cox model", {
   expect_identical(
     round_to_precision(model$predictions_data),
     round_to_precision(readRDS(test_path("fixtures", "cox", "predictions_data_cox.rds")))
-    )
+  )
   expect_identical(
     round_to_precision(model$betax),
     round_to_precision(readRDS(test_path("fixtures", "cox", "betax_cox.rds")))
@@ -77,7 +77,7 @@ test_that("Calculates the predictions properly in Cox model", {
 test_that("Returns an error if `.imp` is not part of the `data` parameter", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment())
-  data_no_imp <- data |> select(-.imp)
+  data_no_imp <- data |> dplyr::select(-.imp)
 
   expect_error(model |> calculate_predictions(data_no_imp), "The variable `.imp`")
 })
@@ -85,7 +85,7 @@ test_that("Returns an error if `.imp` is not part of the `data` parameter", {
 test_that("Returns an error if `id` is not part of the `data` parameter", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment())
-  data_no_id <- data |> select(-id)
+  data_no_id <- data |> dplyr::select(-id)
 
   expect_error(model |> calculate_predictions(data_no_id), "The variable `id`")
 })

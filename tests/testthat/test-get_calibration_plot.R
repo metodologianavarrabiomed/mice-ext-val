@@ -19,7 +19,7 @@ test_that("Returns an error if `.imp` is not part of the `data` parameter in sur
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   cox_model <- make_cox_model(environment()) |> calculate_predictions(data)
   logreg_model <- make_logreg_model(environment()) |> calculate_predictions(data)
-  data_no_imp <- data |> select(-.imp)
+  data_no_imp <- data |> dplyr::select(-.imp)
 
   expect_error(
     get_calibration_plot_data_surv(
@@ -45,7 +45,7 @@ test_that("Returns an error if `id` is not part of the `data` parameter in surv 
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   cox_model <- make_cox_model(environment()) |> calculate_predictions(data)
   logreg_model <- make_logreg_model(environment()) |> calculate_predictions(data)
-  data_no_id <- data |> select(-id)
+  data_no_id <- data |> dplyr::select(-id)
 
   expect_error(
     get_calibration_plot_data_surv(
@@ -140,7 +140,7 @@ test_that("Returns an error if `.imp` is not part of the `data` parameter in pro
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   cox_model <- make_cox_model(environment()) |> calculate_predictions(data)
   logreg_model <- make_logreg_model(environment()) |> calculate_predictions(data)
-  data_no_imp <- data |> select(-.imp)
+  data_no_imp <- data |> dplyr::select(-.imp)
 
   expect_error(
     get_calibration_plot_data_prop(
@@ -166,7 +166,7 @@ test_that("Returns an error if `id` is not part of the `data` parameter in prop 
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   cox_model <- make_cox_model(environment()) |> calculate_predictions(data)
   logreg_model <- make_logreg_model(environment()) |> calculate_predictions(data)
-  data_no_id <- data |> select(-id)
+  data_no_id <- data |> dplyr::select(-id)
 
   expect_error(
     get_calibration_plot_data_prop(
