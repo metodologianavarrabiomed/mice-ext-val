@@ -2,7 +2,7 @@
 #' Calculates the type 1 recalibrated predictions
 #'
 #' @description
-#' Using the function `get_recalibrate_params_type_1` calculates the recalibration parameters in each of the imputed datasets stored in `data`. With all the parameters estimated aggregates them and calculates the recalibrated predictions with these aggregated parameters and the aggregated predictions.
+#' Using the function [get_recalibrate_param_type_1_cox()] calculates the recalibration parameters in each of the imputed datasets stored in `data`. With all the parameters estimated aggregates them and calculates the recalibrated predictions with these aggregated parameters and the aggregated predictions.
 #'
 #' @param model Model generated with [mv_model_cox()]. Needs the `predictions` parameter of the model, to generate it the function [calculate_predictions()] must be executed over the model.
 #' @param data External validation data. Multiple imputation dataset in long format.
@@ -17,12 +17,6 @@
 #'        | ... | ...|
 #'        | n | 0.16 |
 #'    * `alpha`: stores the \eqn{\alpha} recalibration parameter.
-#'
-#' @importFrom dplyr group_by_at group_map filter pull vars select all_of mutate
-#' @importFrom tibble tibble as_tibble
-#' @importFrom methods is
-#' @importFrom cli format_error cli_abort cli_progress_update cli_progress_done cli_progress_step
-#' @importFrom rlang env
 #'
 #' @exportS3Method calculate_predictions_recalibrated_type_1 cox
 #'

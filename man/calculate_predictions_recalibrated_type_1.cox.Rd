@@ -27,7 +27,7 @@ A model with the parameter \code{predictions_recal_type_1} and \code{alpha} popu
 }
 }
 \description{
-Using the function \code{get_recalibrate_params_type_1} calculates the recalibration parameters in each of the imputed datasets stored in \code{data}. With all the parameters estimated aggregates them and calculates the recalibrated predictions with these aggregated parameters and the aggregated predictions.
+Using the function \code{\link[=get_recalibrate_param_type_1_cox]{get_recalibrate_param_type_1_cox()}} calculates the recalibration parameters in each of the imputed datasets stored in \code{data}. With all the parameters estimated aggregates them and calculates the recalibrated predictions with these aggregated parameters and the aggregated predictions.
 }
 \examples{
 set.seed(123)

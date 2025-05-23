@@ -6,8 +6,6 @@
 #' @returns the model printed
 #' @exportS3Method print MiceExtVal
 #'
-#' @importFrom utils head
-#'
 #' @examples
 #' model_cox <- mv_model_cox(
 #'   formula = event ~ 0.5 * (x - 1) + 0.3 * (z - 2),
@@ -28,7 +26,7 @@ print.MiceExtVal <- function(x, ...) {
 
       # show tibbles
       if (methods::is(x[[elem]], "tbl_df")) {
-        print(head(x[[elem]], n = 5))
+        print(utils::head(x[[elem]], n = 5))
       } else {
         # show lists
         if (methods::is(x[[elem]], "list")) {

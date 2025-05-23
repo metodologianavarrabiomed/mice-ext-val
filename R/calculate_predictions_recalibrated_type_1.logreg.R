@@ -25,12 +25,6 @@
 #'    * `alpha_type_1`: stores the \eqn{\alpha} recalibration parameter.
 #'
 #' @import mathjaxr
-#' @importFrom dplyr group_by_at group_map filter pull bind_rows
-#' @importFrom tibble tibble
-#' @importFrom rms lrm.fit
-#' @importFrom methods is
-#' @importFrom cli format_error cli_abort cli_progress_step cli_progress_update cli_progress_done
-#' @importFrom rlang env
 #'
 #' @exportS3Method calculate_predictions_recalibrated_type_1 logreg
 #'

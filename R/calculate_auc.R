@@ -6,13 +6,6 @@
 #' @param data Multiple imputed data organized as a long dataset
 #' @param .progress `TRUE` to render the progress bar `FALSE` otherwise
 #'
-#' @importFrom pROC auc var
-#' @importFrom methods is
-#' @importFrom cli format_error cli_abort
-#' @importFrom dplyr group_by_at group_map filter pull bind_rows
-#' @importFrom tibble tibble
-#' @importFrom psfmi pool_RR
-#'
 #' @return The same `model` passed as a parameter with the Harrell C Index value stored in `$auc`
 #'
 #' @export

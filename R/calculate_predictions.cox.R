@@ -21,11 +21,6 @@
 #'
 #'
 #' @import mathjaxr
-#' @importFrom dplyr group_by_at group_map bind_rows rename vars mutate all_of summarise
-#' @importFrom tibble tibble as_tibble add_column
-#' @importFrom methods is
-#' @importFrom cli format_error cli_abort cli_progress_update cli_progress_done cli_progress_step
-#' @importFrom rlang env
 #'
 #' @exportS3Method calculate_predictions cox
 #'

@@ -25,12 +25,6 @@
 #'    * `S0_type_2`: stores the \eqn{S_{0, \text{type 2}}(t)} type 2 recalibration parameter.
 #'    * `beta_overall`: stores the \eqn{\beta_{overall}} type 2 recalibration parameter.
 #'
-#' @importFrom dplyr group_by_at group_map filter pull vars bind_rows select mutate all_of
-#' @importFrom tibble tibble as_tibble
-#' @importFrom methods is
-#' @importFrom cli format_error cli_abort cli_progress_update cli_progress_done cli_progress_step
-#' @importFrom rlang env
-#'
 #' @exportS3Method calculate_predictions_recalibrated_type_2 cox
 #'
 #' @examples

@@ -18,10 +18,6 @@
 #' @return The \eqn{\alpha} value.
 #'
 #' @import mathjaxr
-#' @importFrom survival Surv survfit
-#' @importFrom tibble tibble
-#' @importFrom methods is
-#' @importFrom cli format_error cli_abort
 #'
 #' @examples
 #' \dontrun{

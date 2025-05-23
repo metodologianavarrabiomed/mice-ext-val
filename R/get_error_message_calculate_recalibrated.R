@@ -4,6 +4,8 @@
 #' @param data External validation dataset where the model should be evaluated
 #'
 #' @returns the error message for the given model and data
+#'
+#' @noRd
 get_error_message_calculate_recalibrated <- function(model, data) {
   is_dichotomous <- \(x) is.numeric(x) & length(unique(x)) == 2
 

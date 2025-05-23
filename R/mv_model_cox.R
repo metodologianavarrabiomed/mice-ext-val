@@ -26,8 +26,6 @@
 #'   * `c_index`: Harrell C-Index of the predictions in the validation cohort.
 #'
 #' @import mathjaxr
-#' @importFrom methods is
-#' @importFrom cli format_error cli_abort
 #'
 #' @export
 #'

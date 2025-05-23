@@ -13,12 +13,6 @@
 #' @param n_boot number of bootstrap resamples to calculate the Brier Score standar error.
 #' @param seed random seed generator
 #'
-#' @importFrom dplyr left_join filter select all_of
-#' @importFrom rsample bootstraps analysis
-#' @importFrom methods is
-#' @importFrom cli format_error cli_abort
-#' @importFrom stats quantile
-#'
 #' @export
 #'
 #' @examples

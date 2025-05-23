@@ -13,14 +13,6 @@
 #'
 #' @return The same `model` passed as a parameter with the Harrell C Index value stored in `$c_index`
 #'
-#' @importFrom Hmisc rcorr.cens
-#' @importFrom dplyr group_by_at group_map filter pull vars
-#' @importFrom tibble tibble as_tibble
-#' @importFrom methods is
-#' @importFrom cli format_error cli_abort cli_progress_update cli_progress_done cli_progress_step
-#' @importFrom psfmi pool_RR
-#' @importFrom rlang env
-#'
 #' @export
 #'
 #' @examples

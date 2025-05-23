@@ -21,7 +21,7 @@ test_that("Checks the data argument in cox model", {
 test_that("Returns an error if `.imp` is not part of the `data` parameter", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_cox_model(environment()) |> calculate_predictions(data)
-  data_no_imp <- data |> select(-.imp)
+  data_no_imp <- data |> dplyr::select(-.imp)
 
   expect_error(model |> calculate_predictions_recalibrated_type_1(data_no_imp), "The variable `.imp`")
 })
@@ -29,7 +29,7 @@ test_that("Returns an error if `.imp` is not part of the `data` parameter", {
 test_that("Returns an error if `id` is not part of the `data` parameter", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_cox_model(environment()) |> calculate_predictions(data)
-  data_no_id <- data |> select(-id)
+  data_no_id <- data |> dplyr::select(-id)
 
   expect_error(model |> calculate_predictions_recalibrated_type_1(data_no_id), "The variable `id`")
 })
@@ -93,7 +93,7 @@ test_that("Checks the data argument in logreg model", {
 test_that("Returns an error if `.imp` is not part of the `data` parameter", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment()) |> calculate_predictions(data)
-  data_no_imp <- data |> select(-.imp)
+  data_no_imp <- data |> dplyr::select(-.imp)
 
   expect_error(model |> calculate_predictions_recalibrated_type_1(data_no_imp), "The variable `.imp`")
 })
@@ -101,7 +101,7 @@ test_that("Returns an error if `.imp` is not part of the `data` parameter", {
 test_that("Returns an error if `id` is not part of the `data` parameter", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment()) |> calculate_predictions(data)
-  data_no_id <- data |> select(-id)
+  data_no_id <- data |> dplyr::select(-id)
 
   expect_error(model |> calculate_predictions_recalibrated_type_1(data_no_id), "The variable `id`")
 })
@@ -143,8 +143,8 @@ test_that("Calculates the type 1 recalibrated predictions properly for logreg mo
 
   expect_identical(
     round_to_precision(model$predictions_recal_type_1),
-      round_to_precision(readRDS(test_path("fixtures", "logreg", "predictions_recal_type_1_logreg.rds")))
-    )
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "predictions_recal_type_1_logreg.rds")))
+  )
   expect_identical(
     round_to_precision(model$alpha_type_1),
     round_to_precision(readRDS(test_path("fixtures", "logreg", "alpha_type_1_logreg.rds")))
@@ -164,8 +164,8 @@ test_that("Calculates the type 1 recalibrated predictions properly for logreg mo
 
   expect_identical(
     round_to_precision(model$predictions_recal_type_1),
-      round_to_precision(readRDS(test_path("fixtures", "logreg", "predictions_recal_type_1_logreg.rds")))
-    )
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "predictions_recal_type_1_logreg.rds")))
+  )
   expect_identical(
     round_to_precision(model$alpha_type_1),
     round_to_precision(readRDS(test_path("fixtures", "logreg", "alpha_type_1_logreg.rds")))

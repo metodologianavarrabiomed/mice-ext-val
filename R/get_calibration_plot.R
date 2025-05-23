@@ -8,8 +8,6 @@
 #'
 #' @return ggplot2 object ready to be plotted
 #'
-#' @importFrom ggplot2 theme_minimal theme element_line element_text margin element_rect ggplot scale_y_continuous scale_x_continuous expand_limits geom_abline geom_point aes xlab ylab geom_vline geom_hline
-#'
 #' @export
 #'
 #' @examples

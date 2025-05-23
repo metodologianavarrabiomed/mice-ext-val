@@ -15,9 +15,6 @@
 #'    * beta_overall: \eqn{\beta_{overall}} value from the type 2 recalibration
 #'
 #' @import mathjaxr
-#' @importFrom survival survreg Surv coxph survfit
-#' @importFrom methods is
-#' @importFrom cli format_error cli_abort
 #'
 #' @examples
 #' \dontrun{

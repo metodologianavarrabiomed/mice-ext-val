@@ -147,11 +147,11 @@ This structure—where all relevant prediction outputs are integrated into the m
 #|   - Model predictions in each imputation
 #| classes: plain .table-sm
 timi2_model$predictions_aggregated |>
-  head() |>
+  utils::head() |>
   kableExtra::kbl()
 
 timi2_model$predictions_data |>
-  head() |>
+  utils::head() |>
   kableExtra::kbl()
 ```
 
@@ -164,11 +164,11 @@ timi2_model$predictions_data |>
 #|   - Model Beta X in each imputation
 #| classes: plain .table-sm
 timi2_model$betax |>
-  head() |>
+  utils::head() |>
   kableExtra::kbl()
 
 timi2_model$betax_data |>
-  head() |>
+  utils::head() |>
   kableExtra::kbl()
 ```
 
@@ -281,11 +281,11 @@ In addition to the recalibrated predictions, the corresponding recalibration par
 #|   - Type 2 recalibration
 #| classes: plain .table-sm
 timi2_model$predictions_recal_type_1 |>
-  head() |>
+  utils::head() |>
   kableExtra::kbl()
 
 timi2_model$predictions_recal_type_2 |>
-  head() |>
+  utils::head() |>
   kableExtra::kbl()
 ```
 
