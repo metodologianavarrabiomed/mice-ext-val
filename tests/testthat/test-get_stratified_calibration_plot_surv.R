@@ -123,3 +123,16 @@ test_that("returns an error if not all the models have a `Surv` dependent variab
     "The model `model_logreg` must have a dependent variable of class <Surv>"
   )
 })
+
+test_that("works with `!!!` parameters", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_cox <- make_cox_model(environment()) |>
+    calculate_predictions(data)
+
+  model_logreg <- make_logreg_model(environment()) |>
+    calculate_predictions(data)
+
+  params <- list("model_cox" = model_cox, "model_logreg" = model_logreg)
+
+  testthat::expect_no_error(get_stratified_calibration_plot_surv(data = data, n_groups = 10, type = "predictions_aggregated", !!!params))
+})
