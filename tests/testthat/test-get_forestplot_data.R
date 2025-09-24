@@ -74,6 +74,19 @@ test_that("returns an error if some model does not have the `brier_score_type_2`
   expect_error(get_forestplot_data(strat = "overall", type = "brier_score_type_2", model_cox, model_logreg), "must have their `brier_score_type_2` calculated, consider using")
 })
 
+test_that("works properly with `!!!` operator", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_cox <- make_cox_model(environment()) |>
+    calculate_predictions(data) |>
+    calculate_brier_score(data = data, type = "predictions_aggregated", n_boot = 10, seed = 123)
+
+  model_logreg <- make_logreg_model(environment()) |>
+    calculate_predictions(data) |>
+    calculate_brier_score(data = data, type = "predictions_aggregated", n_boot = 10, seed = 123)
+
+  params <- list("model_logreg" = model_logreg, "model_cox" = model_cox)
+  expect_no_error(get_forestplot_data(strat = "overall", type = "brier_score", !!!params))
+})
 
 # proper result generation ------------------------------------------------
 
