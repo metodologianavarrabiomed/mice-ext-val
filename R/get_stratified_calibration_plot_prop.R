@@ -15,18 +15,17 @@
 #' }
 get_stratified_calibration_plot_prop <- function(data, n_groups, type = c("predictions_aggregated", "predictions_recal_type_1", "predictions_recal_type_2"), ...) {
   # get model names ---------------------------------------------------------
-  models <- list(...)
-  is_model_class <- purrr::map_lgl(models, \(x) methods::is(x, "MiceExtVal"))
+  models <- rlang::dots_list(
+    ...,
+    .named = TRUE, .ignore_empty = "all", .homonyms = "error"
+  )
 
-  model_names_call <- as.character(as.list(match.call())[-c(1:4)])
-  model_names_callname <- if (!is.null(names(models))) names(models) else rep(NA, length(model_names_call))
-
-  model_names <- purrr::map2_chr(model_names_callname, model_names_call, ~ ifelse(is.na(.x) | .x == "", .y, .x))
+  is_model_class <- purrr::map_lgl(models, ~ methods::is(.x, "MiceExtVal"))
 
   # assert preconditions ----------------------------------------------------
   error_message <- NULL
   if (!all(is_model_class)) {
-    error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {model_names[!is_model_class]}} must be {.cls MiceExtVal}"))
+    error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {names(models)[!is_model_class]}} must be {.cls MiceExtVal}"))
   }
 
   if (!any(type %in% c("predictions_aggregated", "predictions_recal_type_1", "predictions_recal_type_2"))) {
@@ -36,21 +35,21 @@ get_stratified_calibration_plot_prop <- function(data, n_groups, type = c("predi
   if (all(is_model_class) & type == "predictions_aggregated") {
     no_calc_pred <- purrr::map_lgl(models, \(x) is.null(x[["predictions_aggregated"]]))
     if (any(no_calc_pred)) {
-      error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {model_names[no_calc_pred]}} must contain {.var predictions_aggregated} consider using the function {.fn MiceExtVal::calculate_predictions}"))
+      error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {names(models)[no_calc_pred]}} must contain {.var predictions_aggregated} consider using the function {.fn MiceExtVal::calculate_predictions}"))
     }
   }
 
   if (all(is_model_class) & type == "predictions_recal_type_1") {
     no_calc_pred <- purrr::map_lgl(models, \(x) is.null(x[["predictions_recal_type_1"]]))
     if (any(no_calc_pred)) {
-      error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {model_names[no_calc_pred]}} must contain {.var predictions_recal_type_1} consider using the function {.fn MiceExtVal::calculate_predictions_recalibrated_type_1}"))
+      error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {names(models)[no_calc_pred]}} must contain {.var predictions_recal_type_1} consider using the function {.fn MiceExtVal::calculate_predictions_recalibrated_type_1}"))
     }
   }
 
   if (all(is_model_class) & type == "predictions_recal_type_2") {
     no_calc_pred <- purrr::map_lgl(models, \(x) is.null(x[["predictions_recal_type_2"]]))
     if (any(no_calc_pred)) {
-      error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {model_names[no_calc_pred]}} must contain {.var predictions_recal_type_2} consider using the function {.fn MiceExtVal::calculate_predictions_recalibrated_type_2}"))
+      error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {names(models)[no_calc_pred]}} must contain {.var predictions_recal_type_2} consider using the function {.fn MiceExtVal::calculate_predictions_recalibrated_type_2}"))
     }
   }
 
@@ -64,7 +63,7 @@ get_stratified_calibration_plot_prop <- function(data, n_groups, type = c("predi
     )
 
     if (!all(is_dep_var_num)) {
-      error_message <- c(error_message, "*" = cli::format_error(cli::format_error("The {.arg {model_names[!is_dep_var_num]}} model{?s} must have a dependent variable of class {.cls {c('Surv', 'numeric')}} and be dichotomous")))
+      error_message <- c(error_message, "*" = cli::format_error(cli::format_error("The {.arg {names(models)[!is_dep_var_num]}} model{?s} must have a dependent variable of class {.cls {c('Surv', 'numeric')}} and be dichotomous")))
     }
   }
 
@@ -74,9 +73,9 @@ get_stratified_calibration_plot_prop <- function(data, n_groups, type = c("predi
   }
 
   # generate the stratified calibration plot --------------------------------
-  plot_data <- purrr::map_df(seq_along(model_names), ~ {
+  plot_data <- purrr::map_df(seq_along(names(models)), ~ {
     get_calibration_plot_data_prop(model = models[[.x]], data = data, n_groups = n_groups, type) |>
-      tibble::add_column(strat = model_names[[.x]])
+      tibble::add_column(strat = names(models)[[.x]])
   }, data = data)
 
   gg <- plot_data |>
