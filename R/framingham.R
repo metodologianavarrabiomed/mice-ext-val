@@ -3,12 +3,10 @@
 #' @format A data frame with nine variables:
 #' \describe{
 #' \item{\code{randid}}{id for each patient}
-#' \item{\code{period}}{period of the measure study}
 #' \item{\code{sex}}{sex of the patient}
 #' \item{\code{age}}{age of the patient}
 #' \item{\code{totchol}}{total cholesterol of the patient in mg/dL}
 #' \item{\code{hdlc}}{hdl of the patient in mg/dL}
-#' \item{\code{ldlc}}{ldl of the patient in mg/dL}
 #' \item{\code{sysbp}}{systolic blood pressure of the patient in mmHg}
 #' \item{\code{diabp}}{diastolic blood pressure of the patient in mmHg}
 #' \item{\code{cursmoke}}{if the patient is currently smoking}
@@ -21,7 +19,7 @@
 #' @keywords dataset
 #' @name framingham
 #' @usage data(framingham)
-#' @format a dataset with 11627 rows and 13 variables
+#' @format a dataset with 3263 rows and 11 variables
 #'
 #' For further details, see \url{https://www.kaggle.com/datasets/shreyjain601/framingham-heart-study}
 #'
