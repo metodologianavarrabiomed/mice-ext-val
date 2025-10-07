@@ -58,7 +58,7 @@ The example is organized into the following steps:
 This structure is designed to guide users through a typical workflow, highlighting how `MiceExtVal` can support robust validation of survival models using multiply imputed data.
 
 # Explore the Dataset
-The first step of every external validation is to become familiar with the dataset. To perform an external validation of the Framingham model, we require a dataset that contains the relevant predictor variables used by the model. For this purpose, the `MiceExtVal` package includes a version of the Framingham dataset, originally shared on [Kaggle](https://www.kaggle.com) by [Shrey Jain](https://www.kaggle.com/datasets/shreyjain601/framingham-heart-study). The dataset is accessible as `MiceExtVal::framingham`
+The first step of every external validation is to become familiar with the dataset. To perform an external validation of the Framingham model, we require a dataset that contains the relevant predictor variables used by the model. For this purpose, the `MiceExtVal` package includes a version of the Framingham dataset, originally shared on [Kaggle](https://www.kaggle.com) by [Shrey Jain](https://www.kaggle.com/datasets/shreyjain601/framingham-heart-study). Along this report we will use the dataset that it is accessible as `MiceExtVal::framingham` in the package. This dataset is the data corresponding to the third period of the original dataset with a 10-year truncated follow-up.
 
 This dataset includes key clinical and demographic variables needed to replicate the Framingham risk prediction. A summary of the dataset's variables is provided in @tbl-summary-data, which serves as a starting point for exploring the structure and content of the data.
 
@@ -70,7 +70,7 @@ This dataset includes key clinical and demographic variables needed to replicate
 #| classes: plain .table-sm
 
 MiceExtVal::framingham |>
-  dplyr::select(-randid, -period) |>
+  dplyr::select(-randid) |>
   gtsummary::tbl_summary(
     by = anychd,
     statistic = list(
@@ -82,7 +82,7 @@ MiceExtVal::framingham |>
   )
 ```
 
-The dataset contains some missing values, particularly in cholesterol-related variables such as `Total Cholesterol`, `HDL Cholesterol`, and `LDL Cholesterol`. These missing values must be addressed before proceeding with model validation. @tbl-perc-miss shows the percentage of missing data for each variable, highlighting the extent of missingness across the dataset.
+The dataset contains some missing values in cholesterol-related variables `Total Cholesterol`,and `HDL Cholesterol`. These missing values must be addressed before proceeding with model validation. @tbl-perc-miss shows the percentage of missing data for each variable, highlighting the extent of missingness across the dataset.
 
 ```{r}
 #| echo: false
@@ -111,7 +111,6 @@ To address the missing values, we will use the `mice` package to perform multipl
 #| eval: false
 pred_matrix <- mice::make.predictorMatrix(MiceExtVal::framingham)
 pred_matrix[, "randid"] <- 0
-pred_matrix[, "period"] <- 0
 
 mice_data <- mice::mice(MiceExtVal::framingham)
 fram_long <- mice::complete(mice_data, "long")
@@ -121,11 +120,9 @@ fram_long <- mice::complete(mice_data, "long")
 #| include: false
 pred_matrix <- mice::make.predictorMatrix(MiceExtVal::framingham)
 pred_matrix[, "randid"] <- 0
-pred_matrix[, "period"] <- 0
 
 mice_data <- mice::mice(MiceExtVal::framingham, predictorMatrix = pred_matrix)
 fram_long <- mice::complete(mice_data, "long") |>
-  dplyr::filter(period == 1) |>
   dplyr::rename(id = randid)
 ```
 
@@ -338,10 +335,7 @@ men_formula <- anychd_surv ~ 0.0483 * (age - 48.3) +
 Once we have defined the needed parameters of the model we can create the model as follows.
 
 ```{r}
-men_model <- MiceExtVal::mv_model_cox(
-  formula = men_formula,
-  S0 = 0.9002
-)
+men_model <- MiceExtVal::mv_model_cox(formula = men_formula, S0 = 0.9002)
 ```
 
 ### Women
@@ -362,10 +356,7 @@ women_formula <- anychd_surv ~ 0.3377 * (age - 49.6) -
 From the previous parameters we generate the `women_model` to externally validate the Framingham women model.
 
 ```{r}
-women_model <- MiceExtVal::mv_model_cox(
-  formula = women_formula,
-  S0 = 0.9625
-)
+women_model <- MiceExtVal::mv_model_cox(formula = women_formula, S0 = 0.9625)
 ```
 
 ## Generate Stratified Datasets
@@ -738,8 +729,8 @@ If we want to generate a forestplot with multiple models in one strat we can gen
 fp <- MiceExtVal::get_forestplot_data(
   strat = "Overall",
   type = "c_index",
-  `Framingham Women` = women_model,
-  `Framingham Men` = men_model
+  `Men` = men_model,
+  `Women` = women_model
 ) |>
   MiceExtVal::get_forestplot(center = 0.7, digits = 2, table = TRUE)
 
