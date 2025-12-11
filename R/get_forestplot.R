@@ -149,8 +149,8 @@ get_forestplot <- function(data, center = NULL, digits = 3) {
   # generate the main table
   table <- data |>
     dplyr::mutate(estimate_str = sprintf(glue::glue("%.{digits}f (%.{digits}f, %.{digits}f)"), .data[["estimate"]], .data[["lower"]], .data[["upper"]])) |>
-    tidyr::pivot_wider(id_cols = .data[["model"]], names_from = .data[["strat"]], values_from = .data[["estimate_str"]], names_glue = "{strat} (95% CI)") |>
-    dplyr::rename(Model = .data[["model"]]) |>
+    tidyr::pivot_wider(id_cols = dplyr::all_of("model"), names_from = dplyr::all_of("strat"), values_from = dplyr::all_of("estimate_str"), names_glue = "{strat} (95% CI)") |>
+    dplyr::rename(Model = dplyr::all_of("model")) |>
     dplyr::mutate(plot = dplyr::row_number())
 
   # define the x-limits of the plot
@@ -159,7 +159,7 @@ get_forestplot <- function(data, center = NULL, digits = 3) {
 
   # generate the plots
   model_plots <- data |>
-    dplyr::group_by(.data[["model"]]) |>
+    dplyr::group_by_at("model") |>
     dplyr::group_map(~ {
       get_model_plot(.x, min_x, max_x)
     })
