@@ -4,19 +4,19 @@
 \alias{get_forestplot}
 \title{Function that generates a C-Index forestplot for the given data}
 \usage{
-get_forestplot(data, center, digits = 3, table = FALSE)
+get_forestplot(data, center = NULL, digits = 3, ...)
 }
 \arguments{
 \item{data}{Dataset where all the data to plot is stored. It is recommended to be generated using \code{\link[=get_forestplot_data]{get_forestplot_data()}}}
 
-\item{center}{x intercept to display a stripped vertical line}
+\item{center}{x intercept to display a stripped vertical line, default \code{NULL}, no center.}
 
 \item{digits}{decimal digits for the table generation, default \code{3}}
 
-\item{table}{if the table is displayed while generating the forestplot, default \code{FALSE}}
+\item{...}{extra arguments passed to \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}}, \code{\link[ggplot2:geom_linerange]{ggplot2::geom_pointrange()}}, \code{\link[ggplot2:theme]{ggplot2::theme()}}, and \code{\link[gt:tab_options]{gt::tab_options()}}}
 }
 \value{
-a C-Index forestplot
+a C-Index forestplot stored in a \code{gt_tbl} table object
 }
 \description{
 Function that generates a C-Index forestplot for the given data
