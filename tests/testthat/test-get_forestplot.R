@@ -14,10 +14,12 @@ test_that("the forestplot is properly generated for `c_index`", {
     calculate_predictions(data) |>
     calculate_harrell_c_index(data)
 
-  plot <- get_forestplot_data(strat = "overall", type = "c_index", model_cox, model_logreg) |>
-    get_forestplot(center = 0.3)
+  plot <- suppressWarnings(
+    get_forestplot_data(strat = "overall", type = "c_index", model_cox, model_logreg) |>
+      get_forestplot(center = 0.3)
+  )
 
-  expect_s3_class(plot, "ggplot")
+  expect_s3_class(plot, "gt_tbl")
 })
 
 test_that("the forestplot is properly generated for `auc`", {
@@ -30,10 +32,10 @@ test_that("the forestplot is properly generated for `auc`", {
     calculate_predictions(data) |>
     calculate_auc(data)
 
-  plot <- get_forestplot_data(strat = "overall", type = "auc", model_cox, model_logreg) |>
-    get_forestplot(center = 0.3)
+  plot <- suppressWarnings(get_forestplot_data(strat = "overall", type = "auc", model_cox, model_logreg) |>
+    get_forestplot(center = 0.3))
 
-  expect_s3_class(plot, "ggplot")
+  expect_s3_class(plot, "gt_tbl")
 })
 
 test_that("the forestplot is properly generated for `brier_score`", {
@@ -46,10 +48,19 @@ test_that("the forestplot is properly generated for `brier_score`", {
     calculate_predictions(data) |>
     calculate_brier_score(data = data, type = "predictions_aggregated", n_boot = 10, seed = 123)
 
-  plot <- get_forestplot_data(strat = "overall", type = "brier_score", model_cox, model_logreg) |>
-    get_forestplot(center = 0.3)
+  expect_no_error(
+    plot <- get_forestplot_data(strat = "overall", type = "brier_score", model_cox, model_logreg) |>
+      get_forestplot(center = 0.3)
+  )
 
-  expect_s3_class(plot, "ggplot")
+  expect_s3_class(plot, "gt_tbl")
+
+  expect_no_error(
+    plot <- get_forestplot_data(strat = "overall", type = "brier_score", model_cox, model_logreg) |>
+      get_forestplot()
+  )
+
+  expect_s3_class(plot, "gt_tbl")
 })
 
 test_that("the forestplot is properly generated for `brier_score_type_1`", {
@@ -64,10 +75,17 @@ test_that("the forestplot is properly generated for `brier_score_type_1`", {
     calculate_predictions_recalibrated_type_1(data) |>
     calculate_brier_score(data = data, type = "predictions_recal_type_1", n_boot = 10, seed = 123)
 
-  plot <- get_forestplot_data(strat = "overall", type = "brier_score_type_1", model_cox, model_logreg) |>
-    get_forestplot(center = 0.3)
+  expect_no_error(
+    plot <- get_forestplot_data(strat = "overall", type = "brier_score_type_1", model_cox, model_logreg) |>
+      get_forestplot(center = 0.3)
+  )
+  expect_s3_class(plot, "gt_tbl")
 
-  expect_s3_class(plot, "ggplot")
+  expect_no_error(
+    plot <- get_forestplot_data(strat = "overall", type = "brier_score_type_1", model_cox, model_logreg) |>
+      get_forestplot()
+  )
+  expect_s3_class(plot, "gt_tbl")
 })
 
 test_that("the forestplot is properly generated for `brier_score_type_2`", {
@@ -82,12 +100,18 @@ test_that("the forestplot is properly generated for `brier_score_type_2`", {
     calculate_predictions_recalibrated_type_2(data) |>
     calculate_brier_score(data = data, type = "predictions_recal_type_2", n_boot = 10, seed = 123)
 
-  plot <- get_forestplot_data(strat = "overall", type = "brier_score_type_2", model_cox, model_logreg) |>
-    get_forestplot(center = 0.3)
+  expect_no_error(
+    plot <- get_forestplot_data(strat = "overall", type = "brier_score_type_2", model_cox, model_logreg) |>
+      get_forestplot(center = 0.3)
+  )
+  expect_s3_class(plot, "gt_tbl")
 
-  expect_s3_class(plot, "ggplot")
+  expect_no_error(
+    plot <- get_forestplot_data(strat = "overall", type = "brier_score_type_2", model_cox, model_logreg) |>
+      get_forestplot()
+  )
+  expect_s3_class(plot, "gt_tbl")
 })
-
 
 
 # assert that model variables are present ---------------------------------
