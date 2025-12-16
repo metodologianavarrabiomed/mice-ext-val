@@ -54,7 +54,7 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
     cli::cli_progress_step("calculating type 1 recalibration parameters", spinner = TRUE, .envir = env)
   }
 
-  model$alpha_type_1 <- data |>
+  alpha_type_1 <- data |>
     dplyr::group_by_at(dplyr::vars(".imp")) |>
     dplyr::group_map(~ {
       # Progress bar code
@@ -63,7 +63,7 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
       }
       # Obtains the data of the event variable
       dependent_variable <- .x[[all.vars(model$formula)[1]]]
-      betax <- model$betax_data |>
+      betax <- model$predictions_imp |>
         dplyr::filter(.imp == .y$.imp) |>
         dplyr::pull(betax)
 
@@ -84,11 +84,13 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
     dplyr::pull("alpha") |>
     mean()
 
+  model$recal_parameters <- tibble::tibble(param = "alpha_type_1", value = alpha_type_1)
+
   # Calculates the type 1 recalibration
-  model$predictions_recal_type_1 <- tibble::tibble(
-    id = model$betax$id,
-    prediction_type_1 = 1 / (1 + exp(-(model$betax$betax + model$alpha_type_1)))
-  )
+  model$predictions_imp <- model$predictions_imp |>
+    dplyr::mutate(
+    prediction_type_1 = 1 / (1 + exp(-(.data[["betax"]] + alpha_type_1)))
+      )
 
   if (.progress) {
     cli::cli_progress_done(.envir = env)
