@@ -1,6 +1,6 @@
 Package: MiceExtVal
 Title: Tools for external validation in Multiple Imputation by Chained Equations methodology
-Version: 0.0.3
+Version: 0.0.4
 Authors@R: 
     person("Asier", "Ballesteros Domínguez", , "asier.ballesteros.dominguez@navarra.es", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-2195-4669"))
