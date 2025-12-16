@@ -50,7 +50,7 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
   }
 
   # Obtain the `alpha` value
-  model$alpha <- data |>
+  alpha <- data |>
     dplyr::group_by_at(dplyr::vars(".imp")) |>
     dplyr::group_map(~ {
       # Progress bar code
@@ -60,7 +60,7 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
 
       # Obtains the data of the event variable
       survival_data <- .x[[all.vars(model$formula)[1]]]
-      survival_predictions <- 1 - model$predictions_data |>
+      survival_predictions <- 1 - model$predictions_imp |>
         dplyr::filter(.imp == .y$.imp) |>
         dplyr::pull(prediction)
 
@@ -81,12 +81,13 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
     cli::cli_progress_step("recalibrating predictions with type 1 recalibration", .envir = env)
   }
 
+  model$recal_parameters <- tibble::tibble(param = "alpha", value = alpha)
+
   # Calculates the recalibrated type 1 predictions
-  model$predictions_recal_type_1 <- model$predictions_aggregated |>
+  model$predictions_agg <- model$predictions_agg |>
     dplyr::mutate(
-      prediction_type_1 = 1 - exp(-exp(model$alpha + log(-log(1 - .data[["prediction"]]))))
-    ) |>
-    dplyr::select(dplyr::all_of(c("id", "prediction_type_1")))
+      prediction_type_1 = 1 - exp(-exp(alpha + log(-log(1 - .data[["prediction"]]))))
+    )
 
   if (.progress) {
     cli::cli_progress_done(.envir = env)
