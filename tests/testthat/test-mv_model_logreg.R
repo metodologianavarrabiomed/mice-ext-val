@@ -20,5 +20,5 @@ test_that("Formula is assigned properly", {
 
 test_that("All the parameters are assigned", {
   model <- make_logreg_model(environment())
-  expect_named(model, c("formula", "alpha_type_1", "alpha_type_2", "beta_overall", "predictions_aggregated", "predictions_data", "betax", "betax_data", "predictions_recal_type_1", "predictions_recal_type_2", "c_index"))
+  expect_named(model, c("formula", "predictions_imp", "predictions_agg", "recal_parameters", "results_imp", "results_agg"))
 })
