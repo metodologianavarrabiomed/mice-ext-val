@@ -3,7 +3,7 @@
 #' @param data Dataset where all the data to plot is stored. It is recommended to be generated using [get_forestplot_data()]
 #' @param center x intercept to display a stripped vertical line, default `NULL`, no center.
 #' @param digits decimal digits for the table generation, default `3`
-#' @param ... extra arguments passed to [ggplot2::ggplot()], [ggplot2::geom_pointrange()], [ggplot2::theme()], and [gt::tab_options()]
+#' @param ... extra arguments passed to [ggplot2::theme()]. Different subplots are generated in different points of the code some changes could lead to different results than the expected output.
 #'
 #' @returns a C-Index forestplot stored in a `gt_tbl` table object
 #' @export
@@ -71,11 +71,11 @@ get_forestplot <- function(data, center = NULL, digits = 3, ...) {
   model_plots <- data |>
     dplyr::group_by_at("model") |>
     dplyr::group_map(~ {
-      get_model_plot(.x, min_x, max_x, center)
-    })
+      get_model_plot(.x, min_x, max_x, center, ...)
+    }, ...)
   legend_plot <- get_legend(data)
-  axis_plot <- get_axis(min_x, max_x)
 
+  axis_plot <- get_axis(min_x, max_x, ...)
   model_plots <- append(model_plots, axis_plot)
 
   extra_row <- table[1, ]
@@ -85,9 +85,7 @@ get_forestplot <- function(data, center = NULL, digits = 3, ...) {
   extra_row[["plot"]] <- max_index
 
   table <- table |>
-    dplyr::bind_rows(extra_row)
-
-  table <- table |>
+    dplyr::bind_rows(extra_row) |>
     gt::gt() |>
     gt::cols_width(c("plot") ~ gt::px(150)) |>
     gt::text_transform(
@@ -124,7 +122,6 @@ get_forestplot <- function(data, center = NULL, digits = 3, ...) {
       align = "auto",
       columns = gt::everything()
     ) |>
-    gt::tab_options(...) |>
     gt::tab_options(
       data_row.padding = gt::px(0),
       table_body.border.top.width = gt::px(0),
@@ -190,15 +187,15 @@ save_temp_file <- function(p, ...) {
 get_model_plot <- function(data, min_x, max_x, center = NULL, ...) {
   # create the plot
   p <- data |>
-    ggplot2::ggplot(ggplot2::aes(x = .data[["estimate"]], y = .data[["strat"]], color = .data[["strat"]]), ...) +
+    ggplot2::ggplot(ggplot2::aes(x = .data[["estimate"]], y = .data[["strat"]], color = .data[["strat"]])) +
     ggplot2::geom_pointrange(
-      ggplot2::aes(xmin = .data[["lower"]], xmax = .data[["upper"]]), ...
+      ggplot2::aes(xmin = .data[["lower"]], xmax = .data[["upper"]])
     ) +
     ggplot2::guides(colour = ggplot2::guide_legend(title = "Strat")) +
     ggplot2::xlim(c(min_x, max_x)) +
-    clean_theme() +
-    # allow the user to redefine the theme
-    ggplot2::theme(...)
+    ggplot2::theme(...) +
+    clean_theme()
+
   if (!is.null(center)) {
     p <- p +
       ggplot2::geom_vline(xintercept = center, linetype = "dashed")
@@ -256,7 +253,7 @@ get_legend <- function(data) {
 #'
 #' @noRd
 #' @keywords internal
-get_axis <- function(x_min, x_max) {
+get_axis <- function(x_min, x_max, ...) {
   df <- data.frame(x = c(x_min, x_max), y = 0)
 
   p <- ggplot2::ggplot(df, ggplot2::aes(.data[["x"]], .data[["y"]])) +
@@ -268,7 +265,8 @@ get_axis <- function(x_min, x_max) {
       panel.grid.major.x = ggplot2::element_blank(),
       panel.grid.minor.x = ggplot2::element_blank(),
       axis.text.x = ggplot2::element_text(size = 12),
-    )
+    ) +
+    ggplot2::theme(...)
 
   save_temp_file(
     p,
