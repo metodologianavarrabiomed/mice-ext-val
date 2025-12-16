@@ -52,49 +52,43 @@ calculate_predictions.cox <- function(model, data, .progress = FALSE) {
     cli::cli_progress_step("calculating betax predictions", spinner = TRUE, .envir = env)
   }
 
-  model$betax_data <- data |>
+  model$predictions_imp <- data |>
     dplyr::group_by_at(dplyr::vars(".imp")) |>
     dplyr::group_map(~ {
       if (.progress) {
         cli::cli_progress_update(.envir = env)
       }
       with(.x, {
-        eval(eval(model$formula[[3]]))
+        eval(model$formula[[3]])
       }) |>
         tibble::as_tibble() |>
+        dplyr::rename("betax" = value) |>
         tibble::add_column(.imp = .y$.imp) |>
-        tibble::add_column(id = .x$id) |>
-        dplyr::rename("betax" = value)
+        tibble::add_column(id = .x$id)
     }) |>
-    dplyr::bind_rows()
+    dplyr::bind_rows() |>
+    dplyr::select(dplyr::all_of(c(".imp", "id", "betax")))
 
   if (.progress) {
     cli::cli_progress_done(.envir = env)
     cli::cli_progress_step("aggregating predictions", .envir = env)
   }
 
-  model$predictions_data <- model$betax_data |>
-    dplyr::mutate(prediction = 1 - model$S0^exp(eval(.data[["betax"]]))) |>
-    dplyr::select(dplyr::all_of(c("prediction", ".imp", "id")))
+  model$predictions_imp <- model$predictions_imp |>
+    dplyr::mutate(prediction = 1 - model$S0^exp(eval(.data[["betax"]])))
 
   if (.progress) {
     cli::cli_progress_done(.envir = env)
-    cli::cli_progress_step("calculating predictions", .envir = env)
+    cli::cli_progress_step("aggregating predictions and betax", .envir = env)
   }
 
   # Generates the aggregated `predictions` and stores them into the model
-  model$predictions_aggregated <- model$predictions_data |>
+  model$predictions_agg <- model$predictions_imp |>
     dplyr::group_by_at(dplyr::vars("id")) |>
-    dplyr::summarise(prediction = mean(.data[["prediction"]]))
-
-  if (.progress) {
-    cli::cli_progress_done(.envir = env)
-    cli::cli_progress_step("aggregating betax", .envir = env)
-  }
-  # Generates the aggregated `betax` and stores them into the model
-  model$betax <- model$betax_data |>
-    dplyr::group_by_at(dplyr::vars("id")) |>
-    dplyr::summarise(betax = mean(.data[["betax"]]))
+    dplyr::summarise(
+      betax = mean(.data[["betax"]]),
+      prediction = mean(.data[["prediction"]])
+      )
 
   if (.progress) {
     cli::cli_progress_done(.envir = env)
