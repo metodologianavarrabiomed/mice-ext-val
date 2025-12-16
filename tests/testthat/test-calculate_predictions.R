@@ -99,19 +99,11 @@ test_that("Calculates the predictions properly in logreg model", {
 
   # Predictions works
   expect_identical(
-    round_to_precision(model$predictions_aggregated),
-    round_to_precision(readRDS(test_path("fixtures", "logreg", "predictions_aggregated_logreg.rds")))
+    round_to_precision(model$predictions_agg),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "predictions_agg_logreg.rds")))
   )
   expect_identical(
-    round_to_precision(model$predictions_data),
-    round_to_precision(readRDS(test_path("fixtures", "logreg", "predictions_data_logreg.rds")))
-  )
-  expect_identical(
-    round_to_precision(model$betax),
-    round_to_precision(readRDS(test_path("fixtures", "logreg", "betax_logreg.rds")))
-  )
-  expect_identical(
-    round_to_precision(model$betax_data),
-    round_to_precision(readRDS(test_path("fixtures", "logreg", "betax_data_logreg.rds")))
+    round_to_precision(model$predictions_imp),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "predictions_imp_logreg.rds")))
   )
 })
