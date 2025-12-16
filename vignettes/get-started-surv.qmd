@@ -712,16 +712,13 @@ In the following example, we generate two separate strata for the same model, `T
 #|   C-Indexes forestplot stratified
 #| warning: false
 #| message: false
-#| fig-height: 2
-#| fig-width: 10
 #| fig-cap: Forestplot stratified
 #| label: fig-forestplot-stratified
 dplyr::bind_rows(
   MiceExtVal::get_forestplot_data(strat = "Men", type = "c_index", Framingham = men_model),
   MiceExtVal::get_forestplot_data(strat = "Women", type = "c_index", Framingham = women_model)
 ) |>
-  MiceExtVal::get_forestplot(center = 0.7, digits = 2, table = TRUE) +
-  ggplot2::xlim(c(0.6, 0.75))
+  MiceExtVal::get_forestplot(center = 0.7, digits = 2)
 ```
 
 If we want to generate a forestplot with multiple models in one strat we can generate it as the following example. In this example men and women models are inserted in the `Overall` strat as individual models. We have deleted the legend as it is not informative. 
@@ -731,23 +728,15 @@ If we want to generate a forestplot with multiple models in one strat we can gen
 #|   C-Index forestplot with two models
 #| warning: false
 #| message: false
-#| fig-height: 2
-#| fig-width: 8
 #| fig-cap: Forestplot non-stratified
 #| label: fig-forestplot-non-stratified
-fp <- MiceExtVal::get_forestplot_data(
+MiceExtVal::get_forestplot_data(
   strat = "Overall",
   type = "c_index",
   `Framingham Women` = women_model,
   `Framingham Men` = men_model
 ) |>
-  MiceExtVal::get_forestplot(center = 0.7, digits = 2, table = TRUE)
-
-fp[[2]] <- fp[[2]] +
-  ggplot2::theme(legend.position = "none") +
-  ggplot2::xlim(c(0.6, 0.75))
-
-plot(fp)
+  MiceExtVal::get_forestplot(center = 0.7, digits = 2)
 ```
 
 ### Brier Score Comparison: Forestplot
@@ -756,8 +745,6 @@ The forestplot functions also allow us to generate the data from the Brier score
 ```{r}
 #| warning: false
 #| message: false
-#| fig-height: 3
-#| fig-width: 12
 #| label: fig-forestplot-brier-score
 #| fig-cap: Forestplot Brier score comparison
 data <- dplyr::bind_rows(
@@ -776,7 +763,11 @@ data <- dplyr::bind_rows(
 )
 
 data |>
-  MiceExtVal::get_forestplot(center = mean(data[["estimate"]]), digits = 2, table = TRUE)
+  MiceExtVal::get_forestplot(
+    center = mean(data[["estimate"]]),
+    digits = 2,
+    axis.text.x = ggplot2::element_text(size = 25)
+  )
 ```
 
 ## References

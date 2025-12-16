@@ -497,16 +497,11 @@ Note that we have removed the legend from the plot, as we only have one strat. S
 ```{r}
 #| fig-height: 2
 #| fig-width: 8
-fp <- MiceExtVal::get_forestplot_data(
+MiceExtVal::get_forestplot_data(
   strat = "Overall", type = "auc",
   `TIMI-II Men` = timi2_model_men, `TIMI-II Women` = timi2_model_women
 ) |>
-  MiceExtVal::get_forestplot(center = 0.75, digits = 2, table = TRUE)
-
-fp[[2]] <- fp[[2]] +
-  ggplot2::theme(legend.position = "none")
-
-plot(fp)
+  MiceExtVal::get_forestplot(center = 0.75, digits = 2)
 ```
 
 Finally, both concepts can be combined to generate a forest plot that compares multiple models across multiple strata. The following example demonstrates how to compare the general model with its stratified validation, allowing a side-by-side comparison of model performance across different subgroups and the overall cohort.
@@ -526,7 +521,7 @@ dplyr::bind_rows(
     strat = "Women", type = "auc", `TIMI-II strat` = timi2_model_women
   ),
 ) |>
-  MiceExtVal::get_forestplot(center = 0.75, digits = 2, table = TRUE)
+  MiceExtVal::get_forestplot(center = 0.75, digits = 2)
 ```
 
 ### Brier Score Comparison: Forestplot
@@ -555,7 +550,11 @@ data <- dplyr::bind_rows(
 )
 
 data |>
-  MiceExtVal::get_forestplot(center = mean(data[["estimate"]]), digit = 2, table = TRUE)
+  MiceExtVal::get_forestplot(
+    center = mean(data[["estimate"]]),
+    digit = 2,
+    axis.text.x = ggplot2::element_text(size = 25)
+  )
 ```
 
 ## References
