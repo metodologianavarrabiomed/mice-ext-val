@@ -20,8 +20,8 @@ get_error_message_calculate_recalibrated <- function(model, data) {
   }
 
   # Returns an error if `predictions_data` does not exist in `model`
-  if (!"predictions_data" %in% names(model) | !methods::is(model$predictions_data, "data.frame")) {
-    error_message <- c(error_message, "*" = cli::format_error("In {.arg model} there should be the argument {.arg predictions_data} {.cls tibble} calculated (see {.fn MiceExtVal::calculate_predictions})"))
+  if (!"predictions_imp" %in% names(model) | !methods::is(model$predictions_imp, "data.frame")) {
+    error_message <- c(error_message, "*" = cli::format_error("In {.arg model} there should be the argument {.arg predictions_imp} {.cls tibble} calculated (see {.fn MiceExtVal::calculate_predictions})"))
   }
 
   # Returns an error if the dependent variable in the model formula does not exist
