@@ -75,7 +75,7 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
 
       recal_data <- tibble::tibble(
         y = event,
-        betax = model$betax_data |>
+        betax = model$predictions_imp |>
           dplyr::filter(.imp == .y$.imp) |>
           dplyr::pull(betax)
       )
@@ -89,14 +89,22 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
     }) |>
     dplyr::bind_rows()
 
-  model$alpha_type_2 <- mean(recal_parameters$alpha_type_2)
-  model$beta_overall <- mean(recal_parameters$beta_overall)
+  alpha_type_2 <- mean(recal_parameters$alpha_type_2)
+  beta_overall <- mean(recal_parameters$beta_overall)
+
+  model$recal_parameters <- dplyr::bind_rows(
+    model$recal_parameters,
+    tibble::tibble(
+      param = c("alpha_type_2", "beta_overall"),
+      value = c(alpha_type_2, beta_overall)
+    )
+  )
 
   # Calculates the type 2 recalibration
-  model$predictions_recal_type_2 <- tibble::tibble(
-    id = model$betax$id,
-    prediction_type_2 = 1 / (1 + exp(-(model$alpha_type_2 + (model$beta_overall * model$betax$betax))))
-  )
+  model$predictions_agg <- model$predictions_agg |>
+    dplyr::mutate(
+      prediction_type_2 = 1 / (1 + exp(-(alpha_type_2 + (beta_overall * .data[["betax"]]))))
+      )
 
   if (.progress) {
     cli::cli_progress_done(.envir = env)
