@@ -81,7 +81,10 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
     cli::cli_progress_step("recalibrating predictions with type 1 recalibration", .envir = env)
   }
 
-  model$recal_parameters <- tibble::tibble(param = "alpha", value = alpha)
+  model$recal_parameters <- dplyr::bind_rows(
+    model$recal_parameters,
+    tibble::tibble(param = "alpha", value = alpha)
+  )
 
   # Calculates the recalibrated type 1 predictions
   model$predictions_agg <- model$predictions_agg |>

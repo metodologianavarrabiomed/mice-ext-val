@@ -84,7 +84,10 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
     dplyr::pull("alpha") |>
     mean()
 
-  model$recal_parameters <- tibble::tibble(param = "alpha_type_1", value = alpha_type_1)
+  model$recal_parameters <- dplyr::bind_rows(
+    model$recal_parameters,
+    tibble::tibble(param = "alpha_type_1", value = alpha_type_1)
+  )
 
   # Calculates the type 1 recalibration
   model$predictions_imp <- model$predictions_imp |>
