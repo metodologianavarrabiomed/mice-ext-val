@@ -41,8 +41,8 @@ test_that("Returns an error if `predictions_data` does not exist in cox `model`"
     calculate_predictions(data)
 
   model_cox_no_predictions_data <- model_cox
-  model_cox_no_predictions_data$predictions_data <- NULL
-  expect_error(calculate_predictions_recalibrated_type_2(model_cox_no_predictions_data, data), "In `model` there should be the argument `predictions_data` <tibble> calculated")
+  model_cox_no_predictions_data$predictions_imp <- NULL
+  expect_error(calculate_predictions_recalibrated_type_2(model_cox_no_predictions_data, data), "In `model` there should be the argument `predictions_imp` <tibble> calculated")
 })
 
 test_that("Returns an error if the dependent variable in the cox model formula does not exist in `data` or is not a survival class", {
@@ -76,11 +76,10 @@ test_that("Calculates the type 2 recalibrated predictions properly for cox model
     calculate_predictions_recalibrated_type_2(data)
 
   expect_identical(
-    round_to_precision(model$predictions_recal_type_2),
-    round_to_precision(readRDS(test_path("fixtures", "cox", "predictions_recal_type_2_cox.rds")))
+    round_to_precision(model$predictions_agg),
+    round_to_precision(readRDS(test_path("fixtures", "cox", "predictions_agg_type_2_cox.rds")))
   )
-  expect_identical(round_to_precision(model$S0_type_2), round_to_precision(readRDS(test_path("fixtures", "cox", "S0_type_2_cox.rds"))))
-  expect_identical(round_to_precision(model$beta_overall), round_to_precision(readRDS(test_path("fixtures", "cox", "beta_overall_cox.rds"))))
+  expect_identical(round_to_precision(model$recal_parameters), round_to_precision(readRDS(test_path("fixtures", "cox", "type_2_param_cox.rds"))))
 })
 
 # Logreg model -----------------------------------------------------------------
@@ -114,8 +113,8 @@ test_that("Returns an error if `predictions_data` does not exist in logreg `mode
     calculate_predictions(data)
 
   model_logreg_no_predictions_data <- model_logreg
-  model_logreg_no_predictions_data$predictions_data <- NULL
-  expect_error(calculate_predictions_recalibrated_type_2(model_logreg_no_predictions_data, data), "In `model` there should be the argument `predictions_data` <tibble> calculated")
+  model_logreg_no_predictions_data$predictions_imp <- NULL
+  expect_error(calculate_predictions_recalibrated_type_2(model_logreg_no_predictions_data, data), "In `model` there should be the argument `predictions_imp` <tibble> calculated")
 })
 
 test_that("Returns an error if the dependent variable in the logreg model formula does not exist in `data` or is not a proper class", {
@@ -143,15 +142,12 @@ test_that("Calculates the type 2 recalibrated predictions properly for logreg mo
     calculate_predictions_recalibrated_type_2(data)
 
   expect_identical(
-    round_to_precision(model$predictions_recal_type_2),
-    round_to_precision(readRDS(test_path("fixtures", "logreg", "predictions_recal_type_2_logreg.rds")))
+    round_to_precision(model$predictions_agg),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "predictions_agg_type_2_logreg.rds")))
   )
   expect_identical(
-    round_to_precision(model$alpha_type_2),
-    round_to_precision(readRDS(test_path("fixtures", "logreg", "alpha_type_2_logreg.rds")))
-  )
-  expect_identical(
-    round_to_precision(model$beta_overall), round_to_precision(readRDS(test_path("fixtures", "logreg", "beta_overall_logreg.rds")))
+    round_to_precision(model$recal_parameters),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "recal_param_type_2_logreg.rds")))
   )
 })
 
@@ -167,14 +163,11 @@ test_that("Calculates the type 2 recalibrated predictions properly for logreg mo
 
 
   expect_identical(
-    round_to_precision(model$predictions_recal_type_2),
-    round_to_precision(readRDS(test_path("fixtures", "logreg", "predictions_recal_type_2_logreg.rds")))
+    round_to_precision(model$predictions_agg),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "predictions_agg_type_2_logreg.rds")))
   )
   expect_identical(
-    round_to_precision(model$alpha_type_2),
-    round_to_precision(readRDS(test_path("fixtures", "logreg", "alpha_type_2_logreg.rds")))
-  )
-  expect_identical(
-    round_to_precision(model$beta_overall), round_to_precision(readRDS(test_path("fixtures", "logreg", "beta_overall_logreg.rds")))
+    round_to_precision(model$recal_parameters),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "recal_param_type_2_logreg.rds")))
   )
 })
