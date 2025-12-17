@@ -69,7 +69,7 @@ calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress
       # Obtains the data of the event variable
       survival_data <- .x[[all.vars(model$formula)[1]]]
       # Calculates the `betax` data
-      betax <- model$betax_data |>
+      betax <- model$predictions_imp |>
         dplyr::filter(.imp == .y$.imp) |>
         dplyr::pull(betax)
       # Calculates the type 2 recalibration params
@@ -82,12 +82,17 @@ calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress
     dplyr::bind_rows()
 
   # Populates the aggregated variables in the model
-  model$S0_type_2 <- cal_param |>
+  S0_type_2 <- cal_param |>
     dplyr::pull("S0") |>
     mean()
-  model$beta_overall <- cal_param |>
+  beta_overall <- cal_param |>
     dplyr::pull("beta_overall") |>
     mean()
+
+  model$recal_parameters <- dplyr::bind_rows(
+    model$recal_parameters,
+    tibble::tibble(param = c("S0_type_2", "beta_overall"), value = c(S0_type_2, beta_overall))
+  )
 
   # Progress bar code
   if (.progress) {
@@ -96,11 +101,10 @@ calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress
   }
 
   # Calculates the recalibrated type 2 predictions
-  model$predictions_recal_type_2 <- model$betax |>
+  model$predictions_agg <- model$predictions_agg |>
     dplyr::mutate(
-      prediction_type_2 = 1 - model$S0_type_2^exp(model$beta_overall * .data[["betax"]])
-    ) |>
-    dplyr::select(dplyr::all_of(c("id", "prediction_type_2")))
+      prediction_type_2 = 1 - S0_type_2^exp(beta_overall * .data[["betax"]])
+    )
 
   # Progress bar code
   if (.progress) {
