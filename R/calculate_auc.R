@@ -24,8 +24,8 @@ calculate_auc <- function(model, data, .progress = FALSE) {
   if (!methods::is(data, "data.frame")) {
     error_message <- c(error_message, "*" = cli::format_error("{.arg data} must be {.cls data.frame}"))
   } else {
-    if (!"predictions_data" %in% names(model)) {
-      error_message <- c(error_message, "*" = cli::format_error("{.arg model} must contain {.arg predictions_data} calculate it with {.fun MiceExtval::calculate_predictions}"))
+    if (!"predictions_imp" %in% names(model)) {
+      error_message <- c(error_message, "*" = cli::format_error("{.arg model} must contain {.arg predictions_imp} calculate it with {.fun MiceExtval::calculate_predictions}"))
     }
 
     if (!"formula" %in% names(model)) {
@@ -56,7 +56,7 @@ calculate_auc <- function(model, data, .progress = FALSE) {
         y <- .x[[dependent_variable]]
       }
 
-      predictions <- model$predictions_data |>
+      predictions <- model$predictions_imp |>
         dplyr::filter(.data[[".imp"]] == .y$.imp) |>
         dplyr::pull(var = "prediction")
 
@@ -70,16 +70,33 @@ calculate_auc <- function(model, data, .progress = FALSE) {
     }) |>
     dplyr::bind_rows()
 
+  model$results_imp <- dplyr::bind_rows(
+    model$results_imp,
+    model_auc |>
+      dplyr::rename(dplyr::all_of(c(estimate = "auc"))) |>
+      tibble::add_column(name = "auc",.before = ".imp")
+  )
+
   n <- data |>
     dplyr::filter(.data[[".imp"]] == 1) |>
     dplyr::pull("id") |>
     length()
 
-  model$auc <- psfmi::pool_RR(
+  auc <- psfmi::pool_RR(
     est = model_auc[["auc"]],
     se = model_auc[["se"]],
     n = n,
     k = 1
+  )
+
+  model$results_agg <- dplyr::bind_rows(
+    model$results_agg,
+    tibble::tibble(
+      name = "auc",
+      estimate = auc[["Estimate"]],
+      lower = auc[["95% CI L"]],
+      upper = auc[["95% CI U"]],
+      p_val = auc[["P-val"]])
   )
 
   return(model)
