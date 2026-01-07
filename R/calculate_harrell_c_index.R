@@ -11,7 +11,7 @@
 #' @param data Multiple imputation data organized as a long dataset
 #' @param .progress `TRUE` to render the progress bar `FALSE` otherwise
 #'
-#' @return The same `model` passed as a parameter with the Harrell C Index value stored in `$c_index`
+#' @return The same `model` passed as a parameter with the Harrell C Index value stored in `results_agg` and `results_imp`
 #'
 #' @export
 #'
@@ -44,8 +44,8 @@ calculate_harrell_c_index <- function(model, data, .progress = FALSE) {
       error_message <- c(error_message, "*" = cli::format_error("{.arg data} must contain {.arg .imp}"))
     }
 
-    if (!"predictions_data" %in% names(model)) {
-      error_message <- c(error_message, "*" = cli::format_error("{.arg model} must contain {.arg predictions_data} calculate it with {.fun MiceExtval::calculate_predictions}"))
+    if (!"predictions_imp" %in% names(model)) {
+      error_message <- c(error_message, "*" = cli::format_error("{.arg model} must contain {.arg predictions_imp} calculate it with {.fun MiceExtval::calculate_predictions}"))
     }
 
     if (!"formula" %in% names(model)) {
@@ -81,28 +81,55 @@ calculate_harrell_c_index <- function(model, data, .progress = FALSE) {
         cli::cli_progress_update(.envir = env)
       }
 
-      Hmisc::rcorr.cens(
+      c_index <- Hmisc::rcorr.cens(
         # Get the predictions data for the imputation `.imp`.
-        x = 1 - (model$predictions_data |> dplyr::filter({
+        x = 1 - (model$predictions_imp |> dplyr::filter({
           .imp == .y$.imp
         }) |> dplyr::pull(var = "prediction")),
         # Generates the outcome variable from `survival_data`
         S = survival::Surv(time = survival_data[, "time"], event = survival_data[, "status"])
       )
+
+      tibble::tibble(
+        .imp = .y$.imp,
+        estimate = c_index["C Index"],
+        se = c_index["S.D."] / 2
+      )
     }) |>
     dplyr::bind_rows()
+
+  model$results_imp <- dplyr::bind_rows(
+    model$results_imp,
+    c_index_data |> tibble::add_column(name = "harrell_c_index", .before = ".imp")
+  )
 
   if (.progress) {
     cli::cli_progress_done(.envir = env)
     cli::cli_progress_step("pooling c-index with rubin rules", spinner = TRUE, .envir = env)
   }
 
+  n <- data |>
+    dplyr::filter(.data[[".imp"]] == 1) |>
+    dplyr::pull("id") |>
+    length()
+
   # Aggregates the results using rubin rules and populates the `c_index` parameter in the model
-  model$c_index <- psfmi::pool_RR(
-    est = c_index_data$`C Index`,
-    se = c_index_data$`S.D.` / 2,
-    n = c_index_data$n[[1]],
+  c_index_agg <- psfmi::pool_RR(
+    est = c_index_data$estimate,
+    se = c_index_data$se,
+    n = n,
     k = 1
+  )
+
+  model$results_agg <- dplyr::bind_rows(
+    model$results_agg,
+    tibble::tibble(
+      name = "harrell_c_index",
+      estimate = c_index_agg[["Estimate"]],
+      lower = c_index_agg[["95% CI L"]],
+      upper = c_index_agg[["95% CI U"]],
+      p_val = c_index_agg[["P-val"]]
+    )
   )
 
   if (.progress) {
