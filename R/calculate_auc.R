@@ -64,7 +64,7 @@ calculate_auc <- function(model, data, .progress = FALSE) {
 
       tibble::tibble(
         .imp = .y$.imp,
-        auc = auc_val |> as.numeric(),
+        estimate = auc_val |> as.numeric(),
         se = sqrt(pROC::var(auc_val)) / sqrt(length(predictions))
       )
     }) |>
@@ -73,7 +73,6 @@ calculate_auc <- function(model, data, .progress = FALSE) {
   model$results_imp <- dplyr::bind_rows(
     model$results_imp,
     model_auc |>
-      dplyr::rename(dplyr::all_of(c(estimate = "auc"))) |>
       tibble::add_column(name = "auc",.before = ".imp")
   )
 
@@ -83,7 +82,7 @@ calculate_auc <- function(model, data, .progress = FALSE) {
     length()
 
   auc <- psfmi::pool_RR(
-    est = model_auc[["auc"]],
+    est = model_auc[["estimate"]],
     se = model_auc[["se"]],
     n = n,
     k = 1
