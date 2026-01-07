@@ -90,7 +90,7 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
   )
 
   # Calculates the type 1 recalibration
-  model$predictions_imp <- model$predictions_imp |>
+  model$predictions_agg <- model$predictions_agg |>
     dplyr::mutate(
     prediction_type_1 = 1 / (1 + exp(-(.data[["betax"]] + alpha_type_1)))
       )
