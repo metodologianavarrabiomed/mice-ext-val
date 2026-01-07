@@ -62,12 +62,12 @@ test_that("Returns an error if `predictions_data` does not exist in `model`", {
     calculate_predictions(data)
 
   model_cox_no_predictions_data <- model_cox
-  model_cox_no_predictions_data$predictions_data <- NULL
-  expect_error(calculate_harrell_c_index(model_cox_no_predictions_data, data), "`model` must contain `predictions_data` calculate it")
+  model_cox_no_predictions_data$predictions_imp <- NULL
+  expect_error(calculate_harrell_c_index(model_cox_no_predictions_data, data), "`model` must contain `predictions_imp` calculate it")
 
   model_logreg_no_predictions_data <- model_logreg
-  model_logreg_no_predictions_data$predictions_data <- NULL
-  expect_error(calculate_harrell_c_index(model_logreg_no_predictions_data, data), "`model` must contain `predictions_data` calculate it")
+  model_logreg_no_predictions_data$predictions_imp <- NULL
+  expect_error(calculate_harrell_c_index(model_logreg_no_predictions_data, data), "`model` must contain `predictions_imp` calculate it")
 })
 
 test_that("Returns an error if the dependent variable in the model formula does not exist in `data` or is not a survival class", {
@@ -97,8 +97,13 @@ test_that("Calculates the c-index properly for a cox model", {
     calculate_harrell_c_index(data)
 
   expect_identical(
-    round_to_precision(model_cox$c_index),
-    round_to_precision(readRDS(test_path("fixtures", "cox", "c_index_cox.rds")))
+    round_to_precision(model_cox$results_agg |> dplyr::filter(name == "harrell_c_index")),
+    round_to_precision(readRDS(test_path("fixtures", "cox", "c_index_cox_agg.rds")))
+    )
+
+  expect_identical(
+    round_to_precision(model_cox$results_imp |> dplyr::filter(name == "harrell_c_index")),
+    round_to_precision(readRDS(test_path("fixtures", "cox", "c_index_cox_imp.rds")))
   )
 })
 
@@ -109,7 +114,13 @@ test_that("Calculates the c-index properly for a logreg model", {
     calculate_harrell_c_index(data)
 
   expect_identical(
-    round_to_precision(model_logreg$c_index),
-    round_to_precision(readRDS(test_path("fixtures", "logreg", "c_index_logreg.rds")))
+    round_to_precision(model_logreg$results_agg |> dplyr::filter(name == "harrell_c_index")),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "c_index_logreg_agg.rds")))
+    )
+
+  expect_identical(
+    round_to_precision(model_logreg$results_imp |> dplyr::filter(name == "harrell_c_index")),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "c_index_logreg_imp.rds")))
   )
 })
+
