@@ -15,7 +15,7 @@ test_that("the forestplot is properly generated for `c_index`", {
     calculate_harrell_c_index(data)
 
   plot <- suppressWarnings(
-    get_forestplot_data(strat = "overall", type = "c_index", model_cox, model_logreg) |>
+    get_forestplot_data(strat = "overall", type = "harrell_c_index", model_cox, model_logreg) |>
       get_forestplot(center = 0.3)
   )
 
@@ -42,11 +42,11 @@ test_that("the forestplot is properly generated for `brier_score`", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model_cox <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
-    calculate_brier_score(data = data, type = "predictions_aggregated", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction", n_boot = 10, seed = 123)
 
   model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data) |>
-    calculate_brier_score(data = data, type = "predictions_aggregated", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction", n_boot = 10, seed = 123)
 
   expect_no_error(
     plot <- get_forestplot_data(strat = "overall", type = "brier_score", model_cox, model_logreg) |>
@@ -68,12 +68,12 @@ test_that("the forestplot is properly generated for `brier_score_type_1`", {
   model_cox <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_1(data) |>
-    calculate_brier_score(data = data, type = "predictions_recal_type_1", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction_type_1", n_boot = 10, seed = 123)
 
   model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_1(data) |>
-    calculate_brier_score(data = data, type = "predictions_recal_type_1", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction_type_1", n_boot = 10, seed = 123)
 
   expect_no_error(
     plot <- get_forestplot_data(strat = "overall", type = "brier_score_type_1", model_cox, model_logreg) |>
@@ -93,12 +93,12 @@ test_that("the forestplot is properly generated for `brier_score_type_2`", {
   model_cox <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_2(data) |>
-    calculate_brier_score(data = data, type = "predictions_recal_type_2", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction_type_2", n_boot = 10, seed = 123)
 
   model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_2(data) |>
-    calculate_brier_score(data = data, type = "predictions_recal_type_2", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction_type_2", n_boot = 10, seed = 123)
 
   expect_no_error(
     plot <- get_forestplot_data(strat = "overall", type = "brier_score_type_2", model_cox, model_logreg) |>
@@ -126,7 +126,7 @@ test_that("checks variables in `data` argument while generating `c_index` forest
     calculate_predictions(data) |>
     calculate_harrell_c_index(data)
 
-  forest_data <- get_forestplot_data(strat = "overall", type = "c_index", model_cox, model_logreg)
+  forest_data <- get_forestplot_data(strat = "overall", type = "harrell_c_index", model_cox, model_logreg)
 
   expect_error(get_forestplot(forest_data |> dplyr::select(-model), center = 0.2), "The data variable `model` must be present in")
   expect_error(get_forestplot(forest_data |> dplyr::select(-strat), center = 0.2), "The data variable `strat` must be present in")
@@ -158,11 +158,11 @@ test_that("checks variables in `data` argument while generating `brier_score` fo
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model_cox <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
-    calculate_brier_score(data = data, type = "predictions_aggregated", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction", n_boot = 10, seed = 123)
 
   model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data) |>
-    calculate_brier_score(data = data, type = "predictions_aggregated", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction", n_boot = 10, seed = 123)
 
   forest_data <- get_forestplot_data(strat = "overall", type = "brier_score", model_cox, model_logreg)
 
@@ -178,12 +178,12 @@ test_that("checks variables in `data` argument while generating `brier_score_typ
   model_cox <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_1(data) |>
-    calculate_brier_score(data = data, type = "predictions_recal_type_1", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction_type_1", n_boot = 10, seed = 123)
 
   model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_1(data) |>
-    calculate_brier_score(data = data, type = "predictions_recal_type_1", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction_type_1", n_boot = 10, seed = 123)
 
   forest_data <- get_forestplot_data(strat = "overall", type = "brier_score_type_1", model_cox, model_logreg)
 
@@ -199,12 +199,12 @@ test_that("checks variables in `data` argument while generating `brier_score_typ
   model_cox <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_2(data) |>
-    calculate_brier_score(data = data, type = "predictions_recal_type_2", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction_type_2", n_boot = 10, seed = 123)
 
   model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_2(data) |>
-    calculate_brier_score(data = data, type = "predictions_recal_type_2", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction_type_2", n_boot = 10, seed = 123)
 
   forest_data <- get_forestplot_data(strat = "overall", type = "brier_score_type_2", model_cox, model_logreg)
 
@@ -228,7 +228,7 @@ test_that("checks properly the class of the variables in `data` while generating
     calculate_predictions(data) |>
     calculate_harrell_c_index(data)
 
-  forest_data <- get_forestplot_data(strat = "overall", type = "c_index", model_cox, model_logreg)
+  forest_data <- get_forestplot_data(strat = "overall", type = "harrell_c_index", model_cox, model_logreg)
 
   expect_error(get_forestplot(forest_data |> dplyr::mutate(model = as.factor(model)), center = 0.2), "The data variable `model` has wrong typing")
   expect_error(get_forestplot(forest_data |> dplyr::mutate(strat = as.factor(strat)), center = 0.2), "The data variable `strat` has wrong typing")
@@ -260,11 +260,11 @@ test_that("checks properly the class of the variables in `data` while generating
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model_cox <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
-    calculate_brier_score(data = data, type = "predictions_aggregated", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction", n_boot = 10, seed = 123)
 
   model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data) |>
-    calculate_brier_score(data = data, type = "predictions_aggregated", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction", n_boot = 10, seed = 123)
 
   forest_data <- get_forestplot_data(strat = "overall", type = "brier_score", model_cox, model_logreg)
 
@@ -280,12 +280,12 @@ test_that("checks properly the class of the variables in `data` while generating
   model_cox <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_1(data) |>
-    calculate_brier_score(data = data, type = "predictions_recal_type_1", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction_type_1", n_boot = 10, seed = 123)
 
   model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_1(data) |>
-    calculate_brier_score(data = data, type = "predictions_recal_type_1", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction_type_1", n_boot = 10, seed = 123)
 
   forest_data <- get_forestplot_data(strat = "overall", type = "brier_score_type_1", model_cox, model_logreg)
 
@@ -301,12 +301,12 @@ test_that("checks properly the class of the variables in `data` while generating
   model_cox <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_2(data) |>
-    calculate_brier_score(data = data, type = "predictions_recal_type_2", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction_type_2", n_boot = 10, seed = 123)
 
   model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_2(data) |>
-    calculate_brier_score(data = data, type = "predictions_recal_type_2", n_boot = 10, seed = 123)
+    calculate_brier_score(data = data, type = "prediction_type_2", n_boot = 10, seed = 123)
 
   forest_data <- get_forestplot_data(strat = "overall", type = "brier_score_type_2", model_cox, model_logreg)
 
