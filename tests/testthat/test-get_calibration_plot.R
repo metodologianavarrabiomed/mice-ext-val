@@ -7,11 +7,10 @@ test_that("The calibration plot data function checks all the parameters in surv 
   model <- make_cox_model(environment()) |>
     calculate_predictions(data)
 
-
   expect_error(get_calibration_plot_data_surv())
-  expect_error(get_calibration_plot_data_surv(2, data, 10, "predictions_aggregated"))
-  expect_error(get_calibration_plot_data_surv(model, 4, 10, "predictions_aggregated"))
-  expect_error(get_calibration_plot_data_surv(model, 4, "a", "predictions_aggregated"))
+  expect_error(get_calibration_plot_data_surv(2, data, 10, "prediction"))
+  expect_error(get_calibration_plot_data_surv(model, 4, 10, "prediction"))
+  expect_error(get_calibration_plot_data_surv(model, 4, "a", "prediction"))
   expect_error(get_calibration_plot_data_surv(model, data, 10, "test"))
 })
 
@@ -26,7 +25,7 @@ test_that("Returns an error if `.imp` is not part of the `data` parameter in sur
       model = cox_model,
       data = data_no_imp,
       n_groups = 2,
-      type = "predictions_aggregated"
+      type = "prediction"
     ),
     "must contain `.imp`"
   )
@@ -35,7 +34,7 @@ test_that("Returns an error if `.imp` is not part of the `data` parameter in sur
       model = logreg_model,
       data = data_no_imp,
       n_groups = 2,
-      type = "predictions_aggregated"
+      type = "prediction"
     ),
     "must contain `.imp`"
   )
@@ -52,7 +51,7 @@ test_that("Returns an error if `id` is not part of the `data` parameter in surv 
       model = cox_model,
       data = data_no_id,
       n_groups = 2,
-      type = "predictions_aggregated"
+      type = "prediction"
     ),
     "must contain `id`"
   )
@@ -61,7 +60,7 @@ test_that("Returns an error if `id` is not part of the `data` parameter in surv 
       model = logreg_model,
       data = data_no_id,
       n_groups = 2,
-      type = "predictions_aggregated"
+      type = "prediction"
     ),
     "must contain `id`"
   )
@@ -79,7 +78,7 @@ test_that("Returns an error when the formula is not properly defined in cox in s
       model = model_cox_bad_dependent_variable,
       data = data,
       n_groups = 2,
-      type = "predictions_aggregated"
+      type = "prediction"
     ),
     "the dependent variable `y` must be <Surv>"
   )
@@ -89,7 +88,7 @@ test_that("Returns an error when the formula is not properly defined in cox in s
       model = model_cox_bad_dependent_variable,
       data = data,
       n_groups = 2,
-      type = "predictions_aggregated"
+      type = "prediction"
     ),
     "the dependent variable `no_exists` must be part of `data`"
   )
@@ -107,7 +106,7 @@ test_that("Returns an error when the formula is not properly defined in logreg i
       model = model_logreg_bad_dependent_variable,
       data = data,
       n_groups = 2,
-      type = "predictions_aggregated"
+      type = "prediction"
     ),
     "the dependent variable `y` must be <Surv>"
   )
@@ -117,11 +116,88 @@ test_that("Returns an error when the formula is not properly defined in logreg i
       model = model_logreg_bad_dependent_variable,
       data = data,
       n_groups = 2,
-      type = "predictions_aggregated"
+      type = "prediction"
     ),
     "the dependent variable `no_exists` must be part of `data`"
   )
 })
+
+test_that("Returns an error when the 'prediction' is not calculated", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_logreg <- make_logreg_model(environment())
+  model_cox <- make_cox_model(environment())
+
+  expect_error(
+    get_calibration_plot_data_surv(
+      model = model_logreg,
+      data = data,
+      n_groups = 2,
+      type = "prediction"
+    ),
+    "It seems that `prediction` is not yet calculated, calculate it using"
+  )
+  expect_error(
+    get_calibration_plot_data_surv(
+      model = model_cox,
+      data = data,
+      n_groups = 2,
+      type = "prediction"
+    ),
+    "It seems that `prediction` is not yet calculated, calculate it using"
+  )
+})
+
+test_that("Returns an error when the 'prediction_type_1' is not calculated", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_logreg <- make_logreg_model(environment())
+  model_cox <- make_cox_model(environment())
+
+  expect_error(
+    get_calibration_plot_data_surv(
+      model = model_logreg,
+      data = data,
+      n_groups = 2,
+      type = "prediction_type_1"
+    ),
+    "It seems that `prediction_type_1` is not yet calculated, calculate it using"
+  )
+  expect_error(
+    get_calibration_plot_data_surv(
+      model = model_cox,
+      data = data,
+      n_groups = 2,
+      type = "prediction_type_1"
+    ),
+    "It seems that `prediction_type_1` is not yet calculated, calculate it using"
+  )
+
+  })
+test_that("Returns an error when the 'prediction_type_2' is not calculated", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_logreg <- make_logreg_model(environment())
+  model_cox <- make_cox_model(environment())
+
+  expect_error(
+    get_calibration_plot_data_surv(
+      model = model_logreg,
+      data = data,
+      n_groups = 2,
+      type = "prediction_type_2"
+    ),
+    "It seems that `prediction_type_2` is not yet calculated, calculate it using"
+  )
+  expect_error(
+    get_calibration_plot_data_surv(
+      model = model_cox,
+      data = data,
+      n_groups = 2,
+      type = "prediction_type_2"
+    ),
+    "It seems that `prediction_type_2` is not yet calculated, calculate it using"
+  )
+
+
+  })
 
 # dichotomous outcome argument errors -------------------------------------
 test_that("The calibration plot data function checks all the parameters in prop function", {
@@ -130,9 +206,9 @@ test_that("The calibration plot data function checks all the parameters in prop 
     calculate_predictions(data)
 
   expect_error(get_calibration_plot_data_prop())
-  expect_error(get_calibration_plot_data_prop(2, data, 10, "predictions_aggregated"))
-  expect_error(get_calibration_plot_data_prop(model, 4, 10, "predictions_aggregated"))
-  expect_error(get_calibration_plot_data_prop(model, 4, "a", "predictions_aggregated"))
+  expect_error(get_calibration_plot_data_prop(2, data, 10, "prediction"))
+  expect_error(get_calibration_plot_data_prop(model, 4, 10, "prediction"))
+  expect_error(get_calibration_plot_data_prop(model, 4, "a", "prediction"))
   expect_error(get_calibration_plot_data_prop(model, data, 10, "test"))
 })
 
@@ -147,7 +223,7 @@ test_that("Returns an error if `.imp` is not part of the `data` parameter in pro
       model = cox_model,
       data = data_no_imp,
       n_groups = 2,
-      type = "predictions_aggregated"
+      type = "prediction"
     ),
     "must contain `.imp`"
   )
@@ -156,7 +232,7 @@ test_that("Returns an error if `.imp` is not part of the `data` parameter in pro
       model = logreg_model,
       data = data_no_imp,
       n_groups = 2,
-      type = "predictions_aggregated"
+      type = "prediction"
     ),
     "must contain `.imp`"
   )
@@ -173,7 +249,7 @@ test_that("Returns an error if `id` is not part of the `data` parameter in prop 
       model = cox_model,
       data = data_no_id,
       n_groups = 2,
-      type = "predictions_aggregated"
+      type = "prediction"
     ),
     "must contain `id`"
   )
@@ -182,7 +258,7 @@ test_that("Returns an error if `id` is not part of the `data` parameter in prop 
       model = logreg_model,
       data = data_no_id,
       n_groups = 2,
-      type = "predictions_aggregated"
+      type = "prediction"
     ),
     "must contain `id`"
   )
@@ -200,7 +276,7 @@ test_that("Returns an error when the formula is not properly defined in cox in p
       model = model_cox_bad_dependent_variable,
       data = data,
       n_groups = 2,
-      type = "predictions_aggregated"
+      type = "prediction"
     ),
     "the dependent variable `y` must be <Surv>"
   )
@@ -210,7 +286,7 @@ test_that("Returns an error when the formula is not properly defined in cox in p
       model = model_cox_bad_dependent_variable,
       data = data,
       n_groups = 2,
-      type = "predictions_aggregated"
+      type = "prediction"
     ),
     "the dependent variable `no_exists` must be part of `data`"
   )
@@ -229,7 +305,7 @@ test_that("Returns an error when the formula is not properly defined in logreg i
       model = model_logreg_bad_dependent_variable,
       data = data,
       n_groups = 2,
-      type = "predictions_aggregated"
+      type = "prediction"
     ),
     "the dependent variable `a` must be <Surv/numeric>"
   )
@@ -239,111 +315,111 @@ test_that("Returns an error when the formula is not properly defined in logreg i
       model = model_logreg_bad_dependent_variable,
       data = data,
       n_groups = 2,
-      type = "predictions_aggregated"
+      type = "prediction"
     ),
     "the dependent variable `no_exists` must be part of `data`"
   )
 })
 
 # survival outcome works --------------------------------------------------
-test_that("The calibration plot data function works properly with type 'predictions_aggregated' cox with surv function", {
+test_that("The calibration plot data function works properly with type 'prediction' cox with surv function", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_cox_model(environment())
 
-  expect_error(get_calibration_plot_data_surv(model, data, 2, "predictions_aggregated"))
+  expect_error(get_calibration_plot_data_surv(model, data, 2, "prediction"))
 
   model <- model |> calculate_predictions(data)
 
-  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "predictions_aggregated"))
-  expect_error(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_1"))
-  expect_error(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_2"))
+  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "prediction"))
+  expect_error(get_calibration_plot_data_surv(model, data, 2, "prediction_type_1"))
+  expect_error(get_calibration_plot_data_surv(model, data, 2, "prediction_type_2"))
   expect_identical(
-    round_to_precision(get_calibration_plot_data_surv(model, data, 2, "predictions_aggregated")),
+    round_to_precision(get_calibration_plot_data_surv(model, data, 2, "prediction")),
     round_to_precision(readRDS(test_path("fixtures", "cox", "calibration_plot_data_2_groups_cox.rds")))
   )
 })
 
-test_that("The calibration plot data function works properly with type 'predictions_aggregated' logreg with surv function", {
+test_that("The calibration plot data function works properly with type 'prediction' logreg with surv function", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment())
 
-  expect_error(get_calibration_plot_data_surv(model, data, 2, "predictions_aggregated"))
+  expect_error(get_calibration_plot_data_surv(model, data, 2, "prediction"))
 
   model <- model |> calculate_predictions(data)
 
-  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "predictions_aggregated"))
-  expect_error(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_1"))
-  expect_error(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_2"))
+  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "prediction"))
+  expect_error(get_calibration_plot_data_surv(model, data, 2, "prediction_type_1"))
+  expect_error(get_calibration_plot_data_surv(model, data, 2, "prediction_type_2"))
   expect_identical(
-    round_to_precision(get_calibration_plot_data_surv(model, data, 2, "predictions_aggregated")),
+    round_to_precision(get_calibration_plot_data_surv(model, data, 2, "prediction")),
     round_to_precision(readRDS(test_path("fixtures", "logreg", "calibration_plot_data_2_groups_logreg.rds")))
   )
 })
 
-test_that("The calibration plot data function works properly with type 'predictions_recal_type_1' cox with surv function", {
+test_that("The calibration plot data function works properly with type 'prediction_type_1' cox with surv function", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_cox_model(environment()) |> calculate_predictions(data)
 
-  expect_error(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_1"))
+  expect_error(get_calibration_plot_data_surv(model, data, 2, "prediction_type_1"))
 
   model <- model |> calculate_predictions_recalibrated_type_1(data)
 
-  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "predictions_aggregated"))
-  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_1"))
-  expect_error(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_2"))
+  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "prediction"))
+  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "prediction_type_1"))
+  expect_error(get_calibration_plot_data_surv(model, data, 2, "prediction_type_2"))
   expect_identical(
-    round_to_precision(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_1")),
+    round_to_precision(get_calibration_plot_data_surv(model, data, 2, "prediction_type_1")),
     round_to_precision(readRDS(test_path("fixtures", "cox", "calibration_plot_data_2_groups_recal_1_cox.rds")))
   )
 })
 
-test_that("The calibration plot data function works properly with type 'predictions_recal_type_1' logreg with surv function", {
+test_that("The calibration plot data function works properly with type 'prediction_type_1' logreg with surv function", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment()) |> calculate_predictions(data)
 
-  expect_error(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_1"))
+  expect_error(get_calibration_plot_data_surv(model, data, 2, "prediction_type_1"))
 
   model <- model |> calculate_predictions_recalibrated_type_1(data)
 
-  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "predictions_aggregated"))
-  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_1"))
-  expect_error(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_2"))
+  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "prediction"))
+  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "prediction_type_1"))
+  expect_error(get_calibration_plot_data_surv(model, data, 2, "prediction_type_2"))
   expect_identical(
-    round_to_precision(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_1")),
+    round_to_precision(get_calibration_plot_data_surv(model, data, 2, "prediction_type_1")),
     round_to_precision(readRDS(test_path("fixtures", "logreg", "calibration_plot_data_2_groups_recal_1_logreg.rds")))
   )
 })
 
-test_that("The calibration plot data function works properly with type 'predictions_recal_type_2' cox with surv function", {
+test_that("The calibration plot data function works properly with type 'prediction_type_2' cox with surv function", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_cox_model(environment()) |> calculate_predictions(data)
 
-  expect_error(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_2"))
+  expect_error(get_calibration_plot_data_surv(model, data, 2, "prediction_type_2"))
 
   model <- model |> calculate_predictions_recalibrated_type_2(data)
 
-  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "predictions_aggregated"))
-  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_2"))
-  expect_error(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_1"))
+  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "prediction"))
+  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "prediction_type_2"))
+  expect_error(get_calibration_plot_data_surv(model, data, 2, "prediction_type_1"))
   expect_identical(
-    round_to_precision(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_2")),
+    round_to_precision(get_calibration_plot_data_surv(model, data, 2, "prediction_type_2")),
     round_to_precision(readRDS(test_path("fixtures", "cox", "calibration_plot_data_2_groups_recal_2_cox.rds")))
   )
 })
 
-test_that("The calibration plot data function works properly with type 'predictions_recal_type_2' logreg with surv function", {
+test_that("The calibration plot data function works properly with type 'prediction_type_2' logreg with surv function", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment()) |> calculate_predictions(data)
 
-  expect_error(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_2"))
+  expect_error(get_calibration_plot_data_surv(model, data, 2, "prediction_type_2"))
 
   model <- model |> calculate_predictions_recalibrated_type_2(data)
 
-  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "predictions_aggregated"))
-  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_2"))
-  expect_error(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_1"))
+  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "prediction"))
+  expect_no_error(get_calibration_plot_data_surv(model, data, 2, "prediction_type_2"))
+  expect_error(get_calibration_plot_data_surv(model, data, 2, "prediction_type_1"))
   expect_identical(
-    round_to_precision(get_calibration_plot_data_surv(model, data, 2, "predictions_recal_type_2")),
+    round_to_precision(get_calibration_plot_data_surv(model, data, 2, "prediction_type_2")),
     round_to_precision(readRDS(test_path("fixtures", "logreg", "calibration_plot_data_2_groups_recal_2_logreg.rds")))
   )
 })
@@ -352,7 +428,7 @@ test_that("The calibration plot data checks the 'data' parameter with surv funct
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   plot_data <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
-    get_calibration_plot_data_surv(data, 2, "predictions_aggregated")
+    get_calibration_plot_data_surv(data, 2, "prediction")
 
   expect_error(get_calibration_plot())
   expect_error(get_calibration_plot(4))
@@ -365,7 +441,7 @@ test_that("The calibration plot function generates a plot for a Cox model and pr
 
   expect_s3_class(
     model |>
-      get_calibration_plot_data_surv(data, 2, "predictions_aggregated") |>
+      get_calibration_plot_data_surv(data, 2, "prediction") |>
       get_calibration_plot(),
     "ggplot"
   )
@@ -379,7 +455,7 @@ test_that("The calibration plot function generates a plot for a Cox model and pr
 
   expect_s3_class(
     model |>
-      get_calibration_plot_data_surv(data, 2, "predictions_recal_type_1") |>
+      get_calibration_plot_data_surv(data, 2, "prediction_type_1") |>
       get_calibration_plot(),
     "ggplot"
   )
@@ -393,7 +469,7 @@ test_that("The calibration plot function generates a plot for a Cox model and pr
 
   expect_s3_class(
     model |>
-      get_calibration_plot_data_surv(data, 2, "predictions_recal_type_2") |>
+      get_calibration_plot_data_surv(data, 2, "prediction_type_2") |>
       get_calibration_plot(),
     "ggplot"
   )
@@ -406,7 +482,7 @@ test_that("The calibration plot function generates a plot for a logreg model and
 
   expect_s3_class(
     model |>
-      get_calibration_plot_data_surv(data, 2, "predictions_aggregated") |>
+      get_calibration_plot_data_surv(data, 2, "prediction") |>
       get_calibration_plot(),
     "ggplot"
   )
@@ -420,7 +496,7 @@ test_that("The calibration plot function generates a plot for a logreg model and
 
   expect_s3_class(
     model |>
-      get_calibration_plot_data_surv(data, 2, "predictions_recal_type_1") |>
+      get_calibration_plot_data_surv(data, 2, "prediction_type_1") |>
       get_calibration_plot(),
     "ggplot"
   )
@@ -434,95 +510,95 @@ test_that("The calibration plot function generates a plot for a logreg model and
 
   expect_s3_class(
     model |>
-      get_calibration_plot_data_surv(data, 2, "predictions_recal_type_2") |>
+      get_calibration_plot_data_surv(data, 2, "prediction_type_2") |>
       get_calibration_plot(),
     "ggplot"
   )
 })
 
 # dichotomous outcome works -----------------------------------------------
-test_that("The calibration plot data function works properly with type 'predictions_aggregated' cox with prop function", {
+test_that("The calibration plot data function works properly with type 'prediction' cox with prop function", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_cox_model(environment())
 
-  expect_error(get_calibration_plot_data_prop(model, data, 2, "predictions_aggregated"))
+  expect_error(get_calibration_plot_data_prop(model, data, 2, "prediction"))
 
   model <- model |> calculate_predictions(data)
 
-  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "predictions_aggregated"))
-  expect_error(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_1"))
-  expect_error(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_2"))
+  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "prediction"))
+  expect_error(get_calibration_plot_data_prop(model, data, 2, "prediction_type_1"))
+  expect_error(get_calibration_plot_data_prop(model, data, 2, "prediction_type_2"))
   expect_identical(
-    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "predictions_aggregated")),
+    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "prediction")),
     round_to_precision(readRDS(test_path("fixtures", "cox", "calibration_plot_data_2_groups_cox_prop.rds")))
   )
 })
 
-test_that("The calibration plot data function works properly with type 'predictions_aggregated' logreg with survival outcome with prop function", {
+test_that("The calibration plot data function works properly with type 'prediction' logreg with survival outcome with prop function", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment())
 
-  expect_error(get_calibration_plot_data_prop(model, data, 2, "predictions_aggregated"))
+  expect_error(get_calibration_plot_data_prop(model, data, 2, "prediction"))
 
   model <- model |> calculate_predictions(data)
 
-  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "predictions_aggregated"))
-  expect_error(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_1"))
-  expect_error(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_2"))
+  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "prediction"))
+  expect_error(get_calibration_plot_data_prop(model, data, 2, "prediction_type_1"))
+  expect_error(get_calibration_plot_data_prop(model, data, 2, "prediction_type_2"))
   expect_identical(
-    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "predictions_aggregated")),
+    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "prediction")),
     round_to_precision(readRDS(test_path("fixtures", "logreg", "calibration_plot_data_2_groups_logreg_prop.rds")))
   )
 })
 
-test_that("The calibration plot data function works properly with type 'predictions_aggregated' logreg with numeric outcome with prop function", {
+test_that("The calibration plot data function works properly with type 'prediction' logreg with numeric outcome with prop function", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment())
   model$formula <- y ~ 0.1 * x + 0.3 * z + 0.8
 
-  expect_error(get_calibration_plot_data_prop(model, data, 2, "predictions_aggregated"))
+  expect_error(get_calibration_plot_data_prop(model, data, 2, "prediction"))
 
   model <- model |> calculate_predictions(data)
 
-  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "predictions_aggregated"))
-  expect_error(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_1"))
-  expect_error(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_2"))
+  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "prediction"))
+  expect_error(get_calibration_plot_data_prop(model, data, 2, "prediction_type_1"))
+  expect_error(get_calibration_plot_data_prop(model, data, 2, "prediction_type_2"))
   expect_identical(
-    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "predictions_aggregated")),
+    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "prediction")),
     round_to_precision(readRDS(test_path("fixtures", "logreg", "calibration_plot_data_2_groups_logreg_prop.rds")))
   )
 
   data$y[[1]] <- 3
-  expect_error(get_calibration_plot_data_prop(model, data, 2, "predictions_aggregated"))
+  expect_error(get_calibration_plot_data_prop(model, data, 2, "prediction"))
 })
 
-test_that("The calibration plot data function works properly with type 'predictions_recal_type_1' cox with prop function", {
+test_that("The calibration plot data function works properly with type 'prediction_type_1' cox with prop function", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_1(data)
 
-  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_1"))
+  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "prediction_type_1"))
   expect_identical(
-    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_1")),
+    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "prediction_type_1")),
     round_to_precision(readRDS(test_path("fixtures", "cox", "calibration_plot_data_2_groups_cox_recal_1_prop.rds")))
   )
 })
 
-test_that("The calibration plot data function works properly with type 'predictions_recal_type_1' logreg with survival outcome with prop function", {
+test_that("The calibration plot data function works properly with type 'prediction_type_1' logreg with survival outcome with prop function", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_1(data)
 
-  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_1"))
+  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "prediction_type_1"))
   expect_identical(
-    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_1")),
+    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "prediction_type_1")),
     round_to_precision(readRDS(test_path("fixtures", "logreg", "calibration_plot_data_2_groups_logreg_recal_1_prop.rds")))
   )
 })
 
-test_that("The calibration plot data function works properly with type 'predictions_recal_type_1' logreg with numeric outcome with prop function", {
+test_that("The calibration plot data function works properly with type 'prediction_type_1' logreg with numeric outcome with prop function", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment())
   model$formula <- y ~ 0.1 * x + 0.3 * z + 0.8
@@ -530,40 +606,40 @@ test_that("The calibration plot data function works properly with type 'predicti
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_1(data)
 
-  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_1"))
+  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "prediction_type_1"))
   expect_identical(
-    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_1")),
+    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "prediction_type_1")),
     round_to_precision(readRDS(test_path("fixtures", "logreg", "calibration_plot_data_2_groups_logreg_recal_1_prop.rds")))
   )
 })
 
-test_that("The calibration plot data function works properly with type 'predictions_recal_type_2' cox with prop function", {
+test_that("The calibration plot data function works properly with type 'prediction_type_2' cox with prop function", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_cox_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_2(data)
 
-  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_2"))
+  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "prediction_type_2"))
   expect_identical(
-    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_2")),
+    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "prediction_type_2")),
     round_to_precision(readRDS(test_path("fixtures", "cox", "calibration_plot_data_2_groups_cox_recal_2_prop.rds")))
   )
 })
 
-test_that("The calibration plot data function works properly with type 'predictions_recal_type_2' logreg with survival outcome with prop function", {
+test_that("The calibration plot data function works properly with type 'prediction_type_2' logreg with survival outcome with prop function", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment()) |>
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_2(data)
 
-  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_2"))
+  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "prediction_type_2"))
   expect_identical(
-    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_2")),
+    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "prediction_type_2")),
     round_to_precision(readRDS(test_path("fixtures", "logreg", "calibration_plot_data_2_groups_logreg_recal_2_prop.rds")))
   )
 })
 
-test_that("The calibration plot data function works properly with type 'predictions_recal_type_2' logreg with numeric outcome with prop function", {
+test_that("The calibration plot data function works properly with type 'prediction_type_2' logreg with numeric outcome with prop function", {
   data <- readRDS(test_path("fixtures", "mice_data.rds"))
   model <- make_logreg_model(environment())
   model$formula <- y ~ 0.1 * x + 0.3 * z + 0.8
@@ -571,9 +647,9 @@ test_that("The calibration plot data function works properly with type 'predicti
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_2(data)
 
-  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_2"))
+  expect_no_error(get_calibration_plot_data_prop(model, data, 2, "prediction_type_2"))
   expect_identical(
-    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "predictions_recal_type_2")),
+    round_to_precision(get_calibration_plot_data_prop(model, data, 2, "prediction_type_2")),
     round_to_precision(readRDS(test_path("fixtures", "logreg", "calibration_plot_data_2_groups_logreg_recal_2_prop.rds")))
   )
 })
