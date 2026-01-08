@@ -37,9 +37,13 @@ get_calibration_plot_data_surv <- function(model, data, n_groups, type = "predic
     error_message <- c(error_message, "*" = cli::format_error("{.arg n_groups} must be {.cls numeric}"))
   }
 
-  if (!any(type %in% c("predictions_aggregated", "predictions_recal_type_1", "predictions_recal_type_2"))) {
-    error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('predictions_aggregated', 'predictions_recal_type_1', 'predictions_recal_type_2')}}"))
+  if (!any(type %in% c("prediction", "prediction_type_1", "prediction_type_2"))) {
+    error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('prediction', 'prediction_type_1', 'prediction_type_2')}}"))
   }
+
+    if (methods::is(model, "MiceExtVal") && is.null(model$predictions_agg[[type]])) {
+    error_message <- c(error_message, "*" = cli::format_error("It seems that {.arg {type}} is not yet calculated, calculate it using {.fn {c('MiceExtVal::calculate_predictions', 'MiceExtVal::calculate_predictions_recalibrated_type_1', 'MiceExtVal::calculate_predictions_recalibrated_type_2')}}"))
+    }
 
   # Returns an error if `.imp` is not part of the `data` parameter
   if (!".imp" %in% colnames(data)) {
@@ -72,10 +76,9 @@ get_calibration_plot_data_surv <- function(model, data, n_groups, type = "predic
     dplyr::select(dplyr::all_of(c("id", dependent_variable)))
 
   # Select the variable that is used from the model
-  pred_var <- as.name(names(model[[type]])[2])
-  model[[type]] |>
+  model[["predictions_agg"]] |>
     # Generates the groups by the prediction variable and group by the generated group
-    dplyr::mutate(group = dplyr::ntile(!!pred_var, n_groups)) |>
+    dplyr::mutate(group = dplyr::ntile(!!as.name(type), n_groups)) |>
     dplyr::left_join(original_data, by = "id") |>
     dplyr::group_by_at(dplyr::vars("group")) |>
     # Calculates the predicted and observed value for each of the predicted risk groups
@@ -86,7 +89,7 @@ get_calibration_plot_data_surv <- function(model, data, n_groups, type = "predic
       return(
         tibble::tibble(
           bin = .y$group,
-          predicted = mean(.x[[pred_var]]),
+          predicted = mean(.x[[type]]),
           # Should be calculated for a certain time given by the user.
           observed = 1 - km$surv[length(km$surv)],
           se_observed = km$std.err[length(km$std.err)],
