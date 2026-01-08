@@ -42,7 +42,7 @@ get_calibration_plot_data_prop <- function(model, data, n_groups, type = "predic
   }
 
   if (!any(type %in% c("prediction", "prediction_type_1", "prediction_type_2"))) {
-    error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('predictions_aggregated', 'predictions_recal_type_1', 'predictions_recal_type_2')}}"))
+    error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('prediction', 'prediction_type_1', 'prediction_type_2')}}"))
   }
 
   if (methods::is(model, "MiceExtVal") && is.null(model$predictions_agg[[type]])) {
