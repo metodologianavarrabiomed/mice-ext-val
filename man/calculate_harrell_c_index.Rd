@@ -14,10 +14,10 @@ calculate_harrell_c_index(model, data, .progress = FALSE)
 \item{.progress}{\code{TRUE} to render the progress bar \code{FALSE} otherwise}
 }
 \value{
-The same \code{model} passed as a parameter with the Harrell C Index value stored in \verb{$c_index}
+The same \code{model} passed as a parameter with the Harrell C Index value stored in \code{results_agg} and \code{results_imp}
 }
 \description{
-This function calculates the Harrell C Index value of a \code{model} in each of the imputed dataset stored in \code{data} as a long dataset. The Harrell's C Index calculation is realized using the \code{Hmisc::rcorr.cens} function of the Harrell's package \code{Hmisc}. After calculating the index in each imputed dataset then it aggregates them using the rubin rules with the \code{psfmi::pool_RR} function of the Heymans' package \code{psfmi}. Finally, it stores the result inside the \code{c_index} attribute of the \code{model}.
+This function calculates the Harrell C Index value of a \code{model} in each of the imputed dataset stored in \code{data} as a long dataset. The Harrell's C Index calculation is realized using the \code{\link[Hmisc:rcorr.cens]{Hmisc::rcorr.cens()}} function of the Harrell's package \code{Hmisc}. After calculating the index in each imputed dataset then it aggregates them using the rubin rules with the \code{\link[psfmi:pool_RR]{psfmi::pool_RR()}} function of the Heymans' package \code{psfmi}. Finally, it stores the result inside the \code{results_imp} and \code{results_agg} attributes of the \code{model}.
 }
 \examples{
 set.seed(123)

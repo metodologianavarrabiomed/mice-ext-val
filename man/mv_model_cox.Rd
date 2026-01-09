@@ -16,16 +16,11 @@ A model to be used along the package with the next characteristics that could be
 \itemize{
 \item \code{formula}: Formula of how the \eqn{\beta \cdot X} will be calculated.
 \item \code{S0}: Value of the \eqn{S_0(t)} function for the time of study.
-\item \code{alpha}: Recalibration parameter for the type 1 recalibration.
-\item \code{S0_type_2}: Value of the \eqn{S_0(t)} function for the time of study for the type 2 recalibration.
-\item \code{beta_overall}: Recalibration parameter for the type 2 recalibration.
-\item \code{predictions_aggregated}: Aggregated predictions for the validation data.
-\item \code{predictions_data}: All predictions for the validation data including all the imputations.
-\item \code{betax}: Aggregated \eqn{\beta \cdot X} values for the validation data.
-\item \code{betax_data}: All predictions for the validation data including all the imputations.
-\item \code{predictions_recal_type_1}: Aggregated predictions after recalibrating them with type 1 recalibration.
-\item \code{predictions_recal_type_2}: Aggregated predictions after recalibrating them with type 2 recalibration.
-\item \code{c_index}: Harrell C-Index of the predictions in the validation cohort.
+\item \code{predictions_imp}: \code{tibble} with the predictions for each of the imputed datasets.
+\item \code{predictions_agg}: \code{tibble} with the aggregated predictions for each patient.
+\item \code{recal_parameters}: \code{tibble} with the recalibration parameters needed.
+\item \code{results_imp}: \code{tibble} with the results in each of the imputations.
+\item \code{results_agg}: \code{tibble} with the aggregated results.
 }
 }
 \description{

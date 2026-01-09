@@ -13,16 +13,11 @@ mv_model_logreg(formula)
 A model to be used along the package with the next characteristics that could be empty and will be generated with some other functions in the package.
 \itemize{
 \item \code{formula}: Formula of the model containing the coefficients and the intercept.
-\item \code{alpha_type_1}: The \eqn{\alpha} value for the type 1 recalibration.
-\item \code{alpha_type_2}: The \eqn{\alpha} value for the type 2 recalibration.
-\item \code{beta_overall}: The \eqn{\beta_{overall}} value for the type 2 recalibration.
-\item \code{predictions_aggregated}: Aggregated predictions for the validation data.
-\item \code{predictions_data}: All of the predictions for the validation data in each imputation.
-\item \code{betax}: Aggregated \eqn{\beta \cdot X} values for the validation data.
-\item \code{betax_data}: All the \eqn{\beta \cdot X} values for the validation in each imputation.
-\item \code{predictions_recal_type_1}: Aggregated predictions after recalibrating them with type 1 recalibration.
-\item \code{predictions_recal_type_2}: Aggregated predictions after recalibrating them with type 2 recalibration.
-\item \code{c_index}: Harrell C-Index of the predictions in the validation cohort.
+\item \code{predictions_imp}: \code{tibble} with the predictions for each of the imputed datasets.
+\item \code{predictions_agg}: \code{tibble} with the aggregated predictions for each patient.
+\item \code{recal_parameters}: \code{tibble} with the recalibration parameters needed.
+\item \code{results_imp}: \code{tibble} with the results in each of the imputations.
+\item \code{results_agg}: \code{tibble} with the aggregated results.
 }
 }
 \description{

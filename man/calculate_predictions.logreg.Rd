@@ -14,12 +14,10 @@
 \item{.progress}{\code{TRUE} to render the progress bar \code{FALSE} otherwise.}
 }
 \value{
-A model with the parameters \code{predictions_aggregated}, \code{predictions_data}, \code{betax} and \code{betax_data} populated.
+A model with the parameters \code{predictions_imp}, \code{predictions_agg}.
 \itemize{
-\item \code{predictions_aggregated}, stores the predictions aggregated by the mean.
-\item \code{predictions_data}, stores all the predictions in each of the imputed datasets.
-\item \code{betax}, stores the \eqn{\beta \cdot X} values aggregated by the mean.
-\item \code{betax_data}, stores the \eqn{\beta \cdot X} values in each of the imputed datasets.
+\item \code{predictions_imp}, stores the predictions for each of the imputations
+\item \code{predictions_agg}, stores the predictions aggregated by the mean.
 }
 }
 \description{

@@ -2,13 +2,12 @@
 % Please edit documentation in R/calculate_brier_score.R
 \name{calculate_brier_score}
 \alias{calculate_brier_score}
-\title{calculate the brier score for the given model definition}
+\title{calculate the brier score for the given model}
 \usage{
 calculate_brier_score(
   model,
   data,
-  type = c("predictions_aggregated", "predictions_recal_type_1",
-    "predictions_recal_type_2"),
+  type = c("prediction", "prediction_type_1", "prediction_type_2"),
   n_boot = 1000,
   seed = NULL
 )
@@ -18,7 +17,7 @@ calculate_brier_score(
 
 \item{data}{Data for what the observed predictions will be calculated.}
 
-\item{type}{Type of the predictions that the calibration plot data should be generated from: \code{"predictions_aggregated"}, \code{"predictions_recal_type_1"} or \code{"predictions_recal_type_2"}}
+\item{type}{Type of the predictions that the calibration plot data should be generated from: \code{"prediction"}, \code{"prediction_type_1"} or \code{"prediction_type_2"}}
 
 \item{n_boot}{number of bootstrap resamples to calculate the Brier Score standar error.}
 
@@ -27,7 +26,7 @@ calculate_brier_score(
 \description{
 The Brier Score is calculated using the formula \deqn{BS=\frac{1}{n}\sum_{t=1}^n{(f_t - o_t)^2}} where \eqn{n} is the population size, \eqn{f_t} is the predictions for the row \eqn{t} and \eqn{o_t} is the dichotomous observation for the row \eqn{t}.
 
-The function works accordingly to the \code{model} definition. If the model is defined as Cox, the survival variable is transformed to dichotomous as \code{1} if the event has appeared during the follow up and \code{0} othercase. In the case the model is a logistic regression the dependent variable can be already dichotomous or survival, in the case of the survival variable the dichotomous is defined as in the Cox model.
+The function operates according to the chosen \code{model}: if the model is Cox, the survival variable is converted into a binary value (1 if the event occurred during follow-up, 0 otherwise), whereas for a logistic regression model, the dependent variable may already be binary or represent survival time; in the latter case, it is transformed into a binary variable using the same rule as in the Cox model.
 
 The confidence interval is calculated by bootstrap resamples.
 }

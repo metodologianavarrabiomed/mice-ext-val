@@ -14,7 +14,7 @@ calculate_predictions(model, data, .progress = TRUE)
 \item{.progress}{\code{TRUE} to render the progress bar \code{FALSE} otherwise.}
 }
 \value{
-A model with the parameters \code{predictions_aggregated}, \code{predictions_data}, \code{betax} and \code{betax_data} populated.
+A model with the parameters \code{predictions_imp}, \code{predictions_agg}.
 }
 \description{
 A generic method for calculating predictions for a given model. Further parameters must be passed to the S3 methods of each class (\code{\link[=calculate_predictions.cox]{calculate_predictions.cox()}} and \code{\link[=calculate_predictions.logreg]{calculate_predictions.logreg()}})

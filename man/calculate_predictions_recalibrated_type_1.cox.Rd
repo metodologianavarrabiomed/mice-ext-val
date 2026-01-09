@@ -7,23 +7,17 @@
 \method{calculate_predictions_recalibrated_type_1}{cox}(model, data, .progress = FALSE)
 }
 \arguments{
-\item{model}{Model generated with \code{\link[=mv_model_cox]{mv_model_cox()}}. Needs the \code{predictions} parameter of the model, to generate it the function \code{\link[=calculate_predictions]{calculate_predictions()}} must be executed over the model.}
+\item{model}{Model generated with \code{\link[=mv_model_cox]{mv_model_cox()}}. Needs the \code{prediction_agg} and \code{predictions_imp} parameters of the model, to generate it, the function \code{\link[=calculate_predictions]{calculate_predictions()}} must be executed over the model.}
 
 \item{data}{External validation data. Multiple imputation dataset in long format.}
 
 \item{.progress}{\code{TRUE} to render the progress bar \code{FALSE} otherwise.}
 }
 \value{
-A model with the parameter \code{predictions_recal_type_1} and \code{alpha} populated.
+A model with the parameter \code{prediction_type_1} added to \code{predictions_agg} and the parameter \code{alpha} stored in \code{recal_parameters}
 \itemize{
-\item \code{predictions_recal_type_1}: stores the type 1 recalibrated predictions stored as follows\tabular{lc}{
-   id \tab prediction \cr
-   1 \tab 0.03 \cr
-   ... \tab ... \cr
-   n \tab 0.16 \cr
-}
-
-\item \code{alpha}: stores the \eqn{\alpha} recalibration parameter.
+\item \code{predictions_agg}: stores now a new variable \code{prediction_type_1}
+\item \code{alpha}: stored in \code{recal_parameters} and contains the \eqn{\alpha} recalibration parameter.
 }
 }
 \description{

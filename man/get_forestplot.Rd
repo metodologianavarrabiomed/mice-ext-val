@@ -13,7 +13,7 @@ get_forestplot(data, center = NULL, digits = 3, ...)
 
 \item{digits}{decimal digits for the table generation, default \code{3}}
 
-\item{...}{extra arguments passed to \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}}, \code{\link[ggplot2:geom_linerange]{ggplot2::geom_pointrange()}}, \code{\link[ggplot2:theme]{ggplot2::theme()}}, and \code{\link[gt:tab_options]{gt::tab_options()}}}
+\item{...}{extra arguments passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}. Different subplots are generated in different points of the code some changes could lead to different results than the expected output.}
 }
 \value{
 a C-Index forestplot stored in a \code{gt_tbl} table object
