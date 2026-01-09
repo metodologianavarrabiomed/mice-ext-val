@@ -39,18 +39,18 @@ get_recalibrate_params_type_2_cox <- function(time, event, betax) {
 
   # Generates a Weibull distribution over the data to obtain the survival function estimator
   recalibrate_data <- data.frame(time = time, event = event, betax = betax)
-  recalibrate_data$surv_obj <- survival::Surv(time, event)
+  recalibrate_data[["surv_obj"]] <- survival::Surv(time, event)
 
   # Calculates the `beta_overall` value from a Cox model derived with `betax` as the only independent variable.
   cox_model <- survival::coxph(surv_obj ~ betax, data = recalibrate_data)
   # `beta_overall` is the unique coefficient in the model.
-  beta_overall <- as.numeric(cox_model$coefficients[1])
+  beta_overall <- as.numeric(cox_model[["coefficients"]][1])
   s0 <- survival::survfit(cox_model)
 
   # Returns the two estimated parameters to be aggregated later on
   return(
     list(
-      S0 = s0$surv[length(s0$surv)],
+      S0 = s0[["surv"]][length(s0[["surv"]])],
       beta_overall = beta_overall
     )
   )

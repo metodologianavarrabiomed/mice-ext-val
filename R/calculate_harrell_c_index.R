@@ -1,7 +1,7 @@
 #' Calculates Harrell C-Index for a model
 #'
 #' @description
-#' This function calculates the Harrell C Index value of a `model` in each of the imputed dataset stored in `data` as a long dataset. The Harrell's C Index calculation is realized using the `Hmisc::rcorr.cens` function of the Harrell's package `Hmisc`. After calculating the index in each imputed dataset then it aggregates them using the rubin rules with the `psfmi::pool_RR` function of the Heymans' package `psfmi`. Finally, it stores the result inside the `c_index` attribute of the `model`.
+#' This function calculates the Harrell C Index value of a `model` in each of the imputed dataset stored in `data` as a long dataset. The Harrell's C Index calculation is realized using the [Hmisc::rcorr.cens()] function of the Harrell's package `Hmisc`. After calculating the index in each imputed dataset then it aggregates them using the rubin rules with the [psfmi::pool_RR()] function of the Heymans' package `psfmi`. Finally, it stores the result inside the `results_imp` and `results_agg` attributes of the `model`.
 #'
 #' @references
 #'  F. E. Harrell, “Harrell Miscellaneous (R package Hmisc version 5.1-1),” R-project.org, Sep. 2023, doi: <https://cran.r-project.org/package=Hmisc>.
@@ -51,7 +51,7 @@ calculate_harrell_c_index <- function(model, data, .progress = FALSE) {
     if (!"formula" %in% names(model)) {
       error_message <- c(error_message, "*" = cli::format_error("{.arg model} must contain a valid {.arg formula}"))
     } else {
-      dependent_variable <- all.vars(model$formula)[1]
+      dependent_variable <- all.vars(model[["formula"]])[1]
       if (!dependent_variable %in% colnames(data)) {
         error_message <- c(error_message, "*" = cli::format_error("the dependent variable {.var {dependent_variable}} must be part of {.arg data}"))
       }
@@ -74,7 +74,7 @@ calculate_harrell_c_index <- function(model, data, .progress = FALSE) {
     dplyr::group_by_at(dplyr::vars(".imp")) |>
     dplyr::group_map(~ {
       # Obtain the data of the event variable
-      survival_data <- .x[[all.vars(model$formula)[1]]]
+      survival_data <- .x[[all.vars(model[["formula"]])[1]]]
 
       # Progress bar code
       if (.progress) {
@@ -83,23 +83,23 @@ calculate_harrell_c_index <- function(model, data, .progress = FALSE) {
 
       c_index <- Hmisc::rcorr.cens(
         # Get the predictions data for the imputation `.imp`.
-        x = 1 - (model$predictions_imp |> dplyr::filter({
-          .imp == .y$.imp
+        x = 1 - (model[["predictions_imp"]] |> dplyr::filter({
+          .imp == .y[[".imp"]]
         }) |> dplyr::pull(var = "prediction")),
         # Generates the outcome variable from `survival_data`
         S = survival::Surv(time = survival_data[, "time"], event = survival_data[, "status"])
       )
 
       tibble::tibble(
-        .imp = .y$.imp,
+        .imp = .y[[".imp"]],
         estimate = c_index["C Index"],
         se = c_index["S.D."] / 2
       )
     }) |>
     dplyr::bind_rows()
 
-  model$results_imp <- dplyr::bind_rows(
-    model$results_imp,
+  model[["results_imp"]] <- dplyr::bind_rows(
+    model[["results_imp"]],
     c_index_data |> tibble::add_column(name = "harrell_c_index", .before = ".imp")
   )
 
@@ -115,14 +115,14 @@ calculate_harrell_c_index <- function(model, data, .progress = FALSE) {
 
   # Aggregates the results using rubin rules and populates the `c_index` parameter in the model
   c_index_agg <- psfmi::pool_RR(
-    est = c_index_data$estimate,
-    se = c_index_data$se,
+    est = c_index_data[["estimate"]],
+    se = c_index_data[["se"]],
     n = n,
     k = 1
   )
 
-  model$results_agg <- dplyr::bind_rows(
-    model$results_agg,
+  model[["results_agg"]] <- dplyr::bind_rows(
+    model[["results_agg"]],
     tibble::tibble(
       name = "harrell_c_index",
       estimate = c_index_agg[["Estimate"]],

@@ -57,9 +57,9 @@ get_stratified_calibration_plot_prop <- function(data, n_groups, type = c("predi
     is_dichotomous <- \(x) length(unique(x)) == 2
     is_dep_var_num <- purrr::map_lgl(
       models,
-      ~ methods::is(data[[all.vars(.x$formula)[[1]]]], "Surv") ||
-        (methods::is(data[[all.vars(.x$formula)[[1]]]], "numeric") &&
-          is_dichotomous(data[[all.vars(.x$formula)[[1]]]]))
+      ~ methods::is(data[[all.vars(.x[["formula"]])[[1]]]], "Surv") ||
+        (methods::is(data[[all.vars(.x[["formula"]])[[1]]]], "numeric") &&
+          is_dichotomous(data[[all.vars(.x[["formula"]])[[1]]]]))
     )
 
     if (!all(is_dep_var_num)) {

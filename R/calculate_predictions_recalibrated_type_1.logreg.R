@@ -10,20 +10,14 @@
 #'
 #' \deqn{\frac{1}{1 + e^{(-(\alpha + (\beta \cdot X)))}}}
 #'
-#' @param model Model generated with [mv_model_logreg()]. Needs the `predictions` parameter of the model, to generate it the function `calculate_predictions` must be executed over the model. This attribute must be generated using [calculate_predictions()]
+#' @param model Model generated with [mv_model_logreg()]. Needs the `predictions_agg` and `predictions_imp` parameters of the model, to generate it the function [calculate_predictions()] must be executed over the model.
 #' @param data Data for what the predictions must be recalibrated.
 #' @param .progress `TRUE` to render the progress bar, `FALSE` otherwise.
 #'
-#' @return A model with the parameters `predictions_recal_type_1` and `alpha_type_1` populated.
+#' @return A model with the parameter `prediction_type_1` added to `predictions_agg` and the parameter `alpha_type_1` stored in `recal_parameters`
 #'
-#'    * `predictions_recal_type_1`: stores the type 1 recalibrated predictions as follows
-#'        | id        | prediction           |
-#'        |-------------|:-------------:|
-#'        | 1 | 0.03 |
-#'        | ... | ...|
-#'        | n | 0.16 |
-#'    * `alpha_type_1`: stores the \eqn{\alpha} recalibration parameter.
-#'
+#'    * `predictions_agg`: stores now a new variable `prediction_type_1`
+#'    * `alpha_type_1`: stores now the \eqn{\alpha} recalibration parameter.
 #' @import mathjaxr
 #'
 #' @exportS3Method calculate_predictions_recalibrated_type_1 logreg
@@ -62,9 +56,9 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
         cli::cli_progress_update(.envir = env)
       }
       # Obtains the data of the event variable
-      dependent_variable <- .x[[all.vars(model$formula)[1]]]
-      betax <- model$predictions_imp |>
-        dplyr::filter(.imp == .y$.imp) |>
+      dependent_variable <- .x[[all.vars(model[["formula"]])[1]]]
+      betax <- model[["predictions_imp"]] |>
+        dplyr::filter(.imp == .y[[".imp"]]) |>
         dplyr::pull(betax)
 
       if (methods::is(dependent_variable, "Surv")) {
@@ -78,19 +72,19 @@ calculate_predictions_recalibrated_type_1.logreg <- function(model, data, .progr
         y = event,
         offset = betax
       )
-      tibble::tibble(alpha = model_recal$coefficients)
+      tibble::tibble(alpha = model_recal[["coefficients"]])
     }) |>
     dplyr::bind_rows() |>
     dplyr::pull("alpha") |>
     mean()
 
-  model$recal_parameters <- dplyr::bind_rows(
-    model$recal_parameters,
+  model[["recal_parameters"]] <- dplyr::bind_rows(
+    model[["recal_parameters"]],
     tibble::tibble(param = "alpha_type_1", value = alpha_type_1)
   )
 
   # Calculates the type 1 recalibration
-  model$predictions_agg <- model$predictions_agg |>
+  model[["predictions_agg"]] <- model[["predictions_agg"]] |>
     dplyr::mutate(
     prediction_type_1 = 1 / (1 + exp(-(.data[["betax"]] + alpha_type_1)))
       )

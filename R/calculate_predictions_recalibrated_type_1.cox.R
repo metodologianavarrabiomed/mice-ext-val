@@ -4,19 +4,14 @@
 #' @description
 #' Using the function [get_recalibrate_param_type_1_cox()] calculates the recalibration parameters in each of the imputed datasets stored in `data`. With all the parameters estimated aggregates them and calculates the recalibrated predictions with these aggregated parameters and the aggregated predictions.
 #'
-#' @param model Model generated with [mv_model_cox()]. Needs the `predictions` parameter of the model, to generate it the function [calculate_predictions()] must be executed over the model.
+#' @param model Model generated with [mv_model_cox()]. Needs the `prediction_agg` and `predictions_imp` parameters of the model, to generate it, the function [calculate_predictions()] must be executed over the model.
 #' @param data External validation data. Multiple imputation dataset in long format.
 #' @param .progress `TRUE` to render the progress bar `FALSE` otherwise.
 #'
-#' @return A model with the parameter `predictions_recal_type_1` and `alpha` populated.
+#' @return A model with the parameter `prediction_type_1` added to `predictions_agg` and the parameter `alpha` stored in `recal_parameters`
 #'
-#'    * `predictions_recal_type_1`: stores the type 1 recalibrated predictions stored as follows
-#'        | id        | prediction           |
-#'        |-------------|:-------------:|
-#'        | 1 | 0.03 |
-#'        | ... | ...|
-#'        | n | 0.16 |
-#'    * `alpha`: stores the \eqn{\alpha} recalibration parameter.
+#'    * `predictions_agg`: stores now a new variable `prediction_type_1`
+#'    * `alpha`: stored in `recal_parameters` and contains the \eqn{\alpha} recalibration parameter.
 #'
 #' @exportS3Method calculate_predictions_recalibrated_type_1 cox
 #'
@@ -59,9 +54,9 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
       }
 
       # Obtains the data of the event variable
-      survival_data <- .x[[all.vars(model$formula)[1]]]
-      survival_predictions <- 1 - model$predictions_imp |>
-        dplyr::filter(.imp == .y$.imp) |>
+      survival_data <- .x[[all.vars(model[["formula"]])[1]]]
+      survival_predictions <- 1 - model[["predictions_imp"]] |>
+        dplyr::filter(.imp == .y[[".imp"]]) |>
         dplyr::pull(prediction)
 
       # Calculates the `alpha` parameter value
@@ -81,13 +76,13 @@ calculate_predictions_recalibrated_type_1.cox <- function(model, data, .progress
     cli::cli_progress_step("recalibrating predictions with type 1 recalibration", .envir = env)
   }
 
-  model$recal_parameters <- dplyr::bind_rows(
-    model$recal_parameters,
+  model[["recal_parameters"]] <- dplyr::bind_rows(
+    model[["recal_parameters"]],
     tibble::tibble(param = "alpha", value = alpha)
   )
 
   # Calculates the recalibrated type 1 predictions
-  model$predictions_agg <- model$predictions_agg |>
+  model[["predictions_agg"]] <- model[["predictions_agg"]] |>
     dplyr::mutate(
       prediction_type_1 = 1 - exp(-exp(alpha + log(-log(1 - .data[["prediction"]]))))
     )

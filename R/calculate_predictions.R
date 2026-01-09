@@ -8,7 +8,7 @@
 #' @param data Data parameter for [calculate_predictions.cox()] or [calculate_predictions.logreg()]
 #' @param .progress `TRUE` to render the progress bar `FALSE` otherwise.
 #'
-#' @return A model with the parameters `predictions_aggregated`, `predictions_data`, `betax` and `betax_data` populated.
+#' @return A model with the parameters `predictions_imp`, `predictions_agg`.
 #'
 #' @export
 #'

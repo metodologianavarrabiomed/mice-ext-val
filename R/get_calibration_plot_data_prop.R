@@ -45,7 +45,7 @@ get_calibration_plot_data_prop <- function(model, data, n_groups, type = "predic
     error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('prediction', 'prediction_type_1', 'prediction_type_2')}}"))
   }
 
-  if (methods::is(model, "MiceExtVal") && is.null(model$predictions_agg[[type]])) {
+  if (methods::is(model, "MiceExtVal") && is.null(model[["predictions_agg"]][[type]])) {
     error_message <- c(error_message, "*" = cli::format_error("It seems that {.arg {type}} is not yet calculated, calculate it using {.fn {c('MiceExtVal::calculate_predictions', 'MiceExtVal::calculate_predictions_recalibrated_type_1', 'MiceExtVal::calculate_predictions_recalibrated_type_2')}}"))
   }
 
@@ -61,7 +61,7 @@ get_calibration_plot_data_prop <- function(model, data, n_groups, type = "predic
 
   # Returns an error if the dependent variable in the model formula does not exist
   # in `data` or is not a survival class
-  dependent_variable <- all.vars(model$formula)[1]
+  dependent_variable <- all.vars(model[["formula"]])[1]
   if (!dependent_variable %in% colnames(data)) {
     error_message <- c(error_message, "*" = cli::format_error("the dependent variable {.var {dependent_variable}} must be part of {.arg data}"))
   }

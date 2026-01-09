@@ -14,17 +14,10 @@
 #' @param data External validation data. Multiple imputation dataset in long format.
 #' @param .progress `TRUE` to render the progress bar `FALSE` otherwise.
 #'
-#' @return A model with the parameter `predictons_recalibrated_type_2`, `S0_type_2` and `beta_overall` populated.
+#' @return A model with the parameter `prediction_type_2` added to `predictions_agg` and the parameters `S0_type_2` and `beta_overall` stored in `recal_parameters`
 #'
-#'    * `predictions_recal_type_2`: stores the type 2 recalibrated predictions as follows.
-#'        | id | prediction_type_2 |
-#'        |-------------|:-------------:|
-#'        | 1 | 0.03 |
-#'        | ... | ...|
-#'        | n | 0.16 |
-#'    * `S0_type_2`: stores the \eqn{S_{0, \text{type 2}}(t)} type 2 recalibration parameter.
-#'    * `beta_overall`: stores the \eqn{\beta_{overall}} type 2 recalibration parameter.
-#'
+#'    * `predictions_agg`: stores now a new variable `prediction_type_2`
+#'    * `S0_type_2` and `beta_overall` are stored in the `recal_parameters`.
 #' @exportS3Method calculate_predictions_recalibrated_type_2 cox
 #'
 #' @examples
@@ -67,10 +60,10 @@ calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress
       }
 
       # Obtains the data of the event variable
-      survival_data <- .x[[all.vars(model$formula)[1]]]
+      survival_data <- .x[[all.vars(model[["formula"]])[1]]]
       # Calculates the `betax` data
-      betax <- model$predictions_imp |>
-        dplyr::filter(.imp == .y$.imp) |>
+      betax <- model[["predictions_imp"]] |>
+        dplyr::filter(.imp == .y[[".imp"]]) |>
         dplyr::pull(betax)
       # Calculates the type 2 recalibration params
       get_recalibrate_params_type_2_cox(
@@ -89,8 +82,8 @@ calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress
     dplyr::pull("beta_overall") |>
     mean()
 
-  model$recal_parameters <- dplyr::bind_rows(
-    model$recal_parameters,
+  model[["recal_parameters"]] <- dplyr::bind_rows(
+    model[["recal_parameters"]],
     tibble::tibble(param = c("S0_type_2", "beta_overall"), value = c(S0_type_2, beta_overall))
   )
 
@@ -101,7 +94,7 @@ calculate_predictions_recalibrated_type_2.cox <- function(model, data, .progress
   }
 
   # Calculates the recalibrated type 2 predictions
-  model$predictions_agg <- model$predictions_agg |>
+  model[["predictions_agg"]] <- model[["predictions_agg"]] |>
     dplyr::mutate(
       prediction_type_2 = 1 - S0_type_2^exp(beta_overall * .data[["betax"]])
     )

@@ -11,9 +11,9 @@
 get_error_message_calculate <- function(model, data) {
   error_message <- NULL
 
-  if (!is.null(model$formula) & !all(all.vars(model$formula) %in% colnames(data))) {
-    variables_not_present <- all.vars(model$formula) %in% colnames(data)
-    variables <- all.vars(model$formula)[!variables_not_present]
+  if (!is.null(model[["formula"]]) & !all(all.vars(model[["formula"]]) %in% colnames(data))) {
+    variables_not_present <- all.vars(model[["formula"]]) %in% colnames(data)
+    variables <- all.vars(model[["formula"]])[!variables_not_present]
     error_message <- c(error_message, "*" = cli::format_error("The {.strong model variable{?s}} {.var {variables}} must be present in {.arg data}"))
   }
 

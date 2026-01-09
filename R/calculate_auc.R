@@ -6,7 +6,7 @@
 #' @param data Multiple imputed data organized as a long dataset
 #' @param .progress `TRUE` to render the progress bar `FALSE` otherwise
 #'
-#' @return The same `model` passed as a parameter with the Harrell C Index value stored in `$auc`
+#' @return The same `model` passed as a parameter with the AUC results stored in `results_imp` and `results_agg`
 #'
 #' @export
 #'
@@ -31,7 +31,7 @@ calculate_auc <- function(model, data, .progress = FALSE) {
     if (!"formula" %in% names(model)) {
       error_message <- c(error_message, "*" = cli::format_error("{.arg model} must contain a valid {.arg formula}"))
     } else {
-      dependent_variable <- all.vars(model$formula)[1]
+      dependent_variable <- all.vars(model[["formula"]])[1]
       if (!dependent_variable %in% colnames(data)) {
         error_message <- c(error_message, "*" = cli::format_error("the dependent variable {.var {dependent_variable}} must be part of {.arg data}"))
       }
@@ -56,22 +56,22 @@ calculate_auc <- function(model, data, .progress = FALSE) {
         y <- .x[[dependent_variable]]
       }
 
-      predictions <- model$predictions_imp |>
-        dplyr::filter(.data[[".imp"]] == .y$.imp) |>
+      predictions <- model[["predictions_imp"]] |>
+        dplyr::filter(.data[[".imp"]] == .y[[".imp"]]) |>
         dplyr::pull(var = "prediction")
 
       auc_val <- suppressMessages(pROC::auc(y, predictions))
 
       tibble::tibble(
-        .imp = .y$.imp,
+        .imp = .y[[".imp"]],
         estimate = auc_val |> as.numeric(),
         se = sqrt(pROC::var(auc_val)) / sqrt(length(predictions))
       )
     }) |>
     dplyr::bind_rows()
 
-  model$results_imp <- dplyr::bind_rows(
-    model$results_imp,
+  model[["results_imp"]] <- dplyr::bind_rows(
+    model[["results_imp"]],
     model_auc |>
       tibble::add_column(name = "auc",.before = ".imp")
   )
@@ -88,8 +88,8 @@ calculate_auc <- function(model, data, .progress = FALSE) {
     k = 1
   )
 
-  model$results_agg <- dplyr::bind_rows(
-    model$results_agg,
+  model[["results_agg"]] <- dplyr::bind_rows(
+    model[["results_agg"]],
     tibble::tibble(
       name = "auc",
       estimate = auc[["Estimate"]],

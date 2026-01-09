@@ -14,17 +14,10 @@
 #' @param data Data for what the predictions must be recalibrated.
 #' @param .progress `TRUE` to render the progress bar `FALSE` otherwise.
 #'
-#' @return A model with the parameter `predictons_recalibrated_type_2`, `S0_type_2` and `beta_overall` populated.
+#' @return A model with the parameter `prediction_type_2` added to `predictions_agg` and the parameters `S0_type_2` and `beta_overall` stored in `recal_parameters`
 #'
-#'   * `predictions_recal_type_2`: stores the type 2 recalibrated predictions as follows.
-#'        | id | prediction_type_2 |
-#'        |-------------|:-------------:|
-#'        | 1 | 0.03 |
-#'        | ... | ...|
-#'        | n | 0.16 |
-#'    * `alpha_type_2`: stores the \eqn{\alpha} type 2 recalibration parameter.
-#'    * `beta_overall`: stores the \eqn{\beta_{overall}} type 2 recalibration parameter.
-#'
+#'    * `predictions_agg`: stores now a new variable `prediction_type_2`
+#'    * `alpha_type_2` and `beta_overall` are stored in the `recal_parameters`.
 #' @import mathjaxr
 #'
 #' @exportS3Method calculate_predictions_recalibrated_type_2 logreg
@@ -65,7 +58,7 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
         cli::cli_progress_update(.envir = env)
       }
 
-      dependent_variable <- .x[[all.vars(model$formula)[1]]]
+      dependent_variable <- .x[[all.vars(model[["formula"]])[1]]]
 
       if (methods::is(dependent_variable, "Surv")) {
         event <- dependent_variable[, "status"]
@@ -75,25 +68,25 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
 
       recal_data <- tibble::tibble(
         y = event,
-        betax = model$predictions_imp |>
-          dplyr::filter(.imp == .y$.imp) |>
+        betax = model[["predictions_imp"]] |>
+          dplyr::filter(.imp == .y[[".imp"]]) |>
           dplyr::pull(betax)
       )
 
       model_recal <- rms::lrm(y ~ betax, data = recal_data)
 
       tibble::tibble(
-        alpha_type_2 = model_recal$coefficients[1],
-        beta_overall = model_recal$coefficients[2]
+        alpha_type_2 = model_recal[["coefficients"]][1],
+        beta_overall = model_recal[["coefficients"]][2]
       )
     }) |>
     dplyr::bind_rows()
 
-  alpha_type_2 <- mean(recal_parameters$alpha_type_2)
-  beta_overall <- mean(recal_parameters$beta_overall)
+  alpha_type_2 <- mean(recal_parameters[["alpha_type_2"]])
+  beta_overall <- mean(recal_parameters[["beta_overall"]])
 
-  model$recal_parameters <- dplyr::bind_rows(
-    model$recal_parameters,
+  model[["recal_parameters"]] <- dplyr::bind_rows(
+    model[["recal_parameters"]],
     tibble::tibble(
       param = c("alpha_type_2", "beta_overall"),
       value = c(alpha_type_2, beta_overall)
@@ -101,7 +94,7 @@ calculate_predictions_recalibrated_type_2.logreg <- function(model, data, .progr
   )
 
   # Calculates the type 2 recalibration
-  model$predictions_agg <- model$predictions_agg |>
+  model[["predictions_agg"]] <- model[["predictions_agg"]] |>
     dplyr::mutate(
       prediction_type_2 = 1 / (1 + exp(-(alpha_type_2 + (beta_overall * .data[["betax"]]))))
       )

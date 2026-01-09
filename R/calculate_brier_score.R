@@ -1,9 +1,9 @@
-#' calculate the brier score for the given model definition
+#' calculate the brier score for the given model
 #'
 #' @description
 #' The Brier Score is calculated using the formula \deqn{BS=\frac{1}{n}\sum_{t=1}^n{(f_t - o_t)^2}} where \eqn{n} is the population size, \eqn{f_t} is the predictions for the row \eqn{t} and \eqn{o_t} is the dichotomous observation for the row \eqn{t}.
 #'
-#' The function works accordingly to the `model` definition. If the model is defined as Cox, the survival variable is transformed to dichotomous as `1` if the event has appeared during the follow up and `0` othercase. In the case the model is a logistic regression the dependent variable can be already dichotomous or survival, in the case of the survival variable the dichotomous is defined as in the Cox model.
+#' The function operates according to the chosen `model`: if the model is Cox, the survival variable is converted into a binary value (1 if the event occurred during follow-up, 0 otherwise), whereas for a logistic regression model, the dependent variable may already be binary or represent survival time; in the latter case, it is transformed into a binary variable using the same rule as in the Cox model.
 #'
 #' The confidence interval is calculated by bootstrap resamples.
 #'
@@ -35,7 +35,7 @@ calculate_brier_score <- function(model, data, type = c("prediction", "predictio
       if (!any(type %in% c("prediction", "prediction_type_1", "prediction_type_2"))) {
         error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('predictions_aggregated', 'predictions_recal_type_1', 'predictions_recal_type_2')}}"))
       } else {
-        if (methods::is(model, "MiceExtVal") && is.null(model$predictions_agg[[type]])) {
+        if (methods::is(model, "MiceExtVal") && is.null(model[["predictions_agg"]][[type]])) {
           error_message <- c(error_message, "*" = cli::format_error("It seems that {.arg type} is not yet calculated, calculate it using {.fn {c('MiceExtVal::calculate_predictions', 'MiceExtVal::calculate_predictions_recalibrated_type_1', 'MiceExtVal::calculate_predictions_recalibrated_type_2')}}"))
         }
       }
@@ -44,7 +44,7 @@ calculate_brier_score <- function(model, data, type = c("prediction", "predictio
         error_message <- c(error_message, "*" = cli::format_error("{.arg data} variable must contain {.arg .imp}"))
       }
 
-      dependent_variable <- all.vars(model$formula)[1]
+      dependent_variable <- all.vars(model[["formula"]])[1]
       if (
         methods::is(model, "logreg") &
           (!methods::is(data[[dependent_variable]], "Surv") & !methods::is(data[[dependent_variable]], "numeric"))
@@ -58,7 +58,7 @@ calculate_brier_score <- function(model, data, type = c("prediction", "predictio
 
       if (methods::is(model, "cox")) {
         # Returns an error if `S0` does not exist or it is bad defined in the cox model
-        if (is.null(model$S0) | !is.numeric(model$S0)) {
+        if (is.null(model[["S0"]]) | !is.numeric(model[["S0"]])) {
           error_message <- c(error_message, "*" = cli::format_error("{.arg S0} must be {.cls numeric}"))
         }
       }
@@ -69,7 +69,7 @@ calculate_brier_score <- function(model, data, type = c("prediction", "predictio
 
   # brier score calculation -------------------------------------------------
   get_brier_score <- \(x, y) sum((x - y)**2) / length(y)
-  b_samp <- rsample::bootstraps(data = model$predictions_agg, times = n_boot)
+  b_samp <- rsample::bootstraps(data = model[["predictions_agg"]], times = n_boot)
   boot_bs_res <- purrr::map_dbl(
     b_samp[["splits"]], ~ {
       data <- rsample::analysis(.x) |>
@@ -102,8 +102,8 @@ calculate_brier_score <- function(model, data, type = c("prediction", "predictio
 
   res <- get_brier_score_attribute(boot_bs_res)
 
-  model$results_agg <- dplyr::bind_rows(
-    model$results_agg,
+  model[["results_agg"]] <- dplyr::bind_rows(
+    model[["results_agg"]],
     tibble::tibble(
       name = switch(type,
         "prediction" = "brier_score",
