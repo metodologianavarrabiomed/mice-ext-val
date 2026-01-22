@@ -6,6 +6,14 @@ author:
 toc: true
 bibliography: '`r system.file("references.bib", package="MiceExtVal")`' 
 csl: '`r system.file("apa.csl", package="MiceExtVal")`'
+format: 
+  html: 
+    include-in-header:
+      - text: "<style>
+          p {
+            text-align: justify;
+          }
+          </style>"
 vignette: >
   %\VignetteIndexEntry{Get Started Logistic Regression}
   %\VignetteEngine{quarto::html}
@@ -13,14 +21,6 @@ vignette: >
   %\VignetteDepends{gtsummary}
   %\VignetteDepends{kableExtra}
 ---
-
-```{css}
-#| echo: false
-p {
-  text-align: justify
-}
-```
-
 
 #### Required Libraries
 
@@ -132,9 +132,7 @@ timi2_model <- timi2_model |>
   MiceExtVal::calculate_predictions(gusto_imp)
 ```
 
-After executing `MiceExtVal::calculate_predictions()`, the model object is updated with additional information derived from the imputed dataset. Specifically, the predicted probabilities are computed for each imputation and stored within the model. In addition, the function calculates aggregated predictions for each patient by pooling results across imputations. An example of these values are shown in @tbl-model-predictions-example.
-
-Beyond the predicted probabilities, the model object also includes the linear predictors ($\beta \cdot X$), both at the individual imputation level and as pooled estimates. These represent the raw score from the logistic regression model before applying the inverse logit transformation. @tbl-model-betax-example presents these values.
+After executing `MiceExtVal::calculate_predictions()`, the model object is updated with additional information derived from the imputed dataset. Specifically, the predicted probabilities are computed for each imputation and stored within the model. In addition, the function calculates aggregated predictions for each patient by pooling results across imputations. An example of these values are shown in @tbl-model-predictions-example. Beyond the predicted probabilities, the model object also includes the linear predictors ($\beta \cdot X$), both at the individual imputation level and as pooled estimates. These represent the raw score from the logistic regression model before applying the inverse logit transformation.
 
 This structure—where all relevant prediction outputs are integrated into the model object—allows for a streamlined workflow in which subsequent steps like performance evaluation or recalibration can be carried out with minimal additional input.
 
@@ -146,28 +144,11 @@ This structure—where all relevant prediction outputs are integrated into the m
 #|   - Aggregated predictions
 #|   - Model predictions in each imputation
 #| classes: plain .table-sm
-timi2_model$predictions_aggregated |>
+timi2_model[["predictions_agg"]] |>
   utils::head() |>
   kableExtra::kbl()
 
-timi2_model$predictions_data |>
-  utils::head() |>
-  kableExtra::kbl()
-```
-
-```{r}
-#| layout-ncol: 2
-#| label: tbl-model-betax-example
-#| tbl-cap: Model Beta X
-#| tbl-subcap:
-#|   - Aggregated Beta X
-#|   - Model Beta X in each imputation
-#| classes: plain .table-sm
-timi2_model$betax |>
-  utils::head() |>
-  kableExtra::kbl()
-
-timi2_model$betax_data |>
+timi2_model[["predictions_imp"]] |>
   utils::head() |>
   kableExtra::kbl()
 ```
@@ -184,11 +165,11 @@ Since our outcome is binary (death within 30 days), we will use AUC as our measu
 timi2_model <- timi2_model |>
   MiceExtVal::calculate_auc(gusto_imp)
 
+auc <- timi2_model[["results_agg"]] |> dplyr::filter(name == "auc")
+
 auc_res <- sprintf(
   "%.3f (95%% CI %.3f, %.3f)",
-  timi2_model$auc["Estimate"],
-  timi2_model$auc["95% CI L"],
-  timi2_model$auc["95% CI U"]
+  auc[["estimate"]], auc[["lower"]], auc[["upper"]]
 )
 ```
 
@@ -220,7 +201,7 @@ timi2_model |>
   MiceExtVal::get_calibration_plot_data_prop(
     data = gusto_imp,
     n_groups = 10,
-    type = "predictions_aggregated"
+    type = "prediction"
   ) |>
   MiceExtVal::get_calibration_plot() |>
   clip_axis_plot(limit = 0.35)
@@ -239,18 +220,18 @@ where $N$ is the size of the population, $f_t$ is the model prediction for the p
 ```{r}
 timi2_model <- timi2_model |>
   MiceExtVal::calculate_brier_score(
-    data = gusto_imp, type = "predictions_aggregated", n_boot = 100
+    data = gusto_imp, type = "prediction", n_boot = 100
   )
+
+brier_score <- timi2_model[["results_agg"]] |> dplyr::filter(name == "brier_score")
 
 brier_score_res <- sprintf(
   "%.3f (95%% CI %.3f, %.3f)",
-  timi2_model$brier_score["Estimate"],
-  timi2_model$brier_score["95% CI L"],
-  timi2_model$brier_score["95% CI U"]
+  brier_score["estimate"], brier_score["lower"], brier_score["upper"]
 )
 ```
 
-The model yields an AUC of `r brier_score_res` that demonstrait a fair accuracy between the model predictions and the observed risks. However, to fully demonstrate the functionality of the `MiceExtVal` package, we will proceed with recalibrating the model predictions. This allows us to show how recalibration can be implemented when needed and how it affects the model's performance.
+The model yields a brier score of `r brier_score_res` that demonstrait a fair accuracy between the model predictions and the observed risks. However, to fully demonstrate the functionality of the `MiceExtVal` package, we will proceed with recalibrating the model predictions. This allows us to show how recalibration can be implemented when needed and how it affects the model's performance.
 
 ## Model Recalibration
 The MiceExtVal package provides two distinct functions to perform recalibration of model predictions:
@@ -273,26 +254,18 @@ In the previous code snippet, both types of recalibrated predictions were comput
 In addition to the recalibrated predictions, the corresponding recalibration parameters—such as intercept and slope adjustments—are also saved within the model object. This design ensures that all relevant recalibration outputs are centralized and accessible for further analysis or reporting.
 
 ```{r}
-#| layout-ncol: 2
 #| label: tbl-recal-example
 #| tbl-cap: Recalibrated predictions
-#| tbl-subcap:
-#|   - Type 1 recalibration
-#|   - Type 2 recalibration
 #| classes: plain .table-sm
-timi2_model$predictions_recal_type_1 |>
-  utils::head() |>
-  kableExtra::kbl()
-
-timi2_model$predictions_recal_type_2 |>
+timi2_model[["predictions_agg"]] |>
   utils::head() |>
   kableExtra::kbl()
 ```
 
 The recalibration parameters obtained for this model are:
 
-* Type 1 recalibration: $\alpha_{\text{type1}} = `r round(timi2_model[["alpha_type_1"]], 3)`$
-* Type 2 recalibration: $\alpha_{\text{type2}} = `r round(timi2_model[["alpha_type_2"]], 3)`, \beta_{\text{overall}} = `r round(timi2_model[["beta_overall"]], 3)`$
+* Type 1 recalibration: $\alpha_{\text{type1}} = `r round(timi2_model[["recal_parameters"]] |> dplyr::filter(param == "alpha_type_1") |> dplyr::pull("value"), 3)`$
+* Type 2 recalibration: $\alpha_{\text{type2}} = `r round(timi2_model[["recal_parameters"]] |> dplyr::filter(param == "alpha_type_2") |> dplyr::pull("value"), 3)`, \beta_{\text{overall}} = `r round(timi2_model[["recal_parameters"]] |> dplyr::filter(param == "beta_overall") |> dplyr::pull("value"), 3)`$
 
 These parameters are automatically stored in the model object after recalibration. If you would like more details about how these recalibrated predictions are computed, please refer to the documentation for each function.
 
@@ -313,7 +286,7 @@ timi2_model |>
   MiceExtVal::get_calibration_plot_data_prop(
     data = gusto_imp,
     n_groups = 10,
-    type = "predictions_recal_type_1"
+    type = "prediction_type_1"
   ) |>
   MiceExtVal::get_calibration_plot() |>
   clip_axis_plot(limit = 0.35)
@@ -322,7 +295,7 @@ timi2_model |>
   MiceExtVal::get_calibration_plot_data_prop(
     data = gusto_imp,
     n_groups = 10,
-    type = "predictions_recal_type_2"
+    type = "prediction_type_2"
   ) |>
   MiceExtVal::get_calibration_plot() |>
   clip_axis_plot(limit = 0.35)
@@ -333,24 +306,30 @@ Even though the AUC does not change with the model recalibration the Brier score
 ```{r}
 timi2_model <- timi2_model |>
   MiceExtVal::calculate_brier_score(
-    data = gusto_imp, type = "predictions_recal_type_1", n_boot = 100
+    data = gusto_imp, type = "prediction_type_1", n_boot = 100
   ) |>
   MiceExtVal::calculate_brier_score(
-    data = gusto_imp, type = "predictions_recal_type_2", n_boot = 100
+    data = gusto_imp, type = "prediction_type_2", n_boot = 100
   )
+
+brier_score_type_1 <- timi2_model[["results_agg"]] |> 
+  dplyr::filter(name == "brier_score_type_1")
 
 brier_score_type_1_res <- sprintf(
   "%.3f (95%% CI %.3f, %.3f)",
-  timi2_model$brier_score_type_1["Estimate"],
-  timi2_model$brier_score_type_1["95% CI L"],
-  timi2_model$brier_score_type_1["95% CI U"]
+  brier_score_type_1["estimate"],
+  brier_score_type_1["lower"],
+  brier_score_type_1["upper"]
 )
+
+brier_score_type_2 <- timi2_model[["results_agg"]] |> 
+  dplyr::filter(name == "brier_score_type_2")
 
 brier_score_type_2_res <- sprintf(
   "%.3f (95%% CI %.3f, %.3f)",
-  timi2_model$brier_score_type_2["Estimate"],
-  timi2_model$brier_score_type_2["95% CI L"],
-  timi2_model$brier_score_type_2["95% CI U"]
+  brier_score_type_2["estimate"],
+  brier_score_type_2["lower"],
+  brier_score_type_2["upper"]
 )
 ```
 
@@ -390,13 +369,13 @@ timi2_model_men <- timi2_model_men |>
   MiceExtVal::calculate_predictions_recalibrated_type_2(gusto_imp_men) |>
   MiceExtVal::calculate_auc(gusto_imp_men) |>
   MiceExtVal::calculate_brier_score(
-    data = gusto_imp_men, type = "predictions_aggregated", n_boot = 100
+    data = gusto_imp_men, type = "prediction", n_boot = 100
   ) |>
   MiceExtVal::calculate_brier_score(
-    data = gusto_imp_men, type = "predictions_recal_type_1", n_boot = 100
+    data = gusto_imp_men, type = "prediction_type_1", n_boot = 100
   ) |>
   MiceExtVal::calculate_brier_score(
-    data = gusto_imp_men, type = "predictions_recal_type_2", n_boot = 100
+    data = gusto_imp_men, type = "prediction_type_2", n_boot = 100
   )
 
 timi2_model_women <- timi2_model_women |>
@@ -405,13 +384,13 @@ timi2_model_women <- timi2_model_women |>
   MiceExtVal::calculate_predictions_recalibrated_type_2(gusto_imp_women) |>
   MiceExtVal::calculate_auc(gusto_imp_women) |>
   MiceExtVal::calculate_brier_score(
-    data = gusto_imp_women, type = "predictions_aggregated", n_boot = 100
+    data = gusto_imp_women, type = "prediction", n_boot = 100
   ) |>
   MiceExtVal::calculate_brier_score(
-    data = gusto_imp_women, type = "predictions_recal_type_1", n_boot = 100
+    data = gusto_imp_women, type = "prediction_type_1", n_boot = 100
   ) |>
   MiceExtVal::calculate_brier_score(
-    data = gusto_imp_women, type = "predictions_recal_type_2", n_boot = 100
+    data = gusto_imp_women, type = "prediction_type_2", n_boot = 100
   )
 ```
 
@@ -441,7 +420,7 @@ This will allow the function to overlay calibration plots for both models on the
 MiceExtVal::get_stratified_calibration_plot_prop(
   data = gusto_imp,
   n_groups = 10,
-  type = "predictions_aggregated",
+  type = "prediction",
   Men = timi2_model_men,
   Women = timi2_model_women
 ) |>
@@ -449,7 +428,7 @@ MiceExtVal::get_stratified_calibration_plot_prop(
 MiceExtVal::get_stratified_calibration_plot_prop(
   data = gusto_imp,
   n_groups = 10,
-  type = "predictions_recal_type_1",
+  type = "prediction_type_1",
   Men = timi2_model_men,
   Women = timi2_model_women
 ) |>
@@ -457,7 +436,7 @@ MiceExtVal::get_stratified_calibration_plot_prop(
 MiceExtVal::get_stratified_calibration_plot_prop(
   data = gusto_imp,
   n_groups = 10,
-  type = "predictions_recal_type_2",
+  type = "prediction_type_2",
   Men = timi2_model_men,
   Women = timi2_model_women
 ) |>
