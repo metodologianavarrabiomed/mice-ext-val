@@ -158,3 +158,25 @@ test_that("Calculates the c-index properly for a logreg model with `numeric` dep
     round_to_precision(readRDS(test_path("fixtures", "logreg", "auc_imp_logreg.rds")))
   )
 })
+
+test_that("Calculates only one time the c-index", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_logreg <- make_logreg_model(environment())
+
+  model_logreg <- model_logreg |>
+    calculate_predictions(data) |>
+    calculate_auc(data) |>
+    calculate_auc(data)
+
+  model_cox <- make_cox_model(environment())
+
+  model_cox <- model_cox |>
+    calculate_predictions(data) |>
+    calculate_auc(data) |>
+    calculate_auc(data)
+
+  expect_identical(dim(model_logreg[["results_agg"]])[[1]], 1L)
+  expect_identical(dim(model_logreg[["results_imp"]])[[1]], 5L)
+  expect_identical(dim(model_cox[["results_agg"]])[[1]], 1L)
+  expect_identical(dim(model_cox[["results_imp"]])[[1]], 5L)
+})
