@@ -33,7 +33,7 @@ calculate_brier_score <- function(model, data, type = c("prediction", "predictio
       error_message <- c(error_message, "*" = cli::format_error("{.arg data} must be {.cls data.frame}"))
     } else {
       if (!any(type %in% c("prediction", "prediction_type_1", "prediction_type_2"))) {
-        error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('predictions_aggregated', 'predictions_recal_type_1', 'predictions_recal_type_2')}}"))
+        error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('prediction', 'prediction_type_1', 'prediction_type_2')}}"))
       } else {
         if (methods::is(model, "MiceExtVal") && is.null(model[["predictions_agg"]][[type]])) {
           error_message <- c(error_message, "*" = cli::format_error("It seems that {.arg type} is not yet calculated, calculate it using {.fn {c('MiceExtVal::calculate_predictions', 'MiceExtVal::calculate_predictions_recalibrated_type_1', 'MiceExtVal::calculate_predictions_recalibrated_type_2')}}"))
@@ -101,6 +101,16 @@ calculate_brier_score <- function(model, data, type = c("prediction", "predictio
   }
 
   res <- get_brier_score_attribute(boot_bs_res)
+
+  results_agg <- if (!is.null(model[["results_agg"]])) {
+    switch(type,
+      "prediction" = model[["results_agg"]] |> dplyr::filter(name != "brier_score"),
+      "prediction_type_1" = model[["results_agg"]] |> dplyr::filter(name != "brier_score_type_1"),
+      "prediction_type_2" = model[["results_agg"]] |> dplyr::filter(name != "brier_score_type_2"),
+    )
+  } else {
+    model[["results_agg"]]
+  }
 
   model[["results_agg"]] <- dplyr::bind_rows(
     model[["results_agg"]],
