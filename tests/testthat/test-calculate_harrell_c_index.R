@@ -124,3 +124,24 @@ test_that("Calculates the c-index properly for a logreg model", {
   )
 })
 
+test_that("Calculates only one time the c-index", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_logreg <- make_logreg_model(environment())
+
+  model_logreg <- model_logreg |>
+    calculate_predictions(data) |>
+    calculate_harrell_c_index(data) |>
+    calculate_harrell_c_index(data)
+
+  model_cox <- make_cox_model(environment())
+
+  model_cox <- model_cox |>
+    calculate_predictions(data) |>
+    calculate_harrell_c_index(data) |>
+    calculate_harrell_c_index(data)
+
+  expect_identical(dim(model_logreg[["results_agg"]])[[1]], 1L)
+  expect_identical(dim(model_logreg[["results_imp"]])[[1]], 5L)
+  expect_identical(dim(model_cox[["results_agg"]])[[1]], 1L)
+  expect_identical(dim(model_cox[["results_imp"]])[[1]], 5L)
+})
