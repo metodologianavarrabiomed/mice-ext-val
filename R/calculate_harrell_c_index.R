@@ -98,8 +98,14 @@ calculate_harrell_c_index <- function(model, data, .progress = FALSE) {
     }) |>
     dplyr::bind_rows()
 
+  results_imp <- if (!is.null(model[["results_imp"]])) {
+    model[["results_imp"]] |> dplyr::filter(name != "harrell_c_index")
+  } else {
+    model[["results_imp"]]
+  }
+
   model[["results_imp"]] <- dplyr::bind_rows(
-    model[["results_imp"]],
+    results_imp,
     c_index_data |> tibble::add_column(name = "harrell_c_index", .before = ".imp")
   )
 
@@ -121,8 +127,14 @@ calculate_harrell_c_index <- function(model, data, .progress = FALSE) {
     k = 1
   )
 
+  results_agg <- if (!is.null(model[["results_agg"]])) {
+    model[["results_agg"]] |> dplyr::filter(name != "harrell_c_index")
+  } else {
+    model[["results_agg"]]
+  }
+
   model[["results_agg"]] <- dplyr::bind_rows(
-    model[["results_agg"]],
+    results_agg,
     tibble::tibble(
       name = "harrell_c_index",
       estimate = c_index_agg[["Estimate"]],
