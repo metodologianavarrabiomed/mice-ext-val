@@ -70,10 +70,17 @@ calculate_auc <- function(model, data, .progress = FALSE) {
     }) |>
     dplyr::bind_rows()
 
+
+  results_imp <- if (!is.null(model[["results_imp"]])) {
+    model[["results_imp"]] |> dplyr::filter(name != "auc")
+  } else {
+    model[["results_imp"]]
+  }
+
   model[["results_imp"]] <- dplyr::bind_rows(
-    model[["results_imp"]],
+    results_imp,
     model_auc |>
-      tibble::add_column(name = "auc",.before = ".imp")
+      tibble::add_column(name = "auc", .before = ".imp")
   )
 
   n <- data |>
@@ -88,14 +95,26 @@ calculate_auc <- function(model, data, .progress = FALSE) {
     k = 1
   )
 
+  # if (!is.null(model[["results_agg"]])) {
+  #   results_agg <- model[["results_agg"]] |> dplyr::filter(name != "auc")
+  # } else {
+  #   results_agg <- model[["results_agg"]]
+  # }
+  results_agg <- if (!is.null(model[["results_agg"]])) {
+    model[["results_agg"]] |> dplyr::filter(name != "auc")
+  } else {
+    model[["results_agg"]]
+  }
+
   model[["results_agg"]] <- dplyr::bind_rows(
-    model[["results_agg"]],
+    results_agg,
     tibble::tibble(
       name = "auc",
       estimate = auc[["Estimate"]],
       lower = auc[["95% CI L"]],
       upper = auc[["95% CI U"]],
-      p_val = auc[["P-val"]])
+      p_val = auc[["P-val"]]
+    )
   )
 
   return(model)
