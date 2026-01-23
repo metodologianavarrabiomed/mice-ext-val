@@ -140,3 +140,66 @@ testthat::test_that("the brier score is calculated properly for a logreg model w
     round_to_precision(readRDS(test_path("fixtures", "logreg", "brier_score_type_2_logreg.rds")))
   )
 })
+
+testthat::test_that("the brier score is only calculated once", {
+  data <- readRDS(testthat::test_path("fixtures", "mice_data.rds"))
+  logreg_model <- make_logreg_model(environment()) |>
+    calculate_predictions(data) |>
+    calculate_predictions_recalibrated_type_1(data) |>
+    calculate_predictions_recalibrated_type_2(data) |>
+    calculate_brier_score(data, type = "prediction", n_boot = 5) |>
+    calculate_brier_score(data, type = "prediction_type_1", n_boot = 5) |>
+    calculate_brier_score(data, type = "prediction_type_2", n_boot = 5)
+  cox_model <- make_cox_model(environment()) |>
+    calculate_predictions(data) |>
+    calculate_predictions_recalibrated_type_1(data) |>
+    calculate_predictions_recalibrated_type_2(data) |>
+    calculate_brier_score(data, type = "prediction", n_boot = 5) |>
+    calculate_brier_score(data, type = "prediction_type_1", n_boot = 5) |>
+    calculate_brier_score(data, type = "prediction_type_2", n_boot = 5)
+
+  # original predictions
+  logreg_model <- logreg_model |>
+    calculate_brier_score(data, type = "prediction", n_boot = 5)
+  testthat::expect_identical(
+    dim(logreg_model[["results_agg"]] |> dplyr::filter(name == "brier_score"))[[1]],
+    1L
+    )
+
+  cox_model <- cox_model |>
+    calculate_brier_score(data, type = "prediction", n_boot = 5)
+  testthat::expect_identical(
+    dim(logreg_model[["results_agg"]] |> dplyr::filter(name == "brier_score"))[[1]],
+    1L
+    )
+
+  # type 1 recalibrated predictions
+  logreg_model <- logreg_model |>
+    calculate_brier_score(data, type = "prediction_type_1", n_boot = 5)
+  testthat::expect_identical(
+    dim(logreg_model[["results_agg"]] |> dplyr::filter(name == "brier_score_type_1"))[[1]],
+    1L
+    )
+
+  cox_model <- cox_model |>
+    calculate_brier_score(data, type = "prediction_type_1", n_boot = 5)
+  testthat::expect_identical(
+    dim(logreg_model[["results_agg"]] |> dplyr::filter(name == "brier_score_type_1"))[[1]],
+    1L
+    )
+
+  # type 2 recalibrated predictions
+  logreg_model <- logreg_model |>
+    calculate_brier_score(data, type = "prediction_type_2", n_boot = 5)
+  testthat::expect_identical(
+    dim(logreg_model[["results_agg"]] |> dplyr::filter(name == "brier_score_type_2"))[[1]],
+    1L
+    )
+
+  cox_model <- cox_model |>
+    calculate_brier_score(data, type = "prediction_type_2", n_boot = 5)
+  testthat::expect_identical(
+    dim(logreg_model[["results_agg"]] |> dplyr::filter(name == "brier_score_type_2"))[[1]],
+    1L
+    )
+  })
