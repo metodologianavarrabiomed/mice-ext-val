@@ -37,32 +37,17 @@ package.
 
 - `S0`: Value of the \\S_0(t)\\ function for the time of study.
 
-- `alpha`: Recalibration parameter for the type 1 recalibration.
+- `predictions_imp`: `tibble` with the predictions for each of the
+  imputed datasets.
 
-- `S0_type_2`: Value of the \\S_0(t)\\ function for the time of study
-  for the type 2 recalibration.
+- `predictions_agg`: `tibble` with the aggregated predictions for each
+  patient.
 
-- `beta_overall`: Recalibration parameter for the type 2 recalibration.
+- `recal_parameters`: `tibble` with the recalibration parameters needed.
 
-- `predictions_aggregated`: Aggregated predictions for the validation
-  data.
+- `results_imp`: `tibble` with the results in each of the imputations.
 
-- `predictions_data`: All predictions for the validation data including
-  all the imputations.
-
-- `betax`: Aggregated \\\beta \cdot X\\ values for the validation data.
-
-- `betax_data`: All predictions for the validation data including all
-  the imputations.
-
-- `predictions_recal_type_1`: Aggregated predictions after recalibrating
-  them with type 1 recalibration.
-
-- `predictions_recal_type_2`: Aggregated predictions after recalibrating
-  them with type 2 recalibration.
-
-- `c_index`: Harrell C-Index of the predictions in the validation
-  cohort.
+- `results_agg`: `tibble` with the aggregated results.
 
 ## Examples
 

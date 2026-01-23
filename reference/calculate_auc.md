@@ -30,8 +30,8 @@ calculate_auc(model, data, .progress = FALSE)
 
 ## Value
 
-The same `model` passed as a parameter with the Harrell C Index value
-stored in `$auc`
+The same `model` passed as a parameter with the AUC results stored in
+`results_imp` and `results_agg`
 
 ## Examples
 

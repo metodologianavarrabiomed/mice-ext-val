@@ -6,7 +6,7 @@
   : calculates the area under the curve for the given model
 
 - [`calculate_brier_score()`](https://metodologianavarrabiomed.github.io/mice-ext-val/reference/calculate_brier_score.md)
-  : calculate the brier score for the given model definition
+  : calculate the brier score for the given model
 
 - [`calculate_harrell_c_index()`](https://metodologianavarrabiomed.github.io/mice-ext-val/reference/calculate_harrell_c_index.md)
   : Calculates Harrell C-Index for a model

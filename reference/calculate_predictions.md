@@ -34,8 +34,7 @@ calculate_predictions(model, data, .progress = TRUE)
 
 ## Value
 
-A model with the parameters `predictions_aggregated`,
-`predictions_data`, `betax` and `betax_data` populated.
+A model with the parameters `predictions_imp`, `predictions_agg`.
 
 ## Examples
 
@@ -60,40 +59,22 @@ model |> calculate_predictions(data)
 #> 
 #> event ~ 0.5 * (x - 1) + 0.3 * (z - 2)
 #> 
-#> ── predictions_aggregated ──
+#> ── predictions_imp ──
 #> 
-#> # A tibble: 3 × 2
-#>      id prediction
-#>   <dbl>      <dbl>
-#> 1     1      0.515
-#> 2     2      0.460
-#> 3     3      0.460
-#> ── predictions_data ──
+#> # A tibble: 5 × 4
+#>    .imp    id    betax prediction
+#>   <dbl> <dbl>    <dbl>      <dbl>
+#> 1     1     1  0.102        0.526
+#> 2     1     2  0.0466       0.512
+#> 3     1     3 -0.195        0.451
+#> 4     2     1  0.00105      0.500
+#> 5     2     2 -0.217        0.446
+#> ── predictions_agg ──
 #> 
-#> # A tibble: 5 × 3
-#>   prediction  .imp    id
-#>        <dbl> <dbl> <dbl>
-#> 1      0.526     1     1
-#> 2      0.512     1     2
-#> 3      0.451     1     3
-#> 4      0.500     2     1
-#> 5      0.446     2     2
-#> ── betax ──
-#> 
-#> # A tibble: 3 × 2
-#>      id   betax
-#>   <dbl>   <dbl>
-#> 1     1  0.0620
-#> 2     2 -0.163 
-#> 3     3 -0.162 
-#> ── betax_data ──
-#> 
-#> # A tibble: 5 × 3
-#>      betax  .imp    id
-#>      <dbl> <dbl> <dbl>
-#> 1  0.102       1     1
-#> 2  0.0466      1     2
-#> 3 -0.195       1     3
-#> 4  0.00105     2     1
-#> 5 -0.217       2     2
+#> # A tibble: 3 × 3
+#>      id   betax prediction
+#>   <dbl>   <dbl>      <dbl>
+#> 1     1  0.0620      0.515
+#> 2     2 -0.163       0.460
+#> 3     3 -0.162       0.460
 ```

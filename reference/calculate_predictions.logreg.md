@@ -33,19 +33,11 @@ calculate_predictions(model, data, .progress = FALSE)
 
 ## Value
 
-A model with the parameters `predictions_aggregated`,
-`predictions_data`, `betax` and `betax_data` populated.
+A model with the parameters `predictions_imp`, `predictions_agg`.
 
-- `predictions_aggregated`, stores the predictions aggregated by the
-  mean.
+- `predictions_imp`, stores the predictions for each of the imputations
 
-- `predictions_data`, stores all the predictions in each of the imputed
-  datasets.
-
-- `betax`, stores the \\\beta \cdot X\\ values aggregated by the mean.
-
-- `betax_data`, stores the \\\beta \cdot X\\ values in each of the
-  imputed datasets.
+- `predictions_agg`, stores the predictions aggregated by the mean.
 
 ## Examples
 
@@ -73,40 +65,22 @@ model |> calculate_predictions(data)
 #> 
 #> event ~ 0.5 * x + 0.3 * z + 1.2
 #> 
-#> ── predictions_aggregated ──
+#> ── predictions_imp ──
 #> 
-#> # A tibble: 3 × 2
-#>      id prediction
-#>   <dbl>      <dbl>
-#> 1     1      0.914
-#> 2     2      0.894
-#> 3     3      0.894
-#> ── predictions_data ──
+#> # A tibble: 5 × 4
+#>    .imp    id betax prediction
+#>   <dbl> <dbl> <dbl>      <dbl>
+#> 1     1     1  2.40      0.917
+#> 2     1     2  2.35      0.913
+#> 3     1     3  2.10      0.891
+#> 4     2     1  2.30      0.909
+#> 5     2     2  2.08      0.889
+#> ── predictions_agg ──
 #> 
-#> # A tibble: 5 × 3
-#>   prediction  .imp    id
-#>        <dbl> <dbl> <dbl>
-#> 1      0.917     1     1
-#> 2      0.913     1     2
-#> 3      0.891     1     3
-#> 4      0.909     2     1
-#> 5      0.889     2     2
-#> ── betax ──
-#> 
-#> # A tibble: 3 × 2
-#>      id betax
-#>   <dbl> <dbl>
-#> 1     1  2.36
-#> 2     2  2.14
-#> 3     3  2.14
-#> ── betax_data ──
-#> 
-#> # A tibble: 5 × 3
-#>   betax  .imp    id
-#>   <dbl> <dbl> <dbl>
-#> 1  2.40     1     1
-#> 2  2.35     1     2
-#> 3  2.10     1     3
-#> 4  2.30     2     1
-#> 5  2.08     2     2
+#> # A tibble: 3 × 3
+#>      id betax prediction
+#>   <dbl> <dbl>      <dbl>
+#> 1     1  2.36      0.914
+#> 2     2  2.14      0.894
+#> 3     3  2.14      0.894
 ```

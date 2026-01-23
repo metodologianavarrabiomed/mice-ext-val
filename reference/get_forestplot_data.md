@@ -8,7 +8,8 @@ Generates the forestplot data needed in
 ``` r
 get_forestplot_data(
   strat,
-  type = c("c_index", "auc", "brier_score", "brier_score_type_1", "brier_score_type_2"),
+  type = c("harrell_c_index", "auc", "brier_score", "brier_score_type_1",
+    "brier_score_type_2"),
   ...
 )
 ```

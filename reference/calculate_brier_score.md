@@ -1,16 +1,16 @@
-# calculate the brier score for the given model definition
+# calculate the brier score for the given model
 
 The Brier Score is calculated using the formula
 \$\$BS=\frac{1}{n}\sum\_{t=1}^n{(f_t - o_t)^2}\$\$ where \\n\\ is the
 population size, \\f_t\\ is the predictions for the row \\t\\ and
 \\o_t\\ is the dichotomous observation for the row \\t\\.
 
-The function works accordingly to the `model` definition. If the model
-is defined as Cox, the survival variable is transformed to dichotomous
-as `1` if the event has appeared during the follow up and `0` othercase.
-In the case the model is a logistic regression the dependent variable
-can be already dichotomous or survival, in the case of the survival
-variable the dichotomous is defined as in the Cox model.
+The function operates according to the chosen `model`: if the model is
+Cox, the survival variable is converted into a binary value (1 if the
+event occurred during follow-up, 0 otherwise), whereas for a logistic
+regression model, the dependent variable may already be binary or
+represent survival time; in the latter case, it is transformed into a
+binary variable using the same rule as in the Cox model.
 
 The confidence interval is calculated by bootstrap resamples.
 
@@ -20,8 +20,7 @@ The confidence interval is calculated by bootstrap resamples.
 calculate_brier_score(
   model,
   data,
-  type = c("predictions_aggregated", "predictions_recal_type_1",
-    "predictions_recal_type_2"),
+  type = c("prediction", "prediction_type_1", "prediction_type_2"),
   n_boot = 1000,
   seed = NULL
 )
@@ -49,8 +48,8 @@ calculate_brier_score(
 - type:
 
   Type of the predictions that the calibration plot data should be
-  generated from: `"predictions_aggregated"`,
-  `"predictions_recal_type_1"` or `"predictions_recal_type_2"`
+  generated from: `"prediction"`, `"prediction_type_1"` or
+  `"prediction_type_2"`
 
 - n_boot:
 

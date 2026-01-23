@@ -54,24 +54,13 @@ calculate_predictions_recalibrated_type_2(model, data, .progress = FALSE)
 
 ## Value
 
-A model with the parameter `predictons_recalibrated_type_2`, `S0_type_2`
-and `beta_overall` populated.
+A model with the parameter `prediction_type_2` added to
+`predictions_agg` and the parameters `S0_type_2` and `beta_overall`
+stored in `recal_parameters`
 
-- `predictions_recal_type_2`: stores the type 2 recalibrated predictions
-  as follows.
+- `predictions_agg`: stores now a new variable `prediction_type_2`
 
-  |     |                   |
-  |-----|-------------------|
-  | id  | prediction_type_2 |
-  | 1   | 0.03              |
-  | ... | ...               |
-  | n   | 0.16              |
-
-- `S0_type_2`: stores the \\S\_{0, \text{type 2}}(t)\\ type 2
-  recalibration parameter.
-
-- `beta_overall`: stores the \\\beta\_{overall}\\ type 2 recalibration
-  parameter.
+- `S0_type_2` and `beta_overall` are stored in the `recal_parameters`.
 
 ## Examples
 
@@ -108,68 +97,30 @@ model |>
 #> 
 #> 0.98765
 #> 
-#> ── alpha ──
+#> ── predictions_imp ──
 #> 
-#> -Inf
+#> # A tibble: 5 × 4
+#>    .imp    id   betax prediction
+#>   <dbl> <dbl>   <dbl>      <dbl>
+#> 1     1     1 -0.170      0.0104
+#> 2     1     2  0.247      0.0158
+#> 3     1     3  0.276      0.0162
+#> 4     2     1  0.0990     0.0136
+#> 5     2     2  0.0411     0.0129
+#> ── predictions_agg ──
 #> 
-#> ── S0_type_2 ──
-#> 
-#> 0.828995910783699
-#> 
-#> ── beta_overall ──
-#> 
-#> NA
-#> 
-#> ── predictions_aggregated ──
-#> 
-#> # A tibble: 3 × 2
-#>      id prediction
-#>   <dbl>      <dbl>
-#> 1     1     0.0145
-#> 2     2     0.0135
-#> 3     3     0.0123
-#> ── predictions_data ──
-#> 
-#> # A tibble: 5 × 3
-#>   prediction  .imp    id
-#>        <dbl> <dbl> <dbl>
-#> 1     0.0104     1     1
-#> 2     0.0158     1     2
-#> 3     0.0162     1     3
-#> 4     0.0136     2     1
-#> 5     0.0129     2     2
-#> ── betax ──
+#> # A tibble: 3 × 5
+#>      id   betax prediction prediction_type_1 prediction_type_2
+#>   <dbl>   <dbl>      <dbl>             <dbl>             <dbl>
+#> 1     1  0.129      0.0145                 0                NA
+#> 2     2  0.0805     0.0135                 0                NA
+#> 3     3 -0.0544     0.0123                 0                NA
+#> ── recal_parameters ──
 #> 
 #> # A tibble: 3 × 2
-#>      id   betax
-#>   <dbl>   <dbl>
-#> 1     1  0.129 
-#> 2     2  0.0805
-#> 3     3 -0.0544
-#> ── betax_data ──
-#> 
-#> # A tibble: 5 × 3
-#>     betax  .imp    id
-#>     <dbl> <dbl> <dbl>
-#> 1 -0.170      1     1
-#> 2  0.247      1     2
-#> 3  0.276      1     3
-#> 4  0.0990     2     1
-#> 5  0.0411     2     2
-#> ── predictions_recal_type_1 ──
-#> 
-#> # A tibble: 3 × 2
-#>      id prediction_type_1
-#>   <dbl>             <dbl>
-#> 1     1                 0
-#> 2     2                 0
-#> 3     3                 0
-#> ── predictions_recal_type_2 ──
-#> 
-#> # A tibble: 3 × 2
-#>      id prediction_type_2
-#>   <dbl>             <dbl>
-#> 1     1                NA
-#> 2     2                NA
-#> 3     3                NA
+#>   param           value
+#>   <chr>           <dbl>
+#> 1 alpha        -Inf    
+#> 2 S0_type_2       0.829
+#> 3 beta_overall   NA    
 ```

@@ -20,8 +20,8 @@ calculate_predictions_recalibrated_type_1(model, data, .progress = FALSE)
 
   Model generated with
   [`mv_model_cox()`](https://metodologianavarrabiomed.github.io/mice-ext-val/reference/mv_model_cox.md).
-  Needs the `predictions` parameter of the model, to generate it the
-  function
+  Needs the `prediction_agg` and `predictions_imp` parameters of the
+  model, to generate it, the function
   [`calculate_predictions()`](https://metodologianavarrabiomed.github.io/mice-ext-val/reference/calculate_predictions.md)
   must be executed over the model.
 
@@ -35,20 +35,13 @@ calculate_predictions_recalibrated_type_1(model, data, .progress = FALSE)
 
 ## Value
 
-A model with the parameter `predictions_recal_type_1` and `alpha`
-populated.
+A model with the parameter `prediction_type_1` added to
+`predictions_agg` and the parameter `alpha` stored in `recal_parameters`
 
-- `predictions_recal_type_1`: stores the type 1 recalibrated predictions
-  stored as follows
+- `predictions_agg`: stores now a new variable `prediction_type_1`
 
-  |     |            |
-  |-----|------------|
-  | id  | prediction |
-  | 1   | 0.03       |
-  | ... | ...        |
-  | n   | 0.16       |
-
-- `alpha`: stores the \\\alpha\\ recalibration parameter.
+- `alpha`: stored in `recal_parameters` and contains the \\\alpha\\
+  recalibration parameter.
 
 ## Examples
 
@@ -82,52 +75,28 @@ model |>
 #> 
 #> 0.98765
 #> 
-#> ── alpha ──
+#> ── predictions_imp ──
 #> 
-#> -Inf
+#> # A tibble: 5 × 4
+#>    .imp    id   betax prediction
+#>   <dbl> <dbl>   <dbl>      <dbl>
+#> 1     1     1 -0.170      0.0104
+#> 2     1     2  0.247      0.0158
+#> 3     1     3  0.276      0.0162
+#> 4     2     1  0.0990     0.0136
+#> 5     2     2  0.0411     0.0129
+#> ── predictions_agg ──
 #> 
-#> ── predictions_aggregated ──
+#> # A tibble: 3 × 4
+#>      id   betax prediction prediction_type_1
+#>   <dbl>   <dbl>      <dbl>             <dbl>
+#> 1     1  0.129      0.0145                 0
+#> 2     2  0.0805     0.0135                 0
+#> 3     3 -0.0544     0.0123                 0
+#> ── recal_parameters ──
 #> 
-#> # A tibble: 3 × 2
-#>      id prediction
-#>   <dbl>      <dbl>
-#> 1     1     0.0145
-#> 2     2     0.0135
-#> 3     3     0.0123
-#> ── predictions_data ──
-#> 
-#> # A tibble: 5 × 3
-#>   prediction  .imp    id
-#>        <dbl> <dbl> <dbl>
-#> 1     0.0104     1     1
-#> 2     0.0158     1     2
-#> 3     0.0162     1     3
-#> 4     0.0136     2     1
-#> 5     0.0129     2     2
-#> ── betax ──
-#> 
-#> # A tibble: 3 × 2
-#>      id   betax
-#>   <dbl>   <dbl>
-#> 1     1  0.129 
-#> 2     2  0.0805
-#> 3     3 -0.0544
-#> ── betax_data ──
-#> 
-#> # A tibble: 5 × 3
-#>     betax  .imp    id
-#>     <dbl> <dbl> <dbl>
-#> 1 -0.170      1     1
-#> 2  0.247      1     2
-#> 3  0.276      1     3
-#> 4  0.0990     2     1
-#> 5  0.0411     2     2
-#> ── predictions_recal_type_1 ──
-#> 
-#> # A tibble: 3 × 2
-#>      id prediction_type_1
-#>   <dbl>             <dbl>
-#> 1     1                 0
-#> 2     2                 0
-#> 3     3                 0
+#> # A tibble: 1 × 2
+#>   param value
+#>   <chr> <dbl>
+#> 1 alpha  -Inf
 ```

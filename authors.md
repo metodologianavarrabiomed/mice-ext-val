@@ -8,17 +8,17 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/metodologianavarrabiomed/mice-ext-val/blob/v0.0.4/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/metodologianavarrabiomed/mice-ext-val/blob/master/DESCRIPTION)
 
-Ballesteros Domínguez A (2025). *MiceExtVal: Tools for external
+Ballesteros Domínguez A (2026). *MiceExtVal: Tools for external
 validation in Multiple Imputation by Chained Equations methodology*. R
-package version 0.0.4,
+package version 1.0.0,
 <https://metodologianavarrabiomed.github.io/mice-ext-val>.
 
     @Manual{,
       title = {MiceExtVal: Tools for external validation in Multiple Imputation by Chained Equations methodology},
       author = {Asier {Ballesteros Domínguez}},
-      year = {2025},
-      note = {R package version 0.0.4},
+      year = {2026},
+      note = {R package version 1.0.0},
       url = {https://metodologianavarrabiomed.github.io/mice-ext-val},
     }

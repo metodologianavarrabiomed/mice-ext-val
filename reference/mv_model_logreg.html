@@ -21,7 +21,7 @@ where we can see that the intercept value is not associated with any covariable.
 
     <a class="navbar-brand me-2" href="../index.html">MiceExtVal</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,7 +53,7 @@ where we can see that the intercept value is not associated with any covariable.
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Creates a logistic regression model</h1>
-      <small class="dont-index">Source: <a href="https://github.com/metodologianavarrabiomed/mice-ext-val/blob/v0.0.4/R/mv_model_logreg.R" class="external-link"><code>R/mv_model_logreg.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/metodologianavarrabiomed/mice-ext-val/blob/master/R/mv_model_logreg.R" class="external-link"><code>R/mv_model_logreg.R</code></a></small>
       <div class="d-none name"><code>mv_model_logreg.Rd</code></div>
     </div>
 
@@ -81,16 +81,11 @@ where we can see that the intercept value is not associated with any covariable.
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A model to be used along the package with the next characteristics that could be empty and will be generated with some other functions in the package.</p><ul><li><p><code>formula</code>: Formula of the model containing the coefficients and the intercept.</p></li>
-<li><p><code>alpha_type_1</code>: The \(\alpha\) value for the type 1 recalibration.</p></li>
-<li><p><code>alpha_type_2</code>: The \(\alpha\) value for the type 2 recalibration.</p></li>
-<li><p><code>beta_overall</code>: The \(\beta_{overall}\) value for the type 2 recalibration.</p></li>
-<li><p><code>predictions_aggregated</code>: Aggregated predictions for the validation data.</p></li>
-<li><p><code>predictions_data</code>: All of the predictions for the validation data in each imputation.</p></li>
-<li><p><code>betax</code>: Aggregated \(\beta \cdot X\) values for the validation data.</p></li>
-<li><p><code>betax_data</code>: All the \(\beta \cdot X\) values for the validation in each imputation.</p></li>
-<li><p><code>predictions_recal_type_1</code>: Aggregated predictions after recalibrating them with type 1 recalibration.</p></li>
-<li><p><code>predictions_recal_type_2</code>: Aggregated predictions after recalibrating them with type 2 recalibration.</p></li>
-<li><p><code>c_index</code>: Harrell C-Index of the predictions in the validation cohort.</p></li>
+<li><p><code>predictions_imp</code>: <code>tibble</code> with the predictions for each of the imputed datasets.</p></li>
+<li><p><code>predictions_agg</code>: <code>tibble</code> with the aggregated predictions for each patient.</p></li>
+<li><p><code>recal_parameters</code>: <code>tibble</code> with the recalibration parameters needed.</p></li>
+<li><p><code>results_imp</code>: <code>tibble</code> with the results in each of the imputations.</p></li>
+<li><p><code>results_agg</code>: <code>tibble</code> with the aggregated results.</p></li>
 </ul></div>
 
     <div class="section level2">

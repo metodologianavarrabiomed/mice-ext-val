@@ -3,13 +3,13 @@
 This function calculates the Harrell C Index value of a `model` in each
 of the imputed dataset stored in `data` as a long dataset. The Harrell's
 C Index calculation is realized using the
-[`Hmisc::rcorr.cens`](https://rdrr.io/pkg/Hmisc/man/rcorr.cens.html)
+[`Hmisc::rcorr.cens()`](https://rdrr.io/pkg/Hmisc/man/rcorr.cens.html)
 function of the Harrell's package `Hmisc`. After calculating the index
 in each imputed dataset then it aggregates them using the rubin rules
 with the
-[`psfmi::pool_RR`](https://mwheymans.github.io/psfmi/reference/pool_RR.html)
+[`psfmi::pool_RR()`](https://mwheymans.github.io/psfmi/reference/pool_RR.html)
 function of the Heymans' package `psfmi`. Finally, it stores the result
-inside the `c_index` attribute of the `model`.
+inside the `results_imp` and `results_agg` attributes of the `model`.
 
 ## Usage
 
@@ -37,7 +37,7 @@ calculate_harrell_c_index(model, data, .progress = FALSE)
 ## Value
 
 The same `model` passed as a parameter with the Harrell C Index value
-stored in `$c_index`
+stored in `results_agg` and `results_imp`
 
 ## References
 

@@ -28,11 +28,9 @@ get_forestplot(data, center = NULL, digits = 3, ...)
 - ...:
 
   extra arguments passed to
-  [`ggplot2::ggplot()`](https://ggplot2.tidyverse.org/reference/ggplot.html),
-  [`ggplot2::geom_pointrange()`](https://ggplot2.tidyverse.org/reference/geom_linerange.html),
-  [`ggplot2::theme()`](https://ggplot2.tidyverse.org/reference/theme.html),
-  and
-  [`gt::tab_options()`](https://gt.rstudio.com/reference/tab_options.html)
+  [`ggplot2::theme()`](https://ggplot2.tidyverse.org/reference/theme.html).
+  Different subplots are generated in different points of the code some
+  changes could lead to different results than the expected output.
 
 ## Value
 
