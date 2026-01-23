@@ -12,12 +12,10 @@
 #' @param data External validation data. Multiple imputation dataset in long format.
 #' @param .progress `TRUE` to render the progress bar `FALSE` otherwise.
 #'
-#' @return A model with the parameters `predictions_aggregated`, `predictions_data`, `betax` and `betax_data` populated.
+#' @return A model with the parameters `predictions_imp`, `predictions_agg`.
 #'
-#'   * `predictions_aggregated`, stores the predictions aggregated by the mean.
-#'   * `predictions_data`, stores all the predictions in each of the imputed datasets.
-#'   * `betax`, stores the \eqn{\beta \cdot X} values aggregated by the mean.
-#'   * `betax_data`, stores the \eqn{\beta \cdot X} values in each of the imputed datasets.
+#'   * `predictions_imp`, stores the predictions for each of the imputations
+#'   * `predictions_agg`, stores the predictions aggregated by the mean.
 #'
 #' @import mathjaxr
 #'
@@ -50,21 +48,22 @@ calculate_predictions.logreg <- function(model, data, .progress = FALSE) {
   }
 
   # Calculates the betax values
-  model$betax_data <- data |>
+  model[["predictions_imp"]] <- data |>
     dplyr::group_by_at(dplyr::vars(".imp")) |>
     dplyr::group_map(~ {
       if (.progress) {
         cli::cli_progress_update(.envir = env)
       }
       with(.x, {
-        eval(model$formula[[3]])
+        eval(model[["formula"]][[3]])
       }) |>
         tibble::as_tibble() |>
-        tibble::add_column(.imp = .y$.imp) |>
-        tibble::add_column(id = .x$id) |>
-        dplyr::rename(betax = value)
+        dplyr::rename("betax" = value) |>
+        tibble::add_column(.imp = .y[[".imp"]]) |>
+        tibble::add_column(id = .x[["id"]])
     }) |>
-    dplyr::bind_rows()
+    dplyr::bind_rows() |>
+    dplyr::select(dplyr::all_of(c(".imp", "id", "betax")))
 
   if (.progress) {
     cli::cli_progress_done(.envir = env)
@@ -72,29 +71,21 @@ calculate_predictions.logreg <- function(model, data, .progress = FALSE) {
   }
 
   # Calculates the predictions evaluating the previous expression in each imputation
-  model$predictions_data <- model$betax_data |>
-    dplyr::mutate(prediction = 1 / (1 + exp(-.data[["betax"]]))) |>
-    dplyr::select(dplyr::all_of(c("prediction", ".imp", "id")))
+  model[["predictions_imp"]] <- model[["predictions_imp"]] |>
+    dplyr::mutate(prediction = 1 / (1 + exp(-.data[["betax"]])))
 
   if (.progress) {
     cli::cli_progress_done(.envir = env)
-    cli::cli_progress_step("aggregating predictions", spinner = TRUE, .envir = env)
+    cli::cli_progress_step("aggregating predictions and betax", spinner = TRUE, .envir = env)
   }
 
   # Generates the aggregated `predictions` and stores them into the model
-  model$predictions_aggregated <- model$predictions_data |>
+  model[["predictions_agg"]] <- model[["predictions_imp"]] |>
     dplyr::group_by_at(dplyr::vars("id")) |>
-    dplyr::summarise(prediction = mean(.data[["prediction"]]))
-
-  if (.progress) {
-    cli::cli_progress_done(.envir = env)
-    cli::cli_progress_step("aggregating betax", spinner = TRUE, .envir = env)
-  }
-
-  # Generates the aggregated `betax` and stores them into the model
-  model$betax <- model$betax_data |>
-    dplyr::group_by_at(dplyr::vars("id")) |>
-    dplyr::summarise(betax = mean(.data[["betax"]]))
+    dplyr::summarise(
+      betax = mean(.data[["betax"]]),
+      prediction = mean(.data[["prediction"]])
+      )
 
   if (.progress) {
     cli::cli_progress_done(.envir = env)

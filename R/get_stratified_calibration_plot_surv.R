@@ -28,8 +28,8 @@ get_stratified_calibration_plot_surv <- function(data, n_groups, type = c("predi
     error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {names(models)[!is_model_class]}} must be {.cls MiceExtVal}"))
   }
 
-  if (!any(type %in% c("predictions_aggregated", "predictions_recal_type_1", "predictions_recal_type_2"))) {
-    error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('predictions_aggregated', 'predictions_recal_type_1', 'predictions_recal_type_2')}}"))
+  if (!any(type %in% c("prediction", "prediction_type_1", "prediction_type_2"))) {
+    error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('prediction', 'prediction_type_1', 'prediction_type_2')}}"))
   }
 
   if (all(is_model_class) & type == "predictions_aggregated") {
@@ -54,7 +54,7 @@ get_stratified_calibration_plot_surv <- function(data, n_groups, type = c("predi
   }
 
   if (all(is_model_class)) {
-    is_dep_var_surv <- purrr::map_lgl(models, ~ methods::is(data[[all.vars(.x$formula)[[1]]]], "Surv"))
+    is_dep_var_surv <- purrr::map_lgl(models, ~ methods::is(data[[all.vars(.x[["formula"]])[[1]]]], "Surv"))
 
     if (!all(is_dep_var_surv)) {
       error_message <- c(error_message, "*" = cli::format_error(cli::format_error("The model{?s} {.arg {names(models)[!is_dep_var_surv]}} must have a dependent variable of class {.cls Surv}")))

@@ -6,7 +6,7 @@
 #' @param data Multiple imputed data organized as a long dataset
 #' @param .progress `TRUE` to render the progress bar `FALSE` otherwise
 #'
-#' @return The same `model` passed as a parameter with the Harrell C Index value stored in `$auc`
+#' @return The same `model` passed as a parameter with the AUC results stored in `results_imp` and `results_agg`
 #'
 #' @export
 #'
@@ -24,14 +24,14 @@ calculate_auc <- function(model, data, .progress = FALSE) {
   if (!methods::is(data, "data.frame")) {
     error_message <- c(error_message, "*" = cli::format_error("{.arg data} must be {.cls data.frame}"))
   } else {
-    if (!"predictions_data" %in% names(model)) {
-      error_message <- c(error_message, "*" = cli::format_error("{.arg model} must contain {.arg predictions_data} calculate it with {.fun MiceExtval::calculate_predictions}"))
+    if (!"predictions_imp" %in% names(model)) {
+      error_message <- c(error_message, "*" = cli::format_error("{.arg model} must contain {.arg predictions_imp} calculate it with {.fun MiceExtval::calculate_predictions}"))
     }
 
     if (!"formula" %in% names(model)) {
       error_message <- c(error_message, "*" = cli::format_error("{.arg model} must contain a valid {.arg formula}"))
     } else {
-      dependent_variable <- all.vars(model$formula)[1]
+      dependent_variable <- all.vars(model[["formula"]])[1]
       if (!dependent_variable %in% colnames(data)) {
         error_message <- c(error_message, "*" = cli::format_error("the dependent variable {.var {dependent_variable}} must be part of {.arg data}"))
       }
@@ -56,30 +56,65 @@ calculate_auc <- function(model, data, .progress = FALSE) {
         y <- .x[[dependent_variable]]
       }
 
-      predictions <- model$predictions_data |>
-        dplyr::filter(.data[[".imp"]] == .y$.imp) |>
+      predictions <- model[["predictions_imp"]] |>
+        dplyr::filter(.data[[".imp"]] == .y[[".imp"]]) |>
         dplyr::pull(var = "prediction")
 
       auc_val <- suppressMessages(pROC::auc(y, predictions))
 
       tibble::tibble(
-        .imp = .y$.imp,
-        auc = auc_val |> as.numeric(),
+        .imp = .y[[".imp"]],
+        estimate = auc_val |> as.numeric(),
         se = sqrt(pROC::var(auc_val)) / sqrt(length(predictions))
       )
     }) |>
     dplyr::bind_rows()
+
+
+  results_imp <- if (!is.null(model[["results_imp"]])) {
+    model[["results_imp"]] |> dplyr::filter(name != "auc")
+  } else {
+    model[["results_imp"]]
+  }
+
+  model[["results_imp"]] <- dplyr::bind_rows(
+    results_imp,
+    model_auc |>
+      tibble::add_column(name = "auc", .before = ".imp")
+  )
 
   n <- data |>
     dplyr::filter(.data[[".imp"]] == 1) |>
     dplyr::pull("id") |>
     length()
 
-  model$auc <- psfmi::pool_RR(
-    est = model_auc[["auc"]],
+  auc <- psfmi::pool_RR(
+    est = model_auc[["estimate"]],
     se = model_auc[["se"]],
     n = n,
     k = 1
+  )
+
+  # if (!is.null(model[["results_agg"]])) {
+  #   results_agg <- model[["results_agg"]] |> dplyr::filter(name != "auc")
+  # } else {
+  #   results_agg <- model[["results_agg"]]
+  # }
+  results_agg <- if (!is.null(model[["results_agg"]])) {
+    model[["results_agg"]] |> dplyr::filter(name != "auc")
+  } else {
+    model[["results_agg"]]
+  }
+
+  model[["results_agg"]] <- dplyr::bind_rows(
+    results_agg,
+    tibble::tibble(
+      name = "auc",
+      estimate = auc[["Estimate"]],
+      lower = auc[["95% CI L"]],
+      upper = auc[["95% CI U"]],
+      p_val = auc[["P-val"]]
+    )
   )
 
   return(model)

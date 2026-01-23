@@ -14,17 +14,10 @@
 \item{.progress}{\code{TRUE} to render the progress bar \code{FALSE} otherwise.}
 }
 \value{
-A model with the parameter \code{predictons_recalibrated_type_2}, \code{S0_type_2} and \code{beta_overall} populated.
+A model with the parameter \code{prediction_type_2} added to \code{predictions_agg} and the parameters \code{S0_type_2} and \code{beta_overall} stored in \code{recal_parameters}
 \itemize{
-\item \code{predictions_recal_type_2}: stores the type 2 recalibrated predictions as follows.\tabular{lc}{
-   id \tab prediction_type_2 \cr
-   1 \tab 0.03 \cr
-   ... \tab ... \cr
-   n \tab 0.16 \cr
-}
-
-\item \code{S0_type_2}: stores the \eqn{S_{0, \text{type 2}}(t)} type 2 recalibration parameter.
-\item \code{beta_overall}: stores the \eqn{\beta_{overall}} type 2 recalibration parameter.
+\item \code{predictions_agg}: stores now a new variable \code{prediction_type_2}
+\item \code{S0_type_2} and \code{beta_overall} are stored in the \code{recal_parameters}.
 }
 }
 \description{

@@ -62,12 +62,12 @@ test_that("Returns an error if `predictions_data` does not exist in `model`", {
     calculate_predictions(data)
 
   model_cox_no_predictions_data <- model_cox
-  model_cox_no_predictions_data$predictions_data <- NULL
-  expect_error(calculate_auc(model_cox_no_predictions_data, data), "`model` must contain `predictions_data` calculate it")
+  model_cox_no_predictions_data$predictions_imp <- NULL
+  expect_error(calculate_auc(model_cox_no_predictions_data, data), "`model` must contain `predictions_imp` calculate it")
 
   model_logreg_no_predictions_data <- model_logreg
-  model_logreg_no_predictions_data$predictions_data <- NULL
-  expect_error(calculate_auc(model_logreg_no_predictions_data, data), "`model` must contain `predictions_data` calculate it")
+  model_logreg_no_predictions_data$predictions_imp <- NULL
+  expect_error(calculate_auc(model_logreg_no_predictions_data, data), "`model` must contain `predictions_imp` calculate it")
 })
 
 test_that("Returns an error if `predictions_data` does not exist in `model`", {
@@ -78,12 +78,12 @@ test_that("Returns an error if `predictions_data` does not exist in `model`", {
     calculate_predictions(data)
 
   model_cox_no_predictions_data <- model_cox
-  model_cox_no_predictions_data$predictions_data <- NULL
-  expect_error(calculate_auc(model_cox_no_predictions_data, data), "`model` must contain `predictions_data` calculate it")
+  model_cox_no_predictions_data$predictions_imp <- NULL
+  expect_error(calculate_auc(model_cox_no_predictions_data, data), "`model` must contain `predictions_imp` calculate it")
 
   model_logreg_no_predictions_data <- model_logreg
-  model_logreg_no_predictions_data$predictions_data <- NULL
-  expect_error(calculate_auc(model_logreg_no_predictions_data, data), "`model` must contain `predictions_data` calculate it")
+  model_logreg_no_predictions_data$predictions_imp <- NULL
+  expect_error(calculate_auc(model_logreg_no_predictions_data, data), "`model` must contain `predictions_imp` calculate it")
 })
 
 test_that("Returns an error if the dependent variable in the model formula does not exist in `data` or is not a survival class", {
@@ -114,8 +114,12 @@ test_that("Calculates the c-index properly for a cox model", {
     calculate_auc(data)
 
   expect_identical(
-    round_to_precision(model_cox$auc),
-    round_to_precision(readRDS(test_path("fixtures", "cox", "auc_cox.rds")))
+    round_to_precision(model_cox$results_agg),
+    round_to_precision(readRDS(test_path("fixtures", "cox", "auc_agg_cox.rds")))
+  )
+  expect_identical(
+    round_to_precision(model_cox$results_imp),
+    round_to_precision(readRDS(test_path("fixtures", "cox", "auc_imp_cox.rds")))
   )
 })
 
@@ -126,8 +130,12 @@ test_that("Calculates the c-index properly for a logreg model with `Surv` depend
     calculate_auc(data)
 
   expect_identical(
-    round_to_precision(model_logreg$auc),
-    round_to_precision(readRDS(test_path("fixtures", "logreg", "auc_logreg.rds")))
+    round_to_precision(model_logreg$results_agg),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "auc_agg_logreg.rds")))
+  )
+  expect_identical(
+    round_to_precision(model_logreg$results_imp),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "auc_imp_logreg.rds")))
   )
 })
 
@@ -142,7 +150,33 @@ test_that("Calculates the c-index properly for a logreg model with `numeric` dep
     calculate_auc(data)
 
   expect_identical(
-    round_to_precision(model_logreg$auc),
-    round_to_precision(readRDS(test_path("fixtures", "logreg", "auc_logreg.rds")))
+    round_to_precision(model_logreg$results_agg),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "auc_agg_logreg.rds")))
   )
+  expect_identical(
+    round_to_precision(model_logreg$results_imp),
+    round_to_precision(readRDS(test_path("fixtures", "logreg", "auc_imp_logreg.rds")))
+  )
+})
+
+test_that("Calculates only one time the c-index", {
+  data <- readRDS(test_path("fixtures", "mice_data.rds"))
+  model_logreg <- make_logreg_model(environment())
+
+  model_logreg <- model_logreg |>
+    calculate_predictions(data) |>
+    calculate_auc(data) |>
+    calculate_auc(data)
+
+  model_cox <- make_cox_model(environment())
+
+  model_cox <- model_cox |>
+    calculate_predictions(data) |>
+    calculate_auc(data) |>
+    calculate_auc(data)
+
+  expect_identical(dim(model_logreg[["results_agg"]])[[1]], 1L)
+  expect_identical(dim(model_logreg[["results_imp"]])[[1]], 5L)
+  expect_identical(dim(model_cox[["results_agg"]])[[1]], 1L)
+  expect_identical(dim(model_cox[["results_imp"]])[[1]], 5L)
 })

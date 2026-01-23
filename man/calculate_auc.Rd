@@ -14,7 +14,7 @@ calculate_auc(model, data, .progress = FALSE)
 \item{.progress}{\code{TRUE} to render the progress bar \code{FALSE} otherwise}
 }
 \value{
-The same \code{model} passed as a parameter with the Harrell C Index value stored in \verb{$auc}
+The same \code{model} passed as a parameter with the AUC results stored in \code{results_imp} and \code{results_agg}
 }
 \description{
 This function calculates the Area Under the Curve value for the given model. It uses the \code{\link[pROC:auc]{pROC::auc()}} function from the \code{pROC} package.

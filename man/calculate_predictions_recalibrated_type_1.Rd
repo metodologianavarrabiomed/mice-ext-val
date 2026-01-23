@@ -14,7 +14,7 @@ calculate_predictions_recalibrated_type_1(model, data, .progress = FALSE)
 \item{.progress}{.progress parameter for \code{\link[=calculate_predictions_recalibrated_type_1.cox]{calculate_predictions_recalibrated_type_1.cox()}} function or for \code{\link[=calculate_predictions_recalibrated_type_1.logreg]{calculate_predictions_recalibrated_type_1.logreg()}} function.}
 }
 \value{
-A model with the parameter \code{predictions_recal_type_1} and also the recalibration parameters are populated.
+A model with the variable \code{prediction_type_1} added to \code{predictions_agg} and the recalibration parameter added to \code{recal_parameters}.
 }
 \description{
 A generic method for calculating the type 1 recalibration predictions for a model.

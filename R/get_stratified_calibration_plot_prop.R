@@ -28,7 +28,7 @@ get_stratified_calibration_plot_prop <- function(data, n_groups, type = c("predi
     error_message <- c(error_message, "*" = cli::format_error("The model{?s} {.arg {names(models)[!is_model_class]}} must be {.cls MiceExtVal}"))
   }
 
-  if (!any(type %in% c("predictions_aggregated", "predictions_recal_type_1", "predictions_recal_type_2"))) {
+  if (!any(type %in% c("prediction", "prediction_type_1", "prediction_type_2"))) {
     error_message <- c(error_message, "*" = cli::format_error("{.arg type} must be one of the following types: {.arg {c('predictions_aggregated', 'predictions_recal_type_1', 'predictions_recal_type_2')}}"))
   }
 
@@ -57,9 +57,9 @@ get_stratified_calibration_plot_prop <- function(data, n_groups, type = c("predi
     is_dichotomous <- \(x) length(unique(x)) == 2
     is_dep_var_num <- purrr::map_lgl(
       models,
-      ~ methods::is(data[[all.vars(.x$formula)[[1]]]], "Surv") ||
-        (methods::is(data[[all.vars(.x$formula)[[1]]]], "numeric") &&
-          is_dichotomous(data[[all.vars(.x$formula)[[1]]]]))
+      ~ methods::is(data[[all.vars(.x[["formula"]])[[1]]]], "Surv") ||
+        (methods::is(data[[all.vars(.x[["formula"]])[[1]]]], "numeric") &&
+          is_dichotomous(data[[all.vars(.x[["formula"]])[[1]]]]))
     )
 
     if (!all(is_dep_var_num)) {

@@ -9,9 +9,8 @@ test_that("generates an stratified calibration plot", {
   model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data)
 
-
   testthat::expect_s3_class(
-    get_stratified_calibration_plot_surv(data, n_groups = 10, type = "predictions_aggregated", Cox = model_cox, LogReg = model_logreg),
+    get_stratified_calibration_plot_surv(data, n_groups = 10, type = "prediction", Cox = model_cox, LogReg = model_logreg),
     "ggplot"
   )
 })
@@ -26,9 +25,8 @@ test_that("generates an stratified calibration plot with recalibration type 1", 
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_1(data)
 
-
   testthat::expect_s3_class(
-    get_stratified_calibration_plot_surv(data, n_groups = 10, type = "predictions_recal_type_1", Cox = model_cox, LogReg = model_logreg),
+    get_stratified_calibration_plot_surv(data, n_groups = 10, type = "prediction_type_1", Cox = model_cox, LogReg = model_logreg),
     "ggplot"
   )
 })
@@ -43,9 +41,8 @@ test_that("generates an stratified calibration plot with recalibration type 2", 
     calculate_predictions(data) |>
     calculate_predictions_recalibrated_type_2(data)
 
-
   testthat::expect_s3_class(
-    get_stratified_calibration_plot_surv(data, n_groups = 10, type = "predictions_recal_type_2", Cox = model_cox, LogReg = model_logreg),
+    get_stratified_calibration_plot_surv(data, n_groups = 10, type = "prediction_type_2", Cox = model_cox, LogReg = model_logreg),
     "ggplot"
   )
 })
@@ -59,11 +56,11 @@ test_that("returns an error if some model is not of class <MiceExtVal>", {
     calculate_predictions(data)
 
   testthat::expect_error(
-    get_stratified_calibration_plot_surv(data = data, n_groups = 10, type = "predictions_aggregated", model_cox, 5),
+    get_stratified_calibration_plot_surv(data = data, n_groups = 10, type = "prediction", model_cox, 5),
     "must be <MiceExtVal>"
   )
   testthat::expect_error(
-    get_stratified_calibration_plot_surv(data = data, n_groups = 10, type = "predictions_aggregated", model_logreg, 5),
+    get_stratified_calibration_plot_surv(data = data, n_groups = 10, type = "prediction", model_logreg, 5),
     "must be <MiceExtVal>"
   )
 })
@@ -75,8 +72,8 @@ test_that("returns an error if not all the models have the predictions calculate
   model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data)
   testthat::expect_error(
-    get_stratified_calibration_plot_surv(data = data, n_groups = 10, type = "predictions_aggregated", model_cox, model_logreg),
-    "must contain `predictions_aggregated` consider using the function"
+    get_stratified_calibration_plot_surv(data = data, n_groups = 10, type = "prediction", model_cox, model_logreg),
+    "It seems that `prediction` is not yet calculated, calculate it using"
   )
 })
 
@@ -89,8 +86,8 @@ test_that("returns an error if not all the models have the predictions recalibra
   model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data)
   testthat::expect_error(
-    get_stratified_calibration_plot_surv(data = data, n_groups = 10, type = "predictions_recal_type_1", model_cox, model_logreg),
-    "must contain `predictions_recal_type_1` consider using the function"
+    get_stratified_calibration_plot_surv(data = data, n_groups = 10, type = "prediction_type_1", model_cox, model_logreg),
+    "It seems that `prediction_type_1` is not yet calculated, calculate it using"
   )
 })
 
@@ -103,8 +100,8 @@ test_that("returns an error if not all the models have the predictions recalibra
   model_logreg <- make_logreg_model(environment()) |>
     calculate_predictions(data)
   testthat::expect_error(
-    get_stratified_calibration_plot_surv(data = data, n_groups = 10, type = "predictions_recal_type_2", model_cox, model_logreg),
-    "must contain `predictions_recal_type_2` consider using the function"
+    get_stratified_calibration_plot_surv(data = data, n_groups = 10, type = "prediction_type_2", model_cox, model_logreg),
+    "It seems that `prediction_type_2` is not yet calculated, calculate it using"
   )
 })
 
@@ -134,5 +131,5 @@ test_that("works with `!!!` parameters", {
 
   params <- list("model_cox" = model_cox, "model_logreg" = model_logreg)
 
-  testthat::expect_no_error(get_stratified_calibration_plot_surv(data = data, n_groups = 10, type = "predictions_aggregated", !!!params))
+  testthat::expect_no_error(get_stratified_calibration_plot_surv(data = data, n_groups = 10, type = "prediction", !!!params))
 })

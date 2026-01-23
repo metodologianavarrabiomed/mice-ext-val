@@ -16,16 +16,11 @@
 #'
 #' @return A model to be used along the package with the next characteristics that could be empty and will be generated with some other functions in the package.
 #'   * `formula`: Formula of the model containing the coefficients and the intercept.
-#'   * `alpha_type_1`: The \eqn{\alpha} value for the type 1 recalibration.
-#'   * `alpha_type_2`: The \eqn{\alpha} value for the type 2 recalibration.
-#'   * `beta_overall`: The \eqn{\beta_{overall}} value for the type 2 recalibration.
-#'   * `predictions_aggregated`: Aggregated predictions for the validation data.
-#'   * `predictions_data`: All of the predictions for the validation data in each imputation.
-#'   * `betax`: Aggregated \eqn{\beta \cdot X} values for the validation data.
-#'   * `betax_data`: All the \eqn{\beta \cdot X} values for the validation in each imputation.
-#'   * `predictions_recal_type_1`: Aggregated predictions after recalibrating them with type 1 recalibration.
-#'   * `predictions_recal_type_2`: Aggregated predictions after recalibrating them with type 2 recalibration.
-#'   * `c_index`: Harrell C-Index of the predictions in the validation cohort.
+#'   * `predictions_imp`: `tibble` with the predictions for each of the imputed datasets.
+#'   * `predictions_agg`: `tibble` with the aggregated predictions for each patient.
+#'   * `recal_parameters`: `tibble` with the recalibration parameters needed.
+#'   * `results_imp`: `tibble` with the results in each of the imputations.
+#'   * `results_agg`: `tibble` with the aggregated results.
 #'
 #' @import mathjaxr
 #'
@@ -44,16 +39,11 @@ mv_model_logreg <- function(formula) {
 
   model <- list(
     formula = formula,
-    alpha_type_1 = NULL,
-    alpha_type_2 = NULL,
-    beta_overall = NULL,
-    predictions_aggregated = NULL,
-    predictions_data = NULL,
-    betax = NULL,
-    betax_data = NULL,
-    predictions_recal_type_1 = NULL,
-    predictions_recal_type_2 = NULL,
-    c_index = NULL
+    predictions_imp = NULL,
+    predictions_agg = NULL,
+    recal_parameters = NULL,
+    results_imp = NULL,
+    results_agg = NULL
   )
 
   class(model) <- c("MiceExtVal", "logreg")

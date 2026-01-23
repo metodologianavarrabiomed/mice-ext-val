@@ -8,7 +8,7 @@
 #' @param data Data parameter for [calculate_predictions_recalibrated_type_1.cox()] function or for [calculate_predictions_recalibrated_type_1.logreg()] function.
 #' @param .progress .progress parameter for [calculate_predictions_recalibrated_type_1.cox()] function or for [calculate_predictions_recalibrated_type_1.logreg()] function.
 #'
-#' @return A model with the parameter `predictions_recal_type_1` and also the recalibration parameters are populated.
+#' @return A model with the variable `prediction_type_1` added to `predictions_agg` and the recalibration parameter added to `recal_parameters`.
 #'
 #' @export
 #'

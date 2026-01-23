@@ -27,5 +27,5 @@ test_that("Formula are assigned properly", {
 
 test_that("All the parameters are assigned", {
   model <- make_cox_model(environment())
-  expect_named(model, c("formula",  "S0", "alpha", "S0_type_2", "beta_overall", "predictions_aggregated", "predictions_data", "betax", "betax_data", "predictions_recal_type_1", "predictions_recal_type_2", "c_index"))
+  expect_named(model, c("formula", "S0", "predictions_imp", "predictions_agg", "recal_parameters", "results_imp", "results_agg"))
 })

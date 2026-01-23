@@ -19,13 +19,16 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: macos-latest,   r: 'release'}
+          # commented due to errors in packages repository
+          # - {os: macos-latest,   r: 'release'}
+          - {os: macos-latest,   r: 'oldrel-1'}
           - {os: windows-latest, r: 'release'}
+          - {os: windows-latest, r: 'oldrel-1'}
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
           # we do not need this because we are working with R4.4
           # the latest version
-          # - {os: ubuntu-latest,   r: 'oldrel-1'}
+          - {os: ubuntu-latest,   r: 'oldrel-1'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
