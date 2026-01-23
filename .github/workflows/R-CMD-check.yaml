@@ -24,13 +24,11 @@ jobs:
           - {os: macos-latest,   r: 'oldrel-1'}
           - {os: windows-latest, r: 'release'}
           - {os: windows-latest, r: 'oldrel-1'}
-          - {os: windows-latest, r: 'oldrel-2'}
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
           # we do not need this because we are working with R4.4
           # the latest version
           - {os: ubuntu-latest,   r: 'oldrel-1'}
-          - {os: ubuntu-latest,   r: 'oldrel-2'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
