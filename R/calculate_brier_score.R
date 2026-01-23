@@ -113,7 +113,7 @@ calculate_brier_score <- function(model, data, type = c("prediction", "predictio
   }
 
   model[["results_agg"]] <- dplyr::bind_rows(
-    model[["results_agg"]],
+    results_agg,
     tibble::tibble(
       name = switch(type,
         "prediction" = "brier_score",
